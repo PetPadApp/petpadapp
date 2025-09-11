@@ -28,6 +28,29 @@
             position: relative;
             overflow-x: hidden;
         }
+
+        .app-icon-container {
+            text-align: center;
+            margin: 30px 0 10px;
+        }
+        
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+            border-radius: 18px;
+            background-color: #f9f5f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .app-icon i {
+            font-size: 40px;
+            color: #8B5A2B;
+        }
         
         h1 {
             color: var(--primary-color);
@@ -194,6 +217,13 @@
     </style>
 </head>
 <body>
+
+    <div class="app-icon-container">
+    <div class="app-icon">
+        <i class="fas fa-paw"></i>
+    </div>
+    </div>
+    
     <div class="content">
         <div class="app-download">
             <div class="app-icon">
