@@ -1,2 +1,289 @@
-<h1>Pet Pad App</h1>
-<p>Welcome to Pet Pad! Download our app on the Apple app store at the link or QR code.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Pet Pad - Download the App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary-color: #8B5A2B; /* Light brown */
+            --secondary-color: #D4A76A; /* Lighter brown */
+            --accent-color: #3498db;
+            --text-color: #333;
+            --light-bg: #f9f5f0; /* Very light brown tint */
+        }
+        
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.7;
+            color: var(--text-color);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-align: center;
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        h1::before,
+        h1::after {
+            content: '🐾';
+            margin: 0 10px;
+            font-size: 1.2em;
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            margin: 30px 0 20px;
+            font-weight: 600;
+        }
+        
+        .content {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+            margin: 20px 0;
+        }
+        
+        .app-download {
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .app-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            border-radius: 22px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .app-icon i {
+            font-size: 60px;
+            color: var(--primary-color);
+        }
+        
+        .qr-container {
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .qr-code {
+            margin: 20px auto;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            display: inline-block;
+            border: 1px solid #eee;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            margin: 15px 5px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background-color: #6b3e13;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .info-box {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .info-box h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .info-box h3 i {
+            margin-right: 10px;
+            color: var(--secondary-color);
+        }
+        
+        .step {
+            display: flex;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+        
+        .step-number {
+            background-color: var(--primary-color);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .footer-links {
+            margin-top: 50px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .footer-links a {
+            color: var(--primary-color);
+            margin: 0 10px;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .content {
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="app-download">
+            <div class="app-icon">
+                <i class="fas fa-paw"></i>
+            </div>
+            <h1>Welcome to Pet Pad</h1>
+            <p>Your all-in-one pet care companion</p>
+            
+            <a href="#" id="appStoreLink" class="btn">
+                <i class="fab fa-apple"></i> Download on the App Store
+            </a>
+        </div>
+        
+        <div class="info-box">
+            <h3><i class="fas fa-link"></i> Received a Shared Pet Profile?</h3>
+            <p>To view the shared pet profile, follow these steps:</p>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div>
+                    <strong>Download the App</strong>
+                    <p>Install Pet Pad from the App Store using the button above or by scanning the QR code below.</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">2</div>
+                <div>
+                    <strong>Check Your Email</strong>
+                    <p>Look for an email containing the access PIN for the shared pet profile.</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">3</div>
+                <div>
+                    <strong>Open the Shared Link Again</strong>
+                    <p>After installing the app, return to the shared link and tap it to open in the Pet Pad app.</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">4</div>
+                <div>
+                    <strong>Enter the PIN</strong>
+                    <p>When prompted, enter the PIN from your email to access the shared pet profile.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="qr-container">
+            <h3>Scan to Download</h3>
+            <p>Point your iPhone camera at this QR code to download the app</p>
+            <div id="qrcode" class="qr-code"></div>
+        </div>
+        
+        <div class="footer-links">
+            <a href="https://privacy.petpadapp.link">Privacy Policy</a>
+            <span>•</span>
+            <a href="https://support.petpadapp.link">Support</a>
+            <span>•</span>
+            <a href="mailto:getpetpadapp@gmail.com">Contact Us</a>
+            <p style="margin-top: 15px; color: #7f8c8d; font-size: 0.9em;">&copy; <span id="currentYear"></span> Pet Pad. All rights reserved.</p>
+        </div>
+    </div>
+    
+    <script>
+        // Set current year in footer
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current year
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+            
+            // Generate QR Code
+            const qrElement = document.getElementById('qrcode');
+            // Replace with your actual App Store URL when available
+            const appStoreUrl = 'https://apps.apple.com/app/pet-pad/idYOUR_APP_ID';
+            
+            // Create QR code
+            new QRCode(qrElement, {
+                text: appStoreUrl,
+                width: 150,
+                height: 150,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            // Set up App Store link
+            document.getElementById('appStoreLink').href = appStoreUrl;
+        });
+    </script>
+</body>
+</html>
