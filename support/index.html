@@ -1,1 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support - 🐾 Pet Pad 🐾</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary-color: #8B5A2B; /* Light brown */
+            --secondary-color: #D4A76A; /* Lighter brown */
+            --accent-color: #3498db;
+            --text-color: #333;
+            --light-bg: #f9f5f0; /* Very light brown tint */
+        }
+        
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.7;
+            color: var(--text-color);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Background styling */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: transparent;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .app-icon-container {
+            text-align: center;
+            margin: 30px 0 10px;
+        }
+        
+        .app-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            border-radius: 22px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
 
+        .app-icon i {
+            font-size: 60px;
+            color: var(--primary-color);
+        }
+                
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            font-weight: 700;
+            text-align: center;
+            position: relative;
+            padding: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1::before,
+        h1::after {
+            content: '🐾';
+            margin: 0 10px;
+            font-size: 1.2em;
+            display: inline-block; /* Ensure the transform works */
+        }
+
+        h1::after {
+            transform: scaleX(-1);
+            -webkit-transform: scaleX(-1); /* For Safari/Chrome */
+            -ms-transform: scaleX(-1); /* For IE/Edge */
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            margin-top: 40px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            position: relative;
+            padding-left: 15px;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .page-subtitle {
+            color: var(--primary-color);
+            margin: 30px 0 20px;
+            font-weight: 600;
+            text-align: center;
+            position: relative;
+            padding-left: 0px;
+            border-left: none; /* Remove left border */
+        }
+        
+        p {
+            margin-bottom: 1.2em;
+        }
+        
+        .content {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .support-option {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+        }
+        
+        .support-option h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .support-option h3 i {
+            margin-right: 10px;
+            color: var(--secondary-color);
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background-color: #6b3e13;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-bottom: 1px dashed var(--secondary-color);
+            padding-bottom: 1px;
+        }
+        
+        a:hover {
+            color: #6b3e13;
+            text-decoration: none;
+            border-bottom-style: solid;
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .content {
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            h1::before,
+            h1::after {
+                margin: 0 5px;
+                font-size: 1em;
+            }
+        }
+
+        .footer-links {
+            margin-top: 50px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .footer-links a {
+            color: var(--primary-color);
+            margin: 0 10px;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .footer-links span {
+            color: #ccc;
+            font-size: 0.9em;
+        }
+                
+    </style>
+</head>
+<body>
+
+    <div class="app-icon-container">
+    <div class="app-icon">
+        <i class="fas fa-paw"></i>
+    </div>
+    </div>
+    
+    <h1>Pet Pad App</h1>
+    <h2 class="page-subtitle">Support</h2>
+    
+    <div class="content">
+        <section>
+            <h2>How Can We Help You?</h2>
+            <p>We're here to help with any questions or issues you might have with Pet Pad. Choose the best way to get in touch with our support team below.</p>
+        </section>
+
+        <div class="support-option">
+            <h3><i class="fas fa-envelope"></i> Email Support</h3>
+            <p>Send us an email and we'll get back to you as soon as possible. Our team typically responds within 24-48 hours.</p>
+            <a href="mailto:getpetpadapp@gmail.com" class="btn"><i class="fas fa-paper-plane"></i> Email Us</a>
+        </div>
+
+        <div class="support-option">
+            <h3><i class="fas fa-question-circle"></i> Frequently Asked Questions</h3>
+            <p>Check out our FAQ section for answers to common questions about using Pet Pad.</p>
+            <a href="#faq" class="btn"><i class="fas fa-search"></i> View FAQs</a>
+        </div>
+
+        <div class="support-option">
+            <h3><i class="fas fa-book"></i> Help Center</h3>
+            <p>Browse our help center for detailed guides and tutorials on using all the features of Pet Pad.</p>
+            <a href="#help-center" class="btn"><i class="fas fa-book-open"></i> Visit Help Center</a>
+        </div>
+
+        <section id="faq">
+            <h2>Frequently Asked Questions</h2>
+            
+            <div class="faq-item">
+                <h3>How do I reset my password?</h3>
+                <p>You can reset your password by going to the login screen and tapping on "Forgot Password." Follow the instructions sent to your email to create a new password.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>How do I add a new pet to my profile?</h3>
+                <p>To add a new pet, tap on the "+" button in the bottom navigation bar and select "Add New Pet." Fill in your pet's information and tap "Save."</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>Is my data secure?</h3>
+                <p>Yes, we take your privacy and data security very seriously. All your data is encrypted and stored securely. Please review our <a href="privacy-policy.html">Privacy Policy</a> for more information.</p>
+            </div>
+        </section>
+        
+        <section>
+            <h2>Still Need Help?</h2>
+            <p>If you can't find what you're looking for, please don't hesitate to contact our support team directly at <a href="mailto:getpetpadapp@gmail.com">getpetpadapp@gmail.com</a>.</p>
+        </section>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        });
+    </script>
+
+        <div class="footer-links">
+        <a href="https://home.petpadapp.link">Home</a>
+        <span>•</span>
+        <a href="https://privacy.petpadapp.link">Privacy Policy</a>
+        <span>•</span>
+        <a href="mailto:getpetpadapp@gmail.com">Contact Us</a>
+        <p style="margin-top: 15px; color: #7f8c8d; font-size: 0.9em;">&copy; <span id="currentYear"></span> Pet Pad. All rights reserved.</p>
+    </div>
+
+    <script>
+        // Set current year in footer
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+        });
+    </script>
+
+</body>
+</html>
