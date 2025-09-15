@@ -1,1 +1,347 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android Pet Pad App - Coming Soon</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary-color: #8B5A2B; /* Light brown */
+            --secondary-color: #D4A76A; /* Lighter brown */
+            --accent-color: #3498db;
+            --text-color: #333;
+            --light-bg: #f9f5f0; /* Very light brown tint */
+        }
+        
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.7;
+            color: var(--text-color);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            position: relative;
+            overflow-x: hidden;
+            text-align: center;
+        }
+
+
+        .app-icon-container {
+            text-align: center;
+            margin: 40px 0 20px;
+        }
+        
+        .app-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            border-radius: 22px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+
+        .app-icon i {
+            font-size: 60px;
+            color: var(--primary-color);
+        }
+                
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            font-weight: 700;
+            text-align: center;
+            position: relative;
+            padding: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        h1::before,
+        h1::after {
+            content: '🐾';
+            margin: 0 10px;
+            font-size: 1.2em;
+            display: inline-block; /* Ensure the transform works */
+        }
+
+
+        h1::after {
+            transform: scaleX(-1);
+            -webkit-transform: scaleX(-1); /* For Safari/Chrome */
+            -ms-transform: scaleX(-1); /* For IE/Edge */
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            margin: 10px 0 30px;
+            font-weight: 600;
+            font-size: 1.5em; 
+        }
+        
+        .content {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+            margin: 20px 0;
+        }
+        
+        .device-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin: 40px 0;
+        }
+        
+        .device {
+            margin: 15px;
+            text-align: center;
+            flex: 1;
+            min-width: 250px;
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .device.android {
+            border: 2px solid #e0e0e0;
+        }
+        
+        .device.ios {
+            border: 2px solid var(--secondary-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .device i {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .device.android i {
+            color: #3DDC84; /* Android green */
+        }
+        
+        .device.ios i {
+            color: var(--primary-color);
+        }
+        
+        .qr-code {
+            margin: 20px auto;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            display: inline-block;
+            border: 1px solid #eee;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            margin: 15px 5px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background-color: #6b3e13;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .coming-soon {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .content {
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .device {
+                margin: 10px 0;
+            }
+        }
+
+
+        .footer-links {
+            margin-top: 50px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .footer-links a {
+            color: var(--primary-color);
+            margin: 0 10px;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .footer-links span {
+            color: #ccc;
+            font-size: 0.9em;
+        }
+                
+    </style>
+</head>
+<body>
+
+
+    <div class="app-icon-container">
+    <div class="app-icon">
+        <i class="fas fa-paw"></i>
+    </div>
+    </div>
+
+
+    <h1>Pet Pad App</h1>
+    
+    <div class="content">
+        <h2>Coming Soon for Android</h2>
+        
+        <div class="coming-soon">
+            <p>We're sorry, but Pet Pad is currently only available for iOS devices. Our team is working hard to bring the Pet Pad experience to Android users soon!</p>
+        </div>
+        
+        <div class="device-container">
+            <div class="device android">
+                <i class="fab fa-android"></i>
+                <h3>Android</h3>
+                <p>Hang tight, we're working on it!</p>
+                <button class="btn" style="
+                    background-color: #3DDC84; 
+                    padding: 12px 25px;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    font-size: 1em;
+                    font-weight: 500;
+                    width: 280px;
+                    height: 50px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 15px auto;
+                    margin-top: 30px;
+                " disabled>Coming Soon!</button>
+                <p style="margin-top: 34px;">Check back later for updates.</p>
+            </div>
+            
+            <div class="device ios">
+                <i class="fab fa-apple"></i>
+                <h3>iPhone (iPad coming soon!)</h3>
+                <p>Available Now</p>
+                <a href="#" id="appStoreLink" class="btn">Download on the App Store</a>
+                <p>Scan the QR code below with your iPhone's camera</p>
+                <div id="qrcode" class="qr-code"></div>
+            </div>
+        </div>
+        
+        <!--   
+        HIDE THIS FOR NOW, AND ADD BACK LATER WHEN ANDROID IS CLOSER TO LAUNCH!
+
+        <div style="margin: 40px 0;">
+            <h3>Want to be notified when Pet Pad launches on Android?</h3>
+            <p>Leave your email and we'll let you know as soon as it's available!</p>
+            <form id="notifyForm" style="max-width: 400px; margin: 0 auto;">
+                <input type="email" placeholder="Enter your email" required 
+                       style="padding: 12px; width: 100%; max-width: 300px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px;">
+                <button type="submit" class="btn" style="width: 100%; max-width: 300px;">
+                    <i class="fas fa-bell"></i> Notify Me
+                </button>
+            </form>
+        </div>
+        -->
+
+    </div>
+    
+    <script>
+            // Generate QR Code
+            const qrElement = document.getElementById('qrcode');
+            // Replace with your actual App Store URL when available
+            const appStoreUrl = 'https://apps.apple.com/app/pet-pad/idYOUR_APP_ID';
+            
+            // Create QR code
+            new QRCode(qrElement, {
+                text: appStoreUrl,
+                width: 150,
+                height: 150,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            // Set up App Store link
+            document.getElementById('appStoreLink').href = appStoreUrl;
+            
+            // Handle notification form
+            document.getElementById('notifyForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = this.querySelector('input[type="email"]').value;
+                // Here you would typically send this to your server
+                alert('Thank you! We\'ll notify you when Pet Pad is available for Android.');
+                this.reset();
+            });
+        });
+    </script>
+
+
+        <div class="footer-links">
+        <a href="https://home.petpadapp.link">Home</a>
+        <span>•</span>
+        <a href="https://privacy.petpadapp.link">Privacy Policy</a>
+        <span>•</span>
+        <a href="https://support.petpadapp.link">Support</a>
+        <span>•</span>
+        <a href="mailto:getpetpadapp@gmail.com">Contact Us</a>
+        <p style="margin-top: 15px; color: #7f8c8d; font-size: 0.9em;">&copy; <span id="currentYear"></span> Pet Pad. All rights reserved.</p>
+    </div>
+
+
+    <script>
+        // Set current year in footer
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+        });
+    </script>
+    
+</body>
+</html>
