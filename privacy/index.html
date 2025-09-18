@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Support - 🐾 Pet Pad 🐾</title>
+    <title>Privacy Policy - 🐾 Pet Pad 🐾</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
@@ -42,10 +42,10 @@
             z-index: -1;
             pointer-events: none;
         }
-        
+
         .app-icon-container {
             text-align: center;
-            margin: 30px 0 10px;
+            margin: 40px 0 20px;  /* Adjust these values as needed */
         }
         
         .app-icon {
@@ -112,11 +112,12 @@
             padding-left: 0px;
             border-left: none; /* Remove left border */
         }
-        
-        p {
-            margin-bottom: 1.2em;
+
+        .last-updated {
+            color: #7f8c8d;
+            font-style: italic;
+            margin-bottom: 30px;
         }
-        
         .content {
             background-color: var(--card-bg);
             border-radius: 12px;
@@ -127,80 +128,35 @@
             overflow: hidden;
         }
         
-        .support-option {
-            background-color: var(--light-bg);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(64, 224, 208, 0.1);
-            border: 1px solid var(--border-color);
+        ul {
+            padding-left: 20px;
         }
-        
-        .support-option h3 {
-            color: var(--primary-color);
-            margin-top: 0;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
+        li {
+            margin-bottom: 8px;
         }
-        
-        .support-option h3 i {
-            margin-right: 10px;
-            color: var(--accent-color);
-        }
-        
-        .btn {
-            display: inline-block;
-            background-color: var(--primary-color);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 500;
-            margin-top: 10px;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-        }
-        
-        .btn:hover {
-            background-color: #20B2AA; /* Darker turquoise on hover */
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(64, 224, 208, 0.4);
-        }
-        
-        .btn i {
-            margin-right: 8px;
-        }
-        
         a {
             color: var(--primary-color);
             text-decoration: none;
             font-weight: 500;
             transition: all 0.3s ease;
-            border-bottom: 1px dashed var(--secondary-color);
+            border-bottom: 1px dashed var(--primary-color);
             padding-bottom: 1px;
         }
-        
         a:hover {
             color: var(--accent-color);
             text-decoration: none;
             border-bottom-style: solid;
         }
-        
         @media (max-width: 600px) {
             body {
                 padding: 10px;
             }
-            
             .content {
                 padding: 20px 15px;
             }
-            
             h1 {
                 font-size: 1.8em;
             }
-            
             h1::before,
             h1::after {
                 margin: 0 5px;
@@ -231,79 +187,102 @@
             color: var(--border-color);
             font-size: 0.9em;
         }
-                
+        
     </style>
 </head>
 <body>
 
     <div class="app-icon-container">
-    <div class="app-icon">
-        <i class="fas fa-paw"></i>
-    </div>
+        <div class="app-icon">
+            <i class="fas fa-paw"></i>
+        </div>
     </div>
     
     <h1>Pet Pad App</h1>
-    <h2 class="page-subtitle">Support</h2>
+    <h2 class="page-subtitle">Privacy Policy</h2>
+    <p class="last-updated">Last Updated: <span id="currentDate"></span></p>
     
     <div class="content">
         <section>
-            <h2>How Can We Help You?</h2>
-            <p>We're here to help with any questions or issues you might have with Pet Pad. Choose the best way to get in touch with our support team below.</p>
+            <h2>Introduction</h2>
+            <p>Welcome to Pet Pad. We are committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our application. By using the app, you agree to the collection and use of information in accordance with this policy.</p>
         </section>
 
-        <div class="support-option">
-            <h3><i class="fas fa-envelope"></i> Email Support</h3>
-            <p>Send us an email and we'll get back to you as soon as possible. Our team typically responds within 24-48 hours.</p>
-            <a href="mailto:getpetpadapp@gmail.com" class="btn"><i class="fas fa-paper-plane"></i> Email Us</a>
-        </div>
-
-        <div class="support-option">
-            <h3><i class="fas fa-question-circle"></i> Frequently Asked Questions</h3>
-            <p>Check out our FAQ section for answers to common questions about using Pet Pad.</p>
-            <a href="#faq" class="btn"><i class="fas fa-search"></i> View FAQs</a>
-        </div>
-
-        <div class="support-option">
-            <h3><i class="fas fa-book"></i> Help Center</h3>
-            <p>Browse our help center for detailed guides and tutorials on using all the features of Pet Pad.</p>
-            <a href="#help-center" class="btn"><i class="fas fa-book-open"></i> Visit Help Center</a>
-        </div>
-
-        <section id="faq">
-            <h2>Frequently Asked Questions</h2>
-            
-            <div class="faq-item">
-                <h3>How do I reset my password?</h3>
-                <p>You can reset your password by going to the login screen and tapping on "Forgot Password." Follow the instructions sent to your email to create a new password.</p>
-            </div>
-            
-            <div class="faq-item">
-                <h3>How do I add a new pet to my profile?</h3>
-                <p>To add a new pet, tap on the "+" button in the bottom navigation bar and select "Add New Pet." Fill in your pet's information and tap "Save."</p>
-            </div>
-            
-            <div class="faq-item">
-                <h3>Is my data secure?</h3>
-                <p>Yes, we take your privacy and data security very seriously. All your data is encrypted and stored securely. Please review our <a href="privacy-policy.html">Privacy Policy</a> for more information.</p>
-            </div>
-        </section>
-        
         <section>
-            <h2>Still Need Help?</h2>
-            <p>If you can't find what you're looking for, please don't hesitate to contact our support team directly at <a href="mailto:getpetpadapp@gmail.com">getpetpadapp@gmail.com</a>.</p>
+            <h2>Information We Collect</h2>
+            <p>We collect information that you provide directly to us when you create an account and use the service, such as:</p>
+            <ul>
+                <li><strong>Account Information:</strong> Your email address and password for authentication.</li>
+                <li><strong>User Content:</strong> Information and photos you upload about your pets.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>How We Use Your Information</h2>
+            <p>We use the information we collect solely to:</p>
+            <ul>
+                <li>Provide, operate, and maintain the Pet Pad app.</li>
+                <li>Manage your account and provide you with customer support.</li>
+                <li>Enable you to store your pet's information.</li>
+                <li>Allow you to share your pet's profile with other users of your choosing, at your explicit direction.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Information Sharing and Disclosure</h2>
+            <p>Your privacy is paramount. We do not sell, trade, or rent your personal information to third parties.</p>
+            <p>Your data is shared only in the following circumstances:</p>
+            <ul>
+                <li><strong>With Other Users:</strong> When you voluntarily choose to share a pet profile with another Pet Pad user.</li>
+                <li><strong>Service Providers:</strong> We use Firebase, a Google service, for data storage, authentication, and backend infrastructure. Firebase's use of information is governed by their own privacy policy.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Data Storage and Security</h2>
+            <p>Your data is stored securely on Firebase's servers. We rely on the security measures provided by Firebase to protect your data from unauthorized access, use, or disclosure. While we strive to use commercially acceptable means to protect your personal information, we cannot guarantee its absolute security.</p>
+        </section>
+
+        <section>
+            <h2>Your Data Rights and Choices</h2>
+            <p>You have control over your personal information:</p>
+            <ul>
+                <li><strong>Access and Update:</strong> You can review and update your account information through the app's settings.</li>
+                <li><strong>Account Deletion:</strong> You can delete your account at any time from the settings screen. This will permanently remove your account and all associated data from our systems.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Changes to This Privacy Policy</h2>
+            <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page. You are advised to review this Privacy Policy periodically for any changes.</p>
+        </section>
+
+        <section>
+            <h2>Contact Us</h2>
+            <p>If you have any questions about this Privacy Policy, please contact us at: <a href="mailto:getpetpadapp@gmail.com">getpetpadapp@gmail.com</a></p>
         </section>
     </div>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
-        });
-    </script>
 
+    <!-- Set current date -->
+    <script>
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const today = new Date();
+        document.getElementById('currentDate').textContent = today.toLocaleDateString('en-US', options);
+    </script>
+    
+    <style>
+        /* Make sure content is above paw prints */
+        .content {
+            position: relative;
+            z-index: 1;
+            background-color: var(--card-bg);
+        }
+        
+    </style>
         <div class="footer-links">
         <a href="https://home.petpadapp.link">Home</a>
         <span>•</span>
-        <a href="https://privacy.petpadapp.link">Privacy Policy</a>
+        <a href="https://support.petpadapp.link">Support</a>
         <span>•</span>
         <a href="mailto:getpetpadapp@gmail.com">Contact Us</a>
         <p style="margin-top: 15px; color: #7f8c8d; font-size: 0.9em;">&copy; <span id="currentYear"></span> Pet Pad. All rights reserved.</p>
@@ -315,6 +294,6 @@
             document.getElementById('currentYear').textContent = new Date().getFullYear();
         });
     </script>
-
+    
 </body>
 </html>
