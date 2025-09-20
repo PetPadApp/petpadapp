@@ -274,8 +274,10 @@
                 <i class="fab fa-apple"></i>
                 <h3>iPhone</h3>
                 <p>Available Now</p>
-                <a href="#" id="appStoreLink" class="btn">Download on the App Store</a>
-                <div id="qrcode" class="qr-code"></div>
+                <a href="https://apps.apple.com/app/id6749177166" id="appStoreLink" class="btn">Download on the App Store</a>
+                <div class="qr-code">
+                    <img src="QRcodePetPadAppStoreURL.PNG" alt="App Store QR Code" style="width:150px;height:150px;display:block;margin:auto;border-radius:8px;box-shadow:0 2px 8px rgba(64,224,208,0.15);border:1px solid #40E0D0;background:#fff;" />
+                </div>
                 <p>iPad coming soon!</p>
             </div>
         </div>
@@ -299,23 +301,7 @@
     </div>
     
     <script>
-            // Generate QR Code
-            const qrElement = document.getElementById('qrcode');
-            // Replace with your actual App Store URL when available
-            const appStoreUrl = 'https://apps.apple.com/app/id6749177166';
-            
-            // Create QR code
-            new QRCode(qrElement, {
-                text: appStoreUrl,
-                width: 150,
-                height: 150,
-                colorDark: '#000000',
-                colorLight: '#ffffff',
-                correctLevel: QRCode.CorrectLevel.H
-            });
-            
-            // Set up App Store link
-            document.getElementById('appStoreLink').href = appStoreUrl;
+            // Set up App Store link (already set in HTML)
             
     </script>
 
