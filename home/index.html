@@ -2,10 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Pet Pad - Download the App</title>
+    <meta name="viewport" content="widt        .hero-section {
+            text-align: center;
+            padding: 0;
+        }
+
+        .hero-headline {ce-width, initial-scale=1.0">
+    <title>Pet Pad Home — Your All-in-One Pet Care Companion</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         
@@ -31,6 +35,22 @@
             overflow-x: hidden;
         }
         
+        .app-icon-container {
+            text-align: center;
+            margin: 40px 0 0px;
+        }
+        
+        .app-icon {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 0px;
+            border-radius: 22px;
+            background-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
         h1 {
             color: var(--primary-color);
             margin: -10px 0 5px;
@@ -48,20 +68,30 @@
             content: '🐾';
             margin: 0 10px;
             font-size: 1.8em;
-            display: inline-block; /* Ensure the transform works */
+            display: inline-block;
             filter: sepia(30%) saturate(50%) hue-rotate(30deg) brightness(1.8) contrast(0.7);
         }
 
         h1::after {
             transform: scaleX(-1);
-            -webkit-transform: scaleX(-1); /* For Safari/Chrome */
-            -ms-transform: scaleX(-1); /* For IE/Edge */
+            -webkit-transform: scaleX(-1);
+            -ms-transform: scaleX(-1);
         }
         
         h2 {
+            color: var(--text-color); 
+            margin: 30px 0 20px;
+            font-weight: 600;
+        }
+
+        .page-subtitle {
             color: var(--text-color);
             margin: 30px 0 20px;
             font-weight: 600;
+            text-align: center;
+            position: relative;
+            padding-left: 0px;
+            border-left: none;
         }
         
         .content {
@@ -71,43 +101,148 @@
             box-shadow: 0 4px 15px rgba(64, 224, 208, 0.2);
             border: 1px solid var(--border-color);
             margin: 20px 0;
+            position: relative;
+            overflow: hidden;
         }
         
+        .hero-section {
+            text-align: center;
+            padding: 0px 0;
+        }
+
+        .hero-headline {
+            font-size: 1.4em;
+            color: var(--text-color);
+            margin: 0px 0;
+            font-weight: 600;
+        }
+
         .app-download {
             text-align: center;
-            margin: 40px 0;
+            margin: 0px 0;
+            color: var(--primary-color);
         }
-        
-        .app-icon {
-            width: 200px;
-            height: 200px;
-            margin: 0 auto 0px;
-            border-radius: 22px;
-            background-color: transparent;
+
+        .feature-box {
+            background-color: var(--light-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .feature-box h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .feature-box h3 i {
+            margin-right: 10px;
+            color: var(--accent-color);
+        }
+
+        .feature-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .feature-list li {
+            margin-bottom: 12px;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .feature-list li::before {
+            content: '•';
+            color: var(--primary-color);
+            position: absolute;
+            left: 8px;
+            font-size: 1.2em;
+        }
+
+        .secure-sharing {
+            background-color: var(--light-bg);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 30px 0;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .secure-sharing h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .secure-sharing h3 i {
+            margin-right: 12px;
+            color: var(--accent-color);
+        }
+
+        .steps {
+            margin: 20px 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .steps li {
+            margin-bottom: 15px;
+            position: relative;
+            padding-left: 35px;
+        }
+
+        .steps li::before {
+            content: attr(data-step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 24px;
+            height: 24px;
+            background-color: var(--primary-color);
+            color: black;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 0.9em;
+            font-weight: 600;
         }
-        
-        .app-icon i {
-            font-size: 60px;
+
+        .download-section {
+            margin: 40px auto;
+            max-width: 800px;
+        }
+
+        .download-box {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(64, 224, 208, 0.2);
+        }
+
+        .download-title {
             color: var(--primary-color);
-        }
-        
-        .qr-container {
-            margin: 30px 0;
+            font-size: 1.5em;
+            margin-bottom: 15px;
             text-align: center;
         }
-        
-        .qr-code {
-            margin: 20px auto;
-            padding: 15px;
-            background: var(--card-bg);
-            border-radius: 8px;
-            display: inline-block;
-            border: 1px solid var(--primary-color);
+
+        .qr-section {
+            text-align: center;
+            margin-top: 40px;
         }
-        
+
+        .qr-title {
+            color: var(--text-color);
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
         .btn {
             display: inline-block;
             background-color: var(--primary-color);
@@ -118,65 +253,33 @@
             font-weight: 500;
             margin: 15px 5px;
             transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
         }
-        
+
         .btn:hover {
-            background-color: #20B2AA; /* Darker turquoise on hover */
+            background-color: #20B2AA;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(64, 224, 208, 0.4);
         }
-        
+
         .btn i {
             margin-right: 8px;
         }
-        
-        .info-box {
-            background-color: var(--light-bg);
-            padding: 20px;
+
+        .qr-code {
+            margin: 20px auto;
+            padding: 15px;
+            background: white;
             border-radius: 8px;
-            margin: 30px 0;
-            border-left: 4px solid var(--accent-color);
+            display: block;
+            border: 1px solid var(--primary-color);
+            width: fit-content;
         }
-        
-        .info-box h3 {
-            margin-top: 0;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-        }
-        
-        .info-box h3 i {
-            margin-right: 10px;
-            color: var(--accent-color);
-        }
-        
-        .step {
-            display: flex;
-            margin-bottom: 20px;
-            align-items: flex-start;
-        }
-        
-        .step-number {
-            background-color: var(--primary-color);
-            color: white;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-        
+
         .footer-links {
             margin-top: 50px;
             text-align: center;
             padding-top: 20px;
-            border-top: 1px solid #eee;
+            border-top: 1px solid var(--border-color);
         }
         
         .footer-links a {
@@ -191,6 +294,11 @@
             color: var(--accent-color);
         }
         
+        .footer-links span {
+            color: var(--border-color);
+            font-size: 0.9em;
+        }
+
         @media (max-width: 600px) {
             body {
                 padding: 10px;
@@ -203,6 +311,25 @@
             h1 {
                 font-size: 1.8em;
             }
+            
+            h1::before,
+            h1::after {
+                margin: 0 5px;
+                font-size: 1em;
+            }
+
+            .app-icon {
+                width: 150px;
+                height: 150px;
+            }
+
+            .feature-box, .secure-sharing {
+                padding: 15px;
+            }
+
+            .steps li {
+                padding-left: 30px;
+            }
         }
     </style>
 </head>
@@ -212,82 +339,77 @@
             <img src="petPadNotebookDarkGreyTan.png" alt="Pet Pad App Icon" style="width: 100%; height: 100%; object-fit: contain; border-radius: 22px;">
         </div>
         <h1><img src="PetPadLogoTextGreen.png" alt="Pet Pad" style="height: 1.8em; vertical-align: middle;"></h1>
-        <h2>Welcome!</h2>
-        <p>Your all-in-one pet care companion</p>
+        <h2>Your all-in-one pet care companion</h2>
+        <p>Organize your pet's important info.<br>Share everything your vet or pet sitter needs - in one secure link!</p>
     </div>
+
     <div class="content">
-        
-        <div class="info-box">
-            <h3><i class="fas fa-link"></i> Received a Shared Pet Profile?</h3>
-            <p>To view the shared pet profile, follow these steps:</p>
-            
-            <div class="step">
-                <div class="step-number">1</div>
-                <div>
-                    <strong>Download the App</strong>
-                    <p>Install Pet Pad from the App Store using the button below or by scanning the QR code.</p>
-                </div>
-            </div>
-            
-            <div class="step">
-                <div class="step-number">2</div>
-                <div>
-                    <strong>Check Your Email</strong>
-                    <p>Look for an email containing the access PIN for the shared pet profile.</p>
-                </div>
-            </div>
-            
-            <div class="step">
-                <div class="step-number">3</div>
-                <div>
-                    <strong>Open the Shared Link Again</strong>
-                    <p>After installing the app, return to the shared link and tap it to open in the Pet Pad app.</p>
-                </div>
-            </div>
-            
-            <div class="step">
-                <div class="step-number">4</div>
-                <div>
-                    <strong>Enter the PIN</strong>
-                    <p>When prompted, enter the PIN from your email to access the shared pet profile.</p>
-                </div>
-            </div>
+        <div class="hero-section">
+            <p>Share complete pet profiles, vaccination and medical records, feeding schedules, and emergency contacts with pet sitters through PIN-protected, read-only access.</p>
         </div>
-        
-        <div class="content">
-            <div class="app-download">
-                <h3 style="color: var(--primary-color); text-align: center; margin-bottom: 20px;">Ready to Download?</h3>
-                <p style="text-align: center; margin-bottom: 25px;">Use the button below to download Pet Pad from the App Store:</p>
+
+        <div class="feature-box">
+            <h3><i class="fas fa-paw"></i> Everything Your Pet Needs in One Place</h3>
+            <ul class="feature-list">
+                <li>Store complete pet profiles with photos and medical information</li>
+                <li>Track vaccination history with dates and reminders</li>
+                <li>Upload and organize veterinary documents and medical records</li>
+                <li>Print or share PDF tables of vaccine history and medical documents</li>
+                <li>Maintain emergency contacts and veterinary clinic information</li>
+                <li>Plan meals with feeding schedules and dietary restrictions</li>
+                <li>Securely share pet profiles with pet sitters using PIN-protected links</li>
+                <li>Access all your pet's information in one organized place</li>
+            </ul>
+        </div>
+
+        <div class="secure-sharing">
+            <h3><i class="fas fa-lock"></i> Secure Pet Profile Sharing</h3>
+            <p>No more writing lengthy pet care instructions or worrying about missing important details. Pet Pad's secure sharing feature lets you give pet sitters exactly what they need:</p>
+            
+            <ul class="steps">
+                <li data-step="1">Create your pet's complete profile with medical history, emergency contacts, and feeding schedules</li>
+                <li data-step="2">Generate a secure link protected by a 4-digit PIN (expires after 60 days)</li>
+                <li data-step="3">Share the link and PIN with your pet sitter</li>
+                <li data-step="4">Sitters get instant read-only access to all care instructions — no account needed</li>
+            </ul>
+            
+            <p style="color: var(--accent-color); margin-top: 15px;"><i class="fas fa-shield-alt"></i> Your pet's sensitive information stays protected with PIN verification and time-limited access.</p>
+        </div>
+
+        <div class="download-section">
+            <div class="download-box">
+                <h2 style="color: var(--primary-color); border-left: none; text-align: center; margin-bottom: 15px;">Ready to Download?</h2>
+                <p style="text-align: center;">Use the button below to download Pet Pad from the App Store:</p>
+                
                 <div style="text-align: center;">
-                    <a href="https://apps.apple.com/app/id6749177166" id="appStoreLink" class="btn">
+                    <a href="https://apps.apple.com/app/id6749177166" class="btn" style="background-color: rgb(64, 224, 208); display: inline-block; margin: 15px auto;">
                         <i class="fab fa-apple"></i> Download on the App Store
                     </a>
                 </div>
             </div>
-        </div>
-        
-        <div class="qr-container">
-            <h3>Or Scan to Download</h3>
-            <div class="qr-code">
-                <img src="QRcodePetPadAppStoreURL.PNG" alt="App Store QR Code" style="width:150px;height:150px;display:block;margin:auto;border-radius:8px;box-shadow:0 2px 8px rgba(64,224,208,0.15);border:1px solid #40E0D0;background:#fff;" />
+
+            <div class="qr-section">
+                <h3 class="qr-title">Or Scan to Download</h3>
+                
+                <div class="qr-code" style="background: var(--card-bg); padding: 10px; border-radius: 10px; border: 1px solid var(--primary-color); display: inline-block;">
+                    <img src="QRcodePetPadAppStoreURL.PNG" alt="App Store QR Code" style="width:150px;height:150px;display:block;margin:auto;border-radius:8px;border:1px solid var(--primary-color);">
+                </div>
             </div>
         </div>
-        
+
         <div class="footer-links">
-            <a href="https://petpadapp.link/privacy">Privacy Policy</a>
+            <a href="privacy-policy.html">Privacy Policy</a>
             <span>•</span>
-            <a href="https://petpadapp.link/support">Support</a>
+            <a href="support.html">Support</a>
             <span>•</span>
             <a href="mailto:getpetpadapp@gmail.com">Contact Us</a>
             <p style="margin-top: 15px; color: #7f8c8d; font-size: 0.9em;">&copy; <span id="currentYear"></span> Pet Pad. All rights reserved.</p>
         </div>
     </div>
-    
+
     <script>
-        // Set current year in footer
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('currentYear').textContent = new Date().getFullYear();
-            // App Store link already set in HTML
         });
     </script>
 </body>
