@@ -682,9 +682,11 @@
             const bounds = L.latLngBounds();
             filteredPets.forEach((pet) => {
                 let lat, lng;
+                let hasRealCoords = false;
                 if (typeof pet.shelterLat === 'number' && typeof pet.shelterLng === 'number') {
                     lat = pet.shelterLat;
                     lng = pet.shelterLng;
+                    hasRealCoords = true;
                 } else {
                     const hash = pet.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
                     lat = 30 + (hash % 1500) / 100;
@@ -692,6 +694,7 @@
                 }
                 pet._lat = lat;
                 pet._lng = lng;
+                pet._hasRealCoords = hasRealCoords;
 
                 const marker = L.marker([lat, lng]).addTo(map);
                 marker.bindPopup(createPopupContent(pet));
@@ -818,9 +821,11 @@
 
                 allPets.forEach(pet => {
                     let lat, lng;
+                    let hasRealCoords = false;
                     if (typeof pet.shelterLat === 'number' && typeof pet.shelterLng === 'number') {
                         lat = pet.shelterLat;
                         lng = pet.shelterLng;
+                        hasRealCoords = true;
                     } else {
                         const hash = pet.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
                         lat = 30 + (hash % 1500) / 100;
@@ -828,6 +833,7 @@
                     }
                     pet._lat = lat;
                     pet._lng = lng;
+                    pet._hasRealCoords = hasRealCoords;
                 });
 
                 populateTypeFilter();
@@ -895,10 +901,16 @@
             const displayAddress = addressParts.length > 0 ? addressParts.join(', ') : (pet.shelterLocation || 'Location not provided');
 
             const phoneHtml = pet.shelterPhone ? `<a href="tel:${pet.shelterPhone}" style="color:#40E0D0;text-decoration:none;"><i class="fas fa-phone" style="font-size:0.85em;margin-right:4px;"></i>${pet.shelterPhone}</a><br>` : '';
+            const websiteHtml = pet.shelterWebsite ? `<a href="${pet.shelterWebsite}" target="_blank" rel="noopener" style="color:#40E0D0;text-decoration:none;"><i class="fas fa-globe" style="font-size:0.85em;margin-right:4px;"></i>Shelter Website</a><br>` : '';
+            const petPageHtml = pet.petWebpageUrl ? `<a href="${pet.petWebpageUrl}" target="_blank" rel="noopener" style="color:#40E0D0;text-decoration:none;"><i class="fas fa-link" style="font-size:0.85em;margin-right:4px;"></i>Pet Webpage</a><br>` : '';
+            const coordsWarning = !pet._hasRealCoords ? `<span style="color:#ff9900;font-size:0.8em;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>Location approximate</span><br>` : '';
             document.getElementById('modalShelter').innerHTML = `
                 <strong>${pet.shelterName || 'Unknown Shelter'}</strong><br>
                 ${displayAddress}<br>
                 ${phoneHtml}
+                ${websiteHtml}
+                ${petPageHtml}
+                ${coordsWarning}
                 <span style="color:#666;">Listed ${pet.adoptableSince ? new Date(pet.adoptableSince).toLocaleDateString() : 'recently'}</span>
             `;
 
