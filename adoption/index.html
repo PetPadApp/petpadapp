@@ -531,7 +531,7 @@
             const details = [
                 ['Color', pet.color],
                 ['Weight', pet.weight],
-                ['Microchip', pet.microchipNumber],
+                ['Microchip', pet.hasMicrochip ? 'Yes' : 'No'],
                 ['Spayed/Neutered', pet.spayedNeuteredStatus],
                 ['Allergies', pet.allergies],
                 ['Medications', pet.medications],
@@ -546,9 +546,11 @@
             const addressParts = [pet.shelterAddress, pet.shelterCity, pet.shelterState, pet.shelterZip].filter(Boolean);
             const displayAddress = addressParts.length > 0 ? addressParts.join(', ') : (pet.shelterLocation || 'Location not provided');
 
+            const phoneHtml = pet.shelterPhone ? `<a href="tel:${pet.shelterPhone}" style="color:#40E0D0;text-decoration:none;"><i class="fas fa-phone" style="font-size:0.85em;margin-right:4px;"></i>${pet.shelterPhone}</a><br>` : '';
             document.getElementById('modalShelter').innerHTML = `
                 <strong>${pet.shelterName || 'Unknown Shelter'}</strong><br>
                 ${displayAddress}<br>
+                ${phoneHtml}
                 <span style="color:#666;">Listed ${pet.adoptableSince ? new Date(pet.adoptableSince).toLocaleDateString() : 'recently'}</span>
             `;
 
