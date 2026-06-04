@@ -206,10 +206,12 @@
         }
         .modal .modal-img {
             width: 100%;
-            height: 240px;
-            object-fit: cover;
+            max-height: 320px;
+            height: auto;
+            object-fit: contain;
             border-radius: 16px 16px 0 0;
-            background: #333;
+            background: #111;
+            cursor: zoom-in;
         }
         .modal .modal-body { padding: 22px; }
         .modal .modal-close {
@@ -317,6 +319,121 @@
         }
         .footer a { color: var(--primary-color); text-decoration: none; }
 
+        /* Filter / Sort Panel */
+        .filter-bar {
+            background: var(--light-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        .filter-bar .search-input {
+            flex: 1 1 200px;
+            min-width: 160px;
+            background: #111;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text-color);
+            font-family: inherit;
+            font-size: 0.9em;
+        }
+        .filter-bar .search-input:focus { outline: none; border-color: var(--primary-color); }
+        .filter-bar select, .filter-bar input[type="number"] {
+            background: #111;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 10px;
+            color: var(--text-color);
+            font-family: inherit;
+            font-size: 0.85em;
+            min-width: 110px;
+        }
+        .filter-bar select:focus, .filter-bar input[type="number"]:focus { outline: none; border-color: var(--primary-color); }
+        .filter-bar .filter-group { display: flex; align-items: center; gap: 6px; font-size: 0.85em; color: #aaa; }
+        .filter-bar .filter-label { white-space: nowrap; }
+        .filter-bar .btn-sm {
+            padding: 8px 14px;
+            font-size: 0.85em;
+            border-radius: 8px;
+            background: var(--primary-color);
+            color: #000;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .filter-bar .btn-sm.secondary { background: transparent; color: var(--primary-color); border: 1px solid var(--primary-color); }
+        .filter-bar .btn-sm.secondary:hover { background: rgba(64,224,208,0.1); }
+        .filter-bar .count-badge {
+            background: rgba(64,224,208,0.15);
+            color: var(--primary-color);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        /* Pet Card detail button */
+        .pet-card .detail-btn {
+            margin-top: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(64,224,208,0.12);
+            color: var(--primary-color);
+            border: 1px solid rgba(64,224,208,0.3);
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 0.8em;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            text-decoration: none;
+        }
+        .pet-card .detail-btn:hover { background: rgba(64,224,208,0.25); }
+
+        /* Lightbox */
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.92);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            padding: 20px;
+            cursor: zoom-out;
+        }
+        .lightbox.open { display: flex; }
+        .lightbox img {
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 8px;
+            cursor: default;
+        }
+        .lightbox .lightbox-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(0,0,0,0.6);
+            border: none;
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.4em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         /* Mobile */
         @media (max-width: 900px) {
             .layout { flex-direction: column; }
@@ -328,6 +445,8 @@
             .hero h1 { font-size: 1.5em; }
             .pet-card { gap: 10px; padding: 10px; }
             .pet-card .pet-img { width: 60px; height: 60px; }
+            .filter-bar { flex-direction: column; align-items: stretch; }
+            .filter-bar .search-input, .filter-bar select, .filter-bar input[type="number"] { width: 100%; }
         }
     </style>
 </head>
@@ -349,6 +468,47 @@
     </div>
 
     <div class="container">
+        <div class="filter-bar" id="filterBar">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search by name, breed, keyword...">
+            <select id="sortSelect">
+                <option value="recent">Recently Listed</option>
+                <option value="distance">Distance (Nearest)</option>
+                <option value="age_asc">Age (Youngest)</option>
+                <option value="age_desc">Age (Oldest)</option>
+                <option value="type">Type (A-Z)</option>
+                <option value="breed">Breed (A-Z)</option>
+                <option value="name">Name (A-Z)</option>
+            </select>
+            <select id="typeFilter">
+                <option value="">All Types</option>
+            </select>
+            <input type="text" class="search-input" id="breedFilter" placeholder="Breed..." style="flex:1 1 120px;min-width:100px;">
+            <select id="sexFilter">
+                <option value="">All Sexes</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+            <div class="filter-group">
+                <span class="filter-label">Age:</span>
+                <input type="number" id="minAge" placeholder="Min" min="0" style="width:60px;">
+                <span>-</span>
+                <input type="number" id="maxAge" placeholder="Max" min="0" style="width:60px;">
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">Weight:</span>
+                <input type="number" id="minWeight" placeholder="Min" min="0" step="0.1" style="width:60px;">
+                <span>-</span>
+                <input type="number" id="maxWeight" placeholder="Max" min="0" step="0.1" style="width:60px;">
+            </div>
+            <select id="spayedFilter">
+                <option value="">Spayed/Neutered</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+            <input type="text" class="search-input" id="shelterFilter" placeholder="Shelter / Location..." style="flex:1 1 160px;min-width:140px;">
+            <button class="btn-sm secondary" id="resetBtn">Reset</button>
+            <span class="count-badge" id="resultCount">0 pets</span>
+        </div>
         <div class="layout">
             <div id="map"></div>
             <div class="sidebar" id="sidebar">
@@ -376,6 +536,11 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+        <button class="lightbox-close" onclick="closeLightbox(event); event.stopPropagation();">&times;</button>
+        <img id="lightboxImg" src="" alt="" onclick="event.stopPropagation();">
     </div>
 
     <footer class="footer">
@@ -406,8 +571,9 @@
         }).addTo(map);
 
         const markers = [];
-        const pets = [];
-        let activeCard = null;
+        const allPets = [];
+        let filteredPets = [];
+        let userLocation = null;
 
         function getAge(dob) {
             if (!dob) return null;
@@ -423,8 +589,42 @@
             return `${years} yr`;
         }
 
+        function getAgeInMonths(dob) {
+            if (!dob) return null;
+            const birth = new Date(dob);
+            const now = new Date();
+            return (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
+        }
+
+        function parseWeight(w) {
+            if (!w) return null;
+            const match = String(w).match(/(\d+(?:\.\d+)?)/);
+            return match ? parseFloat(match[1]) : null;
+        }
+
+        function haversine(lat1, lng1, lat2, lng2) {
+            const R = 3959;
+            const toRad = x => x * Math.PI / 180;
+            const dLat = toRad(lat2 - lat1);
+            const dLng = toRad(lng2 - lng1);
+            const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        }
+
+        window.openLightbox = (src) => {
+            const box = document.getElementById('lightbox');
+            const img = document.getElementById('lightboxImg');
+            img.src = src;
+            box.classList.add('open');
+        };
+        window.closeLightbox = (e) => {
+            if (e && e.target !== document.getElementById('lightbox')) return;
+            document.getElementById('lightbox').classList.remove('open');
+            document.getElementById('lightboxImg').src = '';
+        };
+
         function createPopupContent(pet) {
-            const img = pet.imageUrl ? `<img src="${pet.imageUrl}" onerror="this.style.display='none'" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px;">` : '';
+            const img = pet.imageUrl ? `<img src="${pet.imageUrl}" onerror="this.style.display='none'" onclick="event.stopPropagation();window.openLightbox('${pet.imageUrl}');" style="width:100%;max-height:180px;object-fit:contain;border-radius:8px;margin-bottom:8px;background:#111;cursor:zoom-in;">` : '';
             return `
                 ${img}
                 <div style="font-weight:600;color:#40E0D0;margin-bottom:4px;">${pet.name}</div>
@@ -435,12 +635,12 @@
 
         function renderSidebar() {
             const sidebar = document.getElementById('sidebar');
-            if (pets.length === 0) {
-                sidebar.innerHTML = '<div class="empty"><i class="fas fa-paw" style="font-size:2em;color:#555;margin-bottom:10px;"></i><p>No adoptable pets listed yet.<br>Check back soon!</p></div>';
+            if (filteredPets.length === 0) {
+                sidebar.innerHTML = '<div class="empty"><i class="fas fa-paw" style="font-size:2em;color:#555;margin-bottom:10px;"></i><p>No pets match your filters.<br>Try adjusting your search!</p></div>';
                 return;
             }
-            sidebar.innerHTML = pets.map((pet, idx) => `
-                <div class="pet-card" data-idx="${idx}" onclick="window.focusPet(${idx})">
+            sidebar.innerHTML = filteredPets.map((pet, idx) => `
+                <div class="pet-card" data-idx="${idx}">
                     <img class="pet-img" src="${pet.imageUrl || '/petPadNotebookDarkGreyTan.png'}" alt="${pet.name}" onerror="this.src='/petPadNotebookDarkGreyTan.png'">
                     <div class="pet-info">
                         <div class="pet-name">${pet.name}</div>
@@ -449,57 +649,191 @@
                             ${pet.petType ? `<span class="tag">${pet.petType}</span>` : ''}
                             ${(pet.shelterCity || pet.shelterLocation) ? `<span class="tag secondary"><i class="fas fa-map-marker-alt" style="font-size:0.75em;"></i> ${pet.shelterCity || (pet.shelterLocation ? pet.shelterLocation.split(',')[0] : '')}</span>` : ''}
                         </div>
+                        <button class="detail-btn" onclick="event.stopPropagation();window.showPetDetail('${pet.id}');">
+                            <i class="fas fa-info-circle"></i> Details
+                        </button>
                     </div>
                 </div>
             `).join('');
+
+            sidebar.querySelectorAll('.pet-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    if (e.target.closest('.detail-btn')) return;
+                    const idx = parseInt(card.dataset.idx);
+                    window.focusPet(idx);
+                });
+            });
+        }
+
+        function clearMarkers() {
+            markers.forEach(m => map.removeLayer(m));
+            markers.length = 0;
+        }
+
+        function renderMarkers() {
+            clearMarkers();
+            const bounds = L.latLngBounds();
+            filteredPets.forEach((pet) => {
+                let lat, lng;
+                if (typeof pet.shelterLat === 'number' && typeof pet.shelterLng === 'number') {
+                    lat = pet.shelterLat;
+                    lng = pet.shelterLng;
+                } else {
+                    const hash = pet.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+                    lat = 30 + (hash % 1500) / 100;
+                    lng = -120 + (hash % 4000) / 100;
+                }
+                pet._lat = lat;
+                pet._lng = lng;
+
+                const marker = L.marker([lat, lng]).addTo(map);
+                marker.bindPopup(createPopupContent(pet));
+                markers.push(marker);
+                bounds.extend([lat, lng]);
+            });
+
+            if (filteredPets.length > 0) {
+                map.fitBounds(bounds, { padding: [40, 40], maxZoom: 10 });
+            }
+        }
+
+        function populateTypeFilter() {
+            const types = [...new Set(allPets.map(p => p.petType).filter(Boolean))].sort();
+            const sel = document.getElementById('typeFilter');
+            const first = sel.options[0];
+            sel.innerHTML = '';
+            sel.appendChild(first);
+            types.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.textContent = t;
+                sel.appendChild(opt);
+            });
+        }
+
+        function applyFilters() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+            const type = document.getElementById('typeFilter').value;
+            const breed = document.getElementById('breedFilter').value.toLowerCase().trim();
+            const sex = document.getElementById('sexFilter').value;
+            const minAge = parseFloat(document.getElementById('minAge').value);
+            const maxAge = parseFloat(document.getElementById('maxAge').value);
+            const minWeight = parseFloat(document.getElementById('minWeight').value);
+            const maxWeight = parseFloat(document.getElementById('maxWeight').value);
+            const spayed = document.getElementById('spayedFilter').value;
+            const shelter = document.getElementById('shelterFilter').value.toLowerCase().trim();
+
+            filteredPets = allPets.filter(pet => {
+                if (keyword) {
+                    const text = [pet.name, pet.breed, pet.color, pet.petType, pet.customPetType, pet.additionalNotes, pet.medicalInfo, pet.allergies, pet.medications].join(' ').toLowerCase();
+                    if (!text.includes(keyword)) return false;
+                }
+                if (type && pet.petType !== type) return false;
+                if (breed && !(pet.breed || '').toLowerCase().includes(breed)) return false;
+                if (sex && pet.sex !== sex) return false;
+
+                const ageMonths = getAgeInMonths(pet.dateOfBirth);
+                if (!isNaN(minAge) && ageMonths !== null && ageMonths < minAge) return false;
+                if (!isNaN(maxAge) && ageMonths !== null && ageMonths > maxAge) return false;
+
+                const w = parseWeight(pet.weight);
+                if (!isNaN(minWeight) && w !== null && w < minWeight) return false;
+                if (!isNaN(maxWeight) && w !== null && w > maxWeight) return false;
+
+                if (spayed) {
+                    const status = (pet.spayedNeuteredStatus || '').toLowerCase();
+                    if (spayed === 'Yes' && !status.includes('yes')) return false;
+                    if (spayed === 'No' && !status.includes('no')) return false;
+                }
+
+                if (shelter) {
+                    const shelterText = [pet.shelterName, pet.shelterAddress, pet.shelterCity, pet.shelterState, pet.shelterZip, pet.shelterLocation].join(' ').toLowerCase();
+                    if (!shelterText.includes(shelter)) return false;
+                }
+
+                return true;
+            });
+
+            sortPets();
+            renderMarkers();
+            renderSidebar();
+            document.getElementById('resultCount').textContent = `${filteredPets.length} pet${filteredPets.length !== 1 ? 's' : ''}`;
+        }
+
+        function sortPets() {
+            const sort = document.getElementById('sortSelect').value;
+            if (sort === 'recent') {
+                filteredPets.sort((a, b) => {
+                    const aDate = a.adoptableSince ? new Date(a.adoptableSince) : new Date(0);
+                    const bDate = b.adoptableSince ? new Date(b.adoptableSince) : new Date(0);
+                    return bDate - aDate;
+                });
+            } else if (sort === 'distance') {
+                if (userLocation) {
+                    filteredPets.sort((a, b) => {
+                        const da = haversine(userLocation.lat, userLocation.lng, a._lat || 0, a._lng || 0);
+                        const db = haversine(userLocation.lat, userLocation.lng, b._lat || 0, b._lng || 0);
+                        return da - db;
+                    });
+                } else {
+                    filteredPets.sort((a, b) => {
+                        const aDate = a.adoptableSince ? new Date(a.adoptableSince) : new Date(0);
+                        const bDate = b.adoptableSince ? new Date(b.adoptableSince) : new Date(0);
+                        return bDate - aDate;
+                    });
+                }
+            } else if (sort === 'age_asc') {
+                filteredPets.sort((a, b) => (getAgeInMonths(a.dateOfBirth) ?? 9999) - (getAgeInMonths(b.dateOfBirth) ?? 9999));
+            } else if (sort === 'age_desc') {
+                filteredPets.sort((a, b) => (getAgeInMonths(b.dateOfBirth) ?? 9999) - (getAgeInMonths(a.dateOfBirth) ?? 9999));
+            } else if (sort === 'type') {
+                filteredPets.sort((a, b) => (a.petType || '').localeCompare(b.petType || '') || (a.name || '').localeCompare(b.name || ''));
+            } else if (sort === 'breed') {
+                filteredPets.sort((a, b) => (a.breed || '').localeCompare(b.breed || '') || (a.name || '').localeCompare(b.name || ''));
+            } else if (sort === 'name') {
+                filteredPets.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+            }
         }
 
         async function loadPets() {
             try {
                 const q = query(collection(db, 'adoptablePets'), where('isAdoptable', '==', true));
                 const snapshot = await getDocs(q);
+                allPets.length = 0;
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     data.id = doc.id;
-                    pets.push(data);
-                    // Debug: log imageUrl to console
+                    allPets.push(data);
                     console.log(`Pet ${data.name}: imageUrl=${data.imageUrl || 'MISSING'}`);
                 });
 
-                // Sort by most recently listed
-                pets.sort((a, b) => {
-                    const aDate = a.adoptableSince ? new Date(a.adoptableSince) : new Date(0);
-                    const bDate = b.adoptableSince ? new Date(b.adoptableSince) : new Date(0);
-                    return bDate - aDate;
-                });
-
-                // Use real shelterLat/Lng when available, otherwise fallback to hash-based scatter
-                const bounds = L.latLngBounds();
-                pets.forEach((pet, i) => {
+                allPets.forEach(pet => {
                     let lat, lng;
                     if (typeof pet.shelterLat === 'number' && typeof pet.shelterLng === 'number') {
                         lat = pet.shelterLat;
                         lng = pet.shelterLng;
                     } else {
-                        // Fallback: pseudo-random but stable lat/lng based on doc id
                         const hash = pet.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-                        lat = 30 + (hash % 1500) / 100; // ~30-45N
-                        lng = -120 + (hash % 4000) / 100; // ~-120 to -80
+                        lat = 30 + (hash % 1500) / 100;
+                        lng = -120 + (hash % 4000) / 100;
                     }
                     pet._lat = lat;
                     pet._lng = lng;
-
-                    const marker = L.marker([lat, lng]).addTo(map);
-                    marker.bindPopup(createPopupContent(pet));
-                    markers.push(marker);
-                    bounds.extend([lat, lng]);
                 });
 
-                if (pets.length > 0) {
-                    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 10 });
-                }
+                populateTypeFilter();
+                filteredPets = [...allPets];
+                applyFilters();
 
-                renderSidebar();
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        pos => {
+                            userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                            if (document.getElementById('sortSelect').value === 'distance') applyFilters();
+                        },
+                        () => console.log('Location permission denied or unavailable')
+                    );
+                }
             } catch (e) {
                 console.error('Error loading pets:', e);
                 document.getElementById('sidebar').innerHTML = '<div class="empty"><p>Unable to load pets. Please try again later.</p></div>';
@@ -507,7 +841,7 @@
         }
 
         window.focusPet = (idx) => {
-            const pet = pets[idx];
+            const pet = filteredPets[idx];
             if (!pet) return;
             map.setView([pet._lat, pet._lng], 12);
             markers[idx]?.openPopup();
@@ -520,11 +854,17 @@
         };
 
         window.showPetDetail = (id) => {
-            const pet = pets.find(p => p.id === id);
+            const pet = allPets.find(p => p.id === id);
             if (!pet) return;
             const modalImg = document.getElementById('modalImg');
             modalImg.src = pet.imageUrl || '/petPadNotebookDarkGreyTan.png';
             modalImg.onerror = function() { this.src = '/petPadNotebookDarkGreyTan.png'; };
+            modalImg.style.cursor = pet.imageUrl ? 'zoom-in' : 'default';
+            modalImg.onclick = pet.imageUrl ? function() { window.openLightbox(pet.imageUrl); } : null;
+            modalImg.style.objectFit = 'contain';
+            modalImg.style.height = 'auto';
+            modalImg.style.maxHeight = '320px';
+            modalImg.style.background = '#111';
             document.getElementById('modalName').textContent = pet.name;
             document.getElementById('modalMeta').textContent = `${pet.breed || 'Mixed'} • ${pet.sex || ''} • ${getAge(pet.dateOfBirth) || 'Age unknown'}`;
 
@@ -542,7 +882,6 @@
                 <div class="detail-row"><span class="detail-label">${label}</span><span class="detail-value">${value}</span></div>
             `).join('') || '<div class="detail-row"><span class="detail-label">Info</span><span class="detail-value">Contact shelter for details</span></div>';
 
-            // Build address from individual fields or fallback to shelterLocation
             const addressParts = [pet.shelterAddress, pet.shelterCity, pet.shelterState, pet.shelterZip].filter(Boolean);
             const displayAddress = addressParts.length > 0 ? addressParts.join(', ') : (pet.shelterLocation || 'Location not provided');
 
@@ -564,9 +903,34 @@
             document.body.style.overflow = '';
         };
 
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') window.closeModal(); });
-        document.getElementById('year').textContent = new Date().getFullYear();
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                window.closeModal();
+                window.closeLightbox();
+            }
+        });
 
+        ['searchInput','typeFilter','breedFilter','sexFilter','minAge','maxAge','minWeight','maxWeight','spayedFilter','shelterFilter'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', applyFilters);
+        });
+        document.getElementById('sortSelect').addEventListener('change', applyFilters);
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('typeFilter').value = '';
+            document.getElementById('breedFilter').value = '';
+            document.getElementById('sexFilter').value = '';
+            document.getElementById('minAge').value = '';
+            document.getElementById('maxAge').value = '';
+            document.getElementById('minWeight').value = '';
+            document.getElementById('maxWeight').value = '';
+            document.getElementById('spayedFilter').value = '';
+            document.getElementById('shelterFilter').value = '';
+            document.getElementById('sortSelect').value = 'recent';
+            applyFilters();
+        });
+
+        document.getElementById('year').textContent = new Date().getFullYear();
         loadPets();
     </script>
 </body>
