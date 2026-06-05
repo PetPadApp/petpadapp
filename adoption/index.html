@@ -737,6 +737,402 @@
         }
         .lightbox .lightbox-close:hover { background: #fff; transform: scale(1.05); }
 
+        /* Toast Notification */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            pointer-events: none;
+        }
+        .toast {
+            background: rgba(45, 43, 40, 0.92);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 0.95em;
+            font-weight: 500;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            white-space: nowrap;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        body[data-theme="dark"] .toast { background: rgba(40,40,40,0.95); }
+
+        /* Skeleton Loading */
+        .skeleton-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            animation: pulse-skeleton 1.8s ease-in-out infinite;
+        }
+        .skeleton-img {
+            width: 82px;
+            height: 82px;
+            border-radius: 12px;
+            background: linear-gradient(90deg, var(--border-color) 25%, #f0ede7 50%, var(--border-color) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.8s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+        .skeleton-lines { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+        .skeleton-line {
+            height: 12px;
+            border-radius: 6px;
+            background: linear-gradient(90deg, var(--border-color) 25%, #f0ede7 50%, var(--border-color) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.8s ease-in-out infinite;
+        }
+        .skeleton-line.short { width: 60%; }
+        .skeleton-line.tiny { width: 35%; height: 10px; }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        @keyframes pulse-skeleton {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        body[data-theme="dark"] .skeleton-img,
+        body[data-theme="dark"] .skeleton-line {
+            background: linear-gradient(90deg, #333 25%, #3a3a3a 50%, #333 75%);
+            background-size: 200% 100%;
+        }
+
+        /* Card Hover Quick-Actions */
+        .pet-card .card-actions {
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(4px);
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s;
+        }
+        .pet-card:hover .card-actions {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .pet-card .card-actions .qa-btn {
+            background: var(--primary-color);
+            color: #111;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .pet-card .card-actions .qa-btn:hover { transform: scale(1.05); }
+        .pet-card .card-actions .qa-btn.secondary {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+        .pet-card .card-actions .qa-btn.secondary:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-dark);
+        }
+        .pet-card .card-actions .qa-compare {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.2s;
+        }
+        .pet-card .card-actions .qa-compare:hover,
+        .pet-card .card-actions .qa-compare.active {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        body[data-theme="dark"] .pet-card .card-actions {
+            background: rgba(36,36,36,0.92);
+        }
+
+        /* Distance Radius Chips */
+        .radius-chips {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .radius-chips .chip-label {
+            font-size: 0.8em;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-right: 4px;
+        }
+        .radius-chip {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .radius-chip:hover { border-color: var(--primary-color); color: var(--primary-dark); }
+        .radius-chip.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #111;
+        }
+        body[data-theme="dark"] .radius-chip.active { color: #111; }
+
+        /* Shelter Modal */
+        .shelter-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .shelter-modal-overlay.open { display: flex; }
+        .shelter-modal {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            max-width: 420px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-hover);
+            position: relative;
+        }
+        .shelter-modal .sm-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .shelter-modal .sm-header h3 { margin: 0; font-size: 1.2em; color: var(--text-color); }
+        .shelter-modal .sm-header .sm-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 1.4em;
+            color: var(--text-muted);
+            cursor: pointer;
+            line-height: 1;
+        }
+        .shelter-modal .sm-body { padding: 20px 24px; }
+        .shelter-modal .sm-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 14px;
+            font-size: 0.92em;
+            color: var(--text-color);
+        }
+        .shelter-modal .sm-row i {
+            color: var(--primary-dark);
+            width: 18px;
+            text-align: center;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        .shelter-modal .sm-row a { color: var(--primary-dark); text-decoration: none; font-weight: 500; }
+        .shelter-modal .sm-row a:hover { text-decoration: underline; }
+        .shelter-modal .sm-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            background: var(--primary-color);
+            color: #111;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95em;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: transform 0.2s;
+        }
+        .shelter-modal .sm-btn:hover { transform: scale(1.02); }
+
+        /* QR Modal */
+        .qr-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .qr-modal-overlay.open { display: flex; }
+        .qr-modal {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            max-width: 340px;
+            width: 100%;
+            padding: 28px;
+            text-align: center;
+            box-shadow: var(--shadow-hover);
+            position: relative;
+        }
+        .qr-modal .qr-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 1.4em;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        .qr-modal h3 { margin: 0 0 8px; color: var(--text-color); }
+        .qr-modal p { margin: 0 0 16px; color: var(--text-muted); font-size: 0.9em; }
+        .qr-modal img { border-radius: 12px; border: 1px solid var(--border-color); }
+        .qr-modal .qr-link { margin-top: 12px; word-break: break-all; font-size: 0.8em; color: var(--text-muted); }
+
+        /* Comparison */
+        .compare-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            z-index: 100;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+        }
+        .compare-bar.open { display: flex; }
+        .compare-bar .compare-count { font-weight: 600; color: var(--text-color); }
+        .compare-bar .compare-actions { display: flex; gap: 10px; }
+        .compare-bar .compare-btn {
+            background: var(--primary-color);
+            color: #111;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+        .compare-bar .compare-btn.clear {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+
+        .compare-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .compare-modal-overlay.open { display: flex; }
+        .compare-modal {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-hover);
+            position: relative;
+        }
+        .compare-modal .cm-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .compare-modal .cm-header h3 { margin: 0; font-size: 1.2em; }
+        .compare-modal .cm-close {
+            background: none;
+            border: none;
+            font-size: 1.4em;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        .compare-modal .cm-body { padding: 20px 24px; }
+        .compare-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+        .compare-col { text-align: center; }
+        .compare-col img {
+            width: 100px;
+            height: 100px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: #EAE6E0;
+            margin-bottom: 10px;
+        }
+        .compare-col h4 { margin: 0 0 4px; font-size: 1.05em; color: var(--text-color); }
+        .compare-col .cm-meta { font-size: 0.85em; color: var(--text-muted); margin-bottom: 12px; }
+        .compare-col .cm-detail {
+            text-align: left;
+            font-size: 0.85em;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+        }
+        .compare-col .cm-detail:last-child { border-bottom: none; }
+        .compare-col .cm-detail-label { color: var(--text-muted); }
+        .compare-col .cm-detail-value { color: var(--text-color); font-weight: 500; }
+
+        /* Print Styles */
+        @media print {
+            .site-header, .hero, .filter-bar, #map, .sidebar, .modal-close, .fav-btn-modal, .share-btn, .modal .cta, .footer, .compare-bar { display: none !important; }
+            .modal-overlay { position: static; background: none; display: block !important; opacity: 1 !important; visibility: visible !important; }
+            .modal { transform: none; max-width: 100%; border: none; box-shadow: none; }
+            .modal-img { max-height: 400px; page-break-after: avoid; }
+            .modal-body { padding: 0; }
+            body { background: #fff; color: #000; }
+        }
+
         /* Mobile */
         @media (max-width: 900px) {
             .layout { flex-direction: column; }
@@ -847,6 +1243,14 @@
             </select>
             <input type="text" class="search-input" id="shelterFilter" placeholder="Shelter / Location..." style="flex:1 1 160px;min-width:140px;">
             <button class="btn-sm secondary" id="resetBtn">Reset</button>
+            <div class="radius-chips" id="radiusChips" style="display:none;">
+                <span class="chip-label">Within:</span>
+                <button class="radius-chip" data-miles="10">10 mi</button>
+                <button class="radius-chip" data-miles="25">25 mi</button>
+                <button class="radius-chip" data-miles="50">50 mi</button>
+                <button class="radius-chip" data-miles="100">100 mi</button>
+                <button class="radius-chip" data-miles="">Any</button>
+            </div>
             <button class="saved-toggle" id="savedToggle" title="Show only saved pets"><i class="fas fa-heart"></i> Saved</button>
             <span class="count-badge" id="resultCount">0 pets</span>
         </div>
@@ -859,7 +1263,11 @@
                 </div>
             </div>
             <div class="sidebar" id="sidebar">
-                <div class="loading"><i class="fas fa-spinner"></i><p>Loading pets...</p></div>
+                <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:45%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
+                <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:55%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
+                <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:40%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
+                <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:50%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
+                <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:48%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
             </div>
         </div>
     </div>
@@ -892,6 +1300,46 @@
     <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
         <button class="lightbox-close" onclick="closeLightbox(event); event.stopPropagation();">&times;</button>
         <img id="lightboxImg" src="" alt="" onclick="event.stopPropagation();">
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="shelter-modal-overlay" id="shelterModalOverlay" onclick="closeShelterModal(event)">
+        <div class="shelter-modal" onclick="event.stopPropagation()">
+            <div class="sm-header">
+                <h3 id="smName">Shelter</h3>
+                <button class="sm-close" onclick="closeShelterModal()">&times;</button>
+            </div>
+            <div class="sm-body" id="smBody"></div>
+        </div>
+    </div>
+
+    <div class="qr-modal-overlay" id="qrModalOverlay" onclick="closeQRModal(event)">
+        <div class="qr-modal" onclick="event.stopPropagation()">
+            <button class="qr-close" onclick="closeQRModal()">&times;</button>
+            <h3>Share This Pet</h3>
+            <p>Scan the QR code or copy the link</p>
+            <img id="qrImg" src="" alt="QR Code" width="200" height="200">
+            <div class="qr-link" id="qrLink"></div>
+        </div>
+    </div>
+
+    <div class="compare-bar" id="compareBar">
+        <span class="compare-count" id="compareCount">0 pets selected</span>
+        <div class="compare-actions">
+            <button class="compare-btn clear" id="compareClearBtn">Clear</button>
+            <button class="compare-btn" id="compareViewBtn">Compare</button>
+        </div>
+    </div>
+
+    <div class="compare-modal-overlay" id="compareModalOverlay" onclick="closeCompareModal(event)">
+        <div class="compare-modal" onclick="event.stopPropagation()">
+            <div class="cm-header">
+                <h3>Compare Pets</h3>
+                <button class="cm-close" onclick="closeCompareModal()">&times;</button>
+            </div>
+            <div class="cm-body" id="cmBody"></div>
+        </div>
     </div>
 
     <footer class="footer">
@@ -927,6 +1375,22 @@
         const allPets = [];
         let filteredPets = [];
         let userLocation = null;
+        let activeRadius = null; // miles
+        const compareList = new Set();
+        let keyboardFocusIdx = -1;
+
+        function showToast(msg) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = msg;
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add('show'));
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
 
         function getAge(dob) {
             if (!dob) return null;
@@ -1039,15 +1503,39 @@
         function renderSidebar() {
             const sidebar = document.getElementById('sidebar');
             if (filteredPets.length === 0) {
-                sidebar.innerHTML = '<div class="empty"><i class="fas fa-paw" style="font-size:2em;color:#D5D0C8;margin-bottom:10px;"></i><p>No pets match your filters.<br>Try adjusting your search!</p></div>';
+                const hasKeyword = document.getElementById('searchInput').value.trim();
+                const hasBreed = document.getElementById('breedFilter').value.trim();
+                const hasShelter = document.getElementById('shelterFilter').value.trim();
+                const hasType = document.getElementById('typeFilter').value;
+                const hasSpayed = document.getElementById('spayedFilter').value;
+                const hasAge = document.getElementById('minAge').value || document.getElementById('maxAge').value;
+                const hasWeight = document.getElementById('minWeight').value || document.getElementById('maxWeight').value;
+                const hasRadius = activeRadius !== null;
+
+                let suggestion = 'Try adjusting your search!';
+                if (hasBreed) suggestion = 'Try removing the breed filter or broadening your search terms.';
+                else if (hasRadius) suggestion = 'Try increasing the distance radius or clearing location filters.';
+                else if (hasShelter) suggestion = 'Try searching for a different shelter or location.';
+                else if (hasKeyword) suggestion = 'Try a broader keyword or remove the search filter.';
+                else if (hasType || hasSpayed || hasAge || hasWeight) suggestion = 'Try removing some filter criteria to see more pets.';
+
+                sidebar.innerHTML = `
+                    <div class="empty">
+                        <i class="fas fa-paw" style="font-size:2em;color:#D5D0C8;margin-bottom:10px;"></i>
+                        <p style="font-weight:600;margin-bottom:4px;">No pets match your filters.</p>
+                        <p style="font-size:0.9em;color:var(--text-muted);margin-bottom:12px;">${suggestion}</p>
+                        <button class="btn-sm" onclick="document.getElementById('resetBtn').click();" style="background:var(--primary-color);color:#111;border:none;padding:8px 18px;border-radius:20px;font-weight:600;cursor:pointer;">Clear All Filters</button>
+                    </div>
+                `;
                 return;
             }
             sidebar.innerHTML = filteredPets.map((pet, idx) => {
                 const saved = isPetSaved(pet.id);
                 const dist = formatDistance(getPetDistance(pet));
                 const isNew = isNewPet(pet);
+                const inCompare = compareList.has(pet.id);
                 return `
-                <div class="pet-card" data-idx="${idx}" data-id="${pet.id}">
+                <div class="pet-card" data-idx="${idx}" data-id="${pet.id}" tabindex="0">
                     <button class="fav-btn ${saved ? 'saved' : ''}" onclick="event.stopPropagation();window.toggleCardFav('${pet.id}', this);" title="${saved ? 'Remove from saved' : 'Save pet'}">
                         <i class="${saved ? 'fas' : 'far'} fa-heart"></i>
                     </button>
@@ -1065,15 +1553,30 @@
                             <i class="fas fa-info-circle"></i> Details
                         </button>
                     </div>
+                    <div class="card-actions">
+                        <button class="qa-compare ${inCompare ? 'active' : ''}" onclick="event.stopPropagation();window.toggleCompare('${pet.id}');" title="${inCompare ? 'Remove from compare' : 'Add to compare'}">
+                            <i class="fas fa-balance-scale"></i>
+                        </button>
+                        <button class="qa-btn" onclick="event.stopPropagation();window.showPetDetail('${pet.id}');">Quick View</button>
+                        <button class="qa-btn secondary" onclick="event.stopPropagation();window.toggleCardFav('${pet.id}', this.closest('.pet-card').querySelector('.fav-btn'));">
+                            <i class="${saved ? 'fas' : 'far'} fa-heart"></i> ${saved ? 'Saved' : 'Save'}
+                        </button>
+                    </div>
                 </div>
             `;
             }).join('');
 
             sidebar.querySelectorAll('.pet-card').forEach(card => {
                 card.addEventListener('click', (e) => {
-                    if (e.target.closest('.detail-btn') || e.target.closest('.fav-btn')) return;
+                    if (e.target.closest('.detail-btn') || e.target.closest('.fav-btn') || e.target.closest('.card-actions')) return;
                     const idx = parseInt(card.dataset.idx);
                     window.focusPet(idx);
+                });
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        const idx = parseInt(card.dataset.idx);
+                        window.showPetDetail(filteredPets[idx].id);
+                    }
                 });
             });
         }
@@ -1202,6 +1705,11 @@
                     if (!shelterText.includes(shelter)) return false;
                 }
 
+                if (activeRadius && userLocation && pet._hasRealCoords) {
+                    const d = haversine(userLocation.lat, userLocation.lng, pet._lat, pet._lng);
+                    if (d > activeRadius) return false;
+                }
+
                 return true;
             });
 
@@ -1285,6 +1793,7 @@
                     navigator.geolocation.getCurrentPosition(
                         pos => {
                             userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                            document.getElementById('radiusChips').style.display = 'flex';
                             if (document.getElementById('sortSelect').value === 'distance') applyFilters();
                             renderSidebar(); // refresh distances
                         },
@@ -1300,14 +1809,20 @@
         window.focusPet = (idx) => {
             const pet = filteredPets[idx];
             if (!pet) return;
-            map.setView([pet._lat, pet._lng], 12);
-            markers[idx]?.openPopup();
+            const targetMarker = markers[idx];
+            if (targetMarker && markerClusterGroup) {
+                markerClusterGroup.zoomToShowLayer(targetMarker, () => {
+                    targetMarker.openPopup();
+                });
+            }
+            map.flyTo([pet._lat, pet._lng], 16, { duration: 1 });
             document.querySelectorAll('.pet-card').forEach(c => c.classList.remove('active'));
             const card = document.querySelector(`.pet-card[data-idx="${idx}"]`);
             if (card) {
                 card.classList.add('active');
                 card.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
+            keyboardFocusIdx = idx;
         };
 
         let currentModalPetId = null;
@@ -1360,10 +1875,9 @@
                 const url = window.location.href;
                 if (navigator.share) {
                     try { await navigator.share({ title: `Adopt ${pet.name} on Pet Pad`, text: `Check out ${pet.name}, a ${pet.breed || 'pet'} available for adoption!`, url }); }
-                    catch (e) { /* user cancelled */ }
+                    catch (e) { window.openQRModal(url); }
                 } else {
-                    try { await navigator.clipboard.writeText(url); shareBtn.innerHTML = '<i class="fas fa-check"></i> Copied!'; setTimeout(() => shareBtn.innerHTML = '<i class="fas fa-share-alt"></i> Share', 2000); }
-                    catch (e) { prompt('Copy this link:', url); }
+                    window.openQRModal(url);
                 }
             };
 
@@ -1390,8 +1904,8 @@
             const coordsWarning = !pet._hasRealCoords ? `<span style="color:#C98C1A;font-size:0.8em;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>Location approximate</span><br>` : '';
             const shelterName = pet.shelterName || 'Unknown Shelter';
             document.getElementById('modalShelter').innerHTML = `
-                <strong class="shelter-name-link" onclick="window.filterByShelter('${shelterName.replace(/'/g, "\\'")}');window.closeModal();">${shelterName}</strong>
-                <span style="font-size:0.8em;color:#9E9A94;margin-left:6px;">(click to see all pets)</span><br>
+                <strong class="shelter-name-link" onclick="window.openShelterModal('${pet.id}');">${shelterName}</strong>
+                <span style="font-size:0.8em;color:#9E9A94;margin-left:6px;">(click for shelter info)</span><br>
                 ${displayAddress}<br>
                 ${phoneHtml}
                 ${websiteHtml}
@@ -1418,6 +1932,9 @@
             if (e.key === 'Escape') {
                 window.closeModal();
                 window.closeLightbox();
+                window.closeShelterModal();
+                window.closeQRModal();
+                window.closeCompareModal();
             }
         });
 
@@ -1443,6 +1960,10 @@
             document.getElementById('shelterFilter').value = '';
             document.getElementById('sortSelect').value = 'recent';
             document.getElementById('savedToggle').classList.remove('active');
+            document.querySelectorAll('.radius-chip').forEach(c => c.classList.remove('active'));
+            activeRadius = null;
+            compareList.clear();
+            updateCompareBar();
             applyFilters();
         });
 
@@ -1493,17 +2014,181 @@
                         userLocation = loc;
                         map.flyTo([loc.lat, loc.lng], 12, { duration: 1 });
                         applyFilters();
+                        document.getElementById('radiusChips').style.display = 'flex';
                     },
-                    () => alert('Unable to retrieve your location.')
+                    () => showToast('Unable to retrieve your location.')
                 );
             } else {
-                alert('Geolocation is not supported by your browser.');
+                showToast('Geolocation is not supported by your browser.');
             }
         });
         document.getElementById('fitAllBtn').addEventListener('click', () => {
             if (markers.length === 0) return;
             const group = new L.featureGroup(markers);
             map.fitBounds(group.getBounds().pad(0.15), { animate: true, duration: 1 });
+        });
+
+        /* Distance Radius Chips */
+        document.querySelectorAll('.radius-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('.radius-chip').forEach(c => c.classList.remove('active'));
+                const miles = chip.dataset.miles;
+                if (miles === '') {
+                    activeRadius = null;
+                } else {
+                    activeRadius = parseInt(miles);
+                    chip.classList.add('active');
+                }
+                applyFilters();
+            });
+        });
+
+        /* Shelter Modal */
+        let currentShelterPet = null;
+        window.openShelterModal = (petId) => {
+            const pet = allPets.find(p => p.id === petId);
+            if (!pet) return;
+            currentShelterPet = pet;
+            document.getElementById('smName').textContent = pet.shelterName || 'Shelter / Foster';
+            const addressParts = [pet.shelterAddress, pet.shelterCity, pet.shelterState, pet.shelterZip].filter(Boolean);
+            const displayAddress = addressParts.length > 0 ? addressParts.join(', ') : (pet.shelterLocation || 'Location not provided');
+            const body = document.getElementById('smBody');
+            body.innerHTML = `
+                ${pet.shelterPhone ? `<div class="sm-row"><i class="fas fa-phone"></i><div><a href="tel:${pet.shelterPhone}">${pet.shelterPhone}</a></div></div>` : ''}
+                ${pet.shelterWebsite ? `<div class="sm-row"><i class="fas fa-globe"></i><div><a href="${pet.shelterWebsite}" target="_blank" rel="noopener">Shelter Website</a></div></div>` : ''}
+                <div class="sm-row"><i class="fas fa-map-marker-alt"></i><div>${displayAddress}</div></div>
+                ${pet.shelterEmail ? `<div class="sm-row"><i class="fas fa-envelope"></i><div><a href="mailto:${pet.shelterEmail}">${pet.shelterEmail}</a></div></div>` : ''}
+                <button class="sm-btn" onclick="window.filterByShelter('${(pet.shelterName || '').replace(/'/g, "\\'")}');window.closeShelterModal();">View All Pets From This Shelter</button>
+            `;
+            document.getElementById('shelterModalOverlay').classList.add('open');
+        };
+        window.closeShelterModal = (e) => {
+            if (e && e.target !== document.getElementById('shelterModalOverlay')) return;
+            document.getElementById('shelterModalOverlay').classList.remove('open');
+        };
+
+        /* QR Modal */
+        window.openQRModal = (url) => {
+            document.getElementById('qrImg').src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(url);
+            document.getElementById('qrLink').textContent = url;
+            document.getElementById('qrModalOverlay').classList.add('open');
+        };
+        window.closeQRModal = (e) => {
+            if (e && e.target !== document.getElementById('qrModalOverlay')) return;
+            document.getElementById('qrModalOverlay').classList.remove('open');
+        };
+
+        /* Compare Mode */
+        window.toggleCompare = (id) => {
+            if (compareList.has(id)) {
+                compareList.delete(id);
+            } else {
+                if (compareList.size >= 3) {
+                    showToast('You can compare up to 3 pets at a time.');
+                    return;
+                }
+                compareList.add(id);
+            }
+            renderSidebar();
+            updateCompareBar();
+        };
+        function updateCompareBar() {
+            const bar = document.getElementById('compareBar');
+            const count = document.getElementById('compareCount');
+            if (compareList.size === 0) {
+                bar.classList.remove('open');
+            } else {
+                bar.classList.add('open');
+                count.textContent = `${compareList.size} pet${compareList.size !== 1 ? 's' : ''} selected`;
+            }
+        }
+        window.openCompareModal = () => {
+            if (compareList.size < 2) {
+                showToast('Select at least 2 pets to compare.');
+                return;
+            }
+            const pets = [...compareList].map(id => allPets.find(p => p.id === id)).filter(Boolean);
+            const body = document.getElementById('cmBody');
+            body.innerHTML = `<div class="compare-grid">${pets.map(pet => {
+                const dist = formatDistance(getPetDistance(pet));
+                return `
+                <div class="compare-col">
+                    <img src="${pet.imageUrl || '/petPadNotebookDarkGreyTan.png'}" alt="${pet.name}" onerror="this.src='/petPadNotebookDarkGreyTan.png'">
+                    <h4>${pet.name}</h4>
+                    <div class="cm-meta">${pet.breed || 'Mixed'} &bull; ${pet.sex || ''}</div>
+                    <div class="cm-detail"><span class="cm-detail-label">Age</span><span class="cm-detail-value">${getAge(pet.dateOfBirth) || 'Unknown'}</span></div>
+                    <div class="cm-detail"><span class="cm-detail-label">Weight</span><span class="cm-detail-value">${pet.weight || 'Unknown'}</span></div>
+                    <div class="cm-detail"><span class="cm-detail-label">Type</span><span class="cm-detail-value">${pet.petType || 'Unknown'}</span></div>
+                    <div class="cm-detail"><span class="cm-detail-label">Color</span><span class="cm-detail-value">${pet.color || 'Unknown'}</span></div>
+                    <div class="cm-detail"><span class="cm-detail-label">Spayed/Neutered</span><span class="cm-detail-value">${pet.spayedNeuteredStatus || 'Unknown'}</span></div>
+                    ${dist ? `<div class="cm-detail"><span class="cm-detail-label">Distance</span><span class="cm-detail-value">${dist}</span></div>` : ''}
+                    <div class="cm-detail"><span class="cm-detail-label">Location</span><span class="cm-detail-value">${pet.shelterCity || pet.shelterLocation?.split(',')[0] || 'Unknown'}</span></div>
+                </div>
+                `;
+            }).join('')}</div>`;
+            document.getElementById('compareModalOverlay').classList.add('open');
+        };
+        window.closeCompareModal = (e) => {
+            if (e && e.target !== document.getElementById('compareModalOverlay')) return;
+            document.getElementById('compareModalOverlay').classList.remove('open');
+        };
+        document.getElementById('compareClearBtn').addEventListener('click', () => {
+            compareList.clear();
+            renderSidebar();
+            updateCompareBar();
+        });
+        document.getElementById('compareViewBtn').addEventListener('click', window.openCompareModal);
+
+        /* Keyboard Navigation */
+        document.addEventListener('keydown', (e) => {
+            if (document.querySelector('.modal-overlay.open') || document.querySelector('.compare-modal-overlay.open')) {
+                if (e.key === 'Escape') {
+                    window.closeModal();
+                    window.closeCompareModal();
+                }
+                return;
+            }
+            const cards = document.querySelectorAll('.pet-card');
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                keyboardFocusIdx = Math.min(keyboardFocusIdx + 1, cards.length - 1);
+                if (keyboardFocusIdx >= 0) cards[keyboardFocusIdx].focus();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                keyboardFocusIdx = Math.max(keyboardFocusIdx - 1, 0);
+                if (keyboardFocusIdx >= 0) cards[keyboardFocusIdx].focus();
+            } else if (e.key === 'Enter' && keyboardFocusIdx >= 0) {
+                const idx = parseInt(cards[keyboardFocusIdx].dataset.idx);
+                window.showPetDetail(filteredPets[idx].id);
+            }
+        });
+
+        /* Scroll-Triggered Map Sync */
+        const sidebarEl = document.getElementById('sidebar');
+        let scrollSyncTimeout;
+        sidebarEl.addEventListener('scroll', () => {
+            clearTimeout(scrollSyncTimeout);
+            scrollSyncTimeout = setTimeout(() => {
+                const cards = sidebarEl.querySelectorAll('.pet-card');
+                let closest = null, closestDist = Infinity;
+                const sidebarRect = sidebarEl.getBoundingClientRect();
+                const centerY = sidebarRect.top + sidebarRect.height / 2;
+                cards.forEach(card => {
+                    const rect = card.getBoundingClientRect();
+                    const cardCenter = rect.top + rect.height / 2;
+                    const dist = Math.abs(cardCenter - centerY);
+                    if (dist < closestDist) { closestDist = dist; closest = card; }
+                });
+                if (closest) {
+                    const idx = parseInt(closest.dataset.idx);
+                    const marker = markers[idx];
+                    if (marker) {
+                        marker.openPopup();
+                        document.querySelectorAll('.pet-card').forEach(c => c.classList.remove('active'));
+                        closest.classList.add('active');
+                    }
+                }
+            }, 150);
         });
 
         document.getElementById('year').textContent = new Date().getFullYear();
