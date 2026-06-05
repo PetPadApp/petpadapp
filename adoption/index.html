@@ -676,6 +676,155 @@
         }
         .filter-bar .saved-toggle:hover { border-color: var(--accent-color); color: var(--accent-color); }
         .filter-bar .saved-toggle.active { border-color: var(--accent-color); color: var(--accent-color); background: rgba(255,105,180,0.08); }
+        .filter-bar .compare-toggle {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 7px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .filter-bar .compare-toggle:hover { border-color: var(--primary-color); color: var(--primary-dark); }
+        .filter-bar .compare-toggle.active { border-color: var(--primary-color); color: var(--primary-dark); background: rgba(64,224,208,0.12); }
+
+        /* Compare mode card selection */
+        .pet-card.compare-mode { position: relative; }
+        .pet-card .compare-circle {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            background: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 5;
+            font-size: 0.7em;
+            color: transparent;
+            transition: all 0.2s;
+        }
+        .pet-card.compare-selected .compare-circle {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: #111;
+        }
+        .pet-card.compare-selected { border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(64,224,208,0.2); }
+        body[data-theme="dark"] .pet-card .compare-circle { background: var(--card-bg); }
+
+        /* Compare bar */
+        .compare-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            z-index: 100;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+        }
+        .compare-bar.open { display: flex; }
+        .compare-bar .compare-count { font-weight: 600; color: var(--text-color); }
+        .compare-bar .compare-actions { display: flex; gap: 10px; }
+        .compare-bar .compare-btn {
+            background: var(--primary-color);
+            color: #111;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+        .compare-bar .compare-btn.clear {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Compare modal */
+        .compare-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .compare-modal-overlay.open { display: flex; }
+        .compare-modal {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-hover);
+            position: relative;
+        }
+        .compare-modal .cm-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .compare-modal .cm-header h3 { margin: 0; font-size: 1.2em; }
+        .compare-modal .cm-close {
+            background: none;
+            border: none;
+            font-size: 1.4em;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        .compare-modal .cm-body { padding: 20px 24px; }
+        .compare-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+        .compare-col { text-align: center; }
+        .compare-col img {
+            width: 100px;
+            height: 100px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: #EAE6E0;
+            margin-bottom: 10px;
+        }
+        .compare-col h4 { margin: 0 0 4px; font-size: 1.05em; color: var(--text-color); }
+        .compare-col .cm-meta { font-size: 0.85em; color: var(--text-muted); margin-bottom: 12px; }
+        .compare-col .cm-detail {
+            text-align: left;
+            font-size: 0.85em;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+        }
+        .compare-col .cm-detail:last-child { border-bottom: none; }
+        .compare-col .cm-detail-label { color: var(--text-muted); }
+        .compare-col .cm-detail-value { color: var(--text-color); font-weight: 500; }
 
         /* Pet Card detail button */
         .pet-card .detail-btn {
@@ -1008,10 +1157,12 @@
         @media print {
             .site-header, .hero, .filter-bar, #map, .sidebar, .modal-close, .fav-btn-modal, .share-btn, .qr-btn, .print-btn, .modal .cta, .footer { display: none !important; }
             .modal-overlay { position: static; background: none; display: block !important; opacity: 1 !important; visibility: visible !important; }
-            .modal { transform: none; max-width: 100%; border: none; box-shadow: none; }
-            .modal-img { max-height: 400px; page-break-after: avoid; }
-            .modal-body { padding: 0; }
+            .modal { transform: none; max-width: 100%; border: none; box-shadow: none; margin: 0; }
+            .modal-img { max-height: none !important; height: auto !important; width: 100% !important; object-fit: contain !important; page-break-inside: avoid; }
+            .modal-body { padding: 16px 0; }
             body { background: #fff; color: #000; }
+            .detail-row { border-bottom: 1px solid #ddd; padding: 6px 0; }
+            .shelter-box { border: 1px solid #ddd; padding: 12px; border-radius: 8px; margin-top: 12px; }
         }
 
         /* Mobile */
@@ -1133,6 +1284,7 @@
                 <button class="radius-chip" data-miles="">Any</button>
             </div>
             <button class="saved-toggle" id="savedToggle" title="Show only saved pets"><i class="fas fa-heart"></i> Saved</button>
+            <button class="compare-toggle" id="compareToggle" title="Compare pets"><i class="fas fa-balance-scale"></i> Compare</button>
             <span class="count-badge" id="resultCount">0 pets</span>
         </div>
         <div class="layout">
@@ -1207,6 +1359,24 @@
         </div>
     </div>
 
+    <div class="compare-bar" id="compareBar">
+        <span class="compare-count" id="compareCount">0 pets selected</span>
+        <div class="compare-actions">
+            <button class="compare-btn clear" id="compareClearBtn">Clear</button>
+            <button class="compare-btn" id="compareViewBtn">Compare</button>
+        </div>
+    </div>
+
+    <div class="compare-modal-overlay" id="compareModalOverlay" onclick="closeCompareModal(event)">
+        <div class="compare-modal" onclick="event.stopPropagation()">
+            <div class="cm-header">
+                <h3>Compare Pets</h3>
+                <button class="cm-close" onclick="closeCompareModal()">&times;</button>
+            </div>
+            <div class="cm-body" id="cmBody"></div>
+        </div>
+    </div>
+
     <footer class="footer">
         <p>Data provided by shelters using <a href="/">Pet Pad</a>. Adopt responsibly.</p>
         <p style="margin-top:8px;">&copy; <span id="year"></span> Pet Pad. All rights reserved.</p>
@@ -1242,6 +1412,8 @@
         let userLocation = null;
         let activeRadius = null; // miles
         let keyboardFocusIdx = -1;
+        let compareMode = false;
+        const compareList = new Set();
 
         function showToast(msg) {
             const container = document.getElementById('toastContainer');
@@ -1412,8 +1584,10 @@
                 const saved = isPetSaved(pet.id);
                 const dist = formatDistance(getPetDistance(pet));
                 const isNew = isNewPet(pet);
+                const inCompare = compareList.has(pet.id);
                 return `
-                <div class="pet-card" data-idx="${idx}" data-id="${pet.id}" tabindex="0">
+                <div class="pet-card ${compareMode ? 'compare-mode' : ''} ${inCompare ? 'compare-selected' : ''}" data-idx="${idx}" data-id="${pet.id}" tabindex="0">
+                    ${compareMode ? `<div class="compare-circle" onclick="event.stopPropagation();window.toggleCompare('${pet.id}');"><i class="fas fa-check"></i></div>` : ''}
                     <button class="fav-btn ${saved ? 'saved' : ''}" onclick="event.stopPropagation();window.toggleCardFav('${pet.id}', this);" title="${saved ? 'Remove from saved' : 'Save pet'}">
                         <i class="${saved ? 'fas' : 'far'} fa-heart"></i>
                     </button>
@@ -1437,12 +1611,22 @@
 
             sidebar.querySelectorAll('.pet-card').forEach(card => {
                 card.addEventListener('click', (e) => {
-                    if (e.target.closest('.detail-btn') || e.target.closest('.fav-btn')) return;
+                    if (e.target.closest('.detail-btn') || e.target.closest('.fav-btn') || e.target.closest('.compare-circle')) return;
+                    if (compareMode) {
+                        const id = card.dataset.id;
+                        window.toggleCompare(id);
+                        return;
+                    }
                     const idx = parseInt(card.dataset.idx);
                     window.focusPet(idx);
                 });
                 card.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') {
+                        if (compareMode) {
+                            const id = card.dataset.id;
+                            window.toggleCompare(id);
+                            return;
+                        }
                         const idx = parseInt(card.dataset.idx);
                         window.showPetDetail(filteredPets[idx].id);
                     }
@@ -1588,6 +1772,7 @@
             updateSavedToggleCount();
             document.getElementById('resultCount').textContent = `${filteredPets.length} pet${filteredPets.length !== 1 ? 's' : ''}`;
         }
+        window.applyFilters = applyFilters; // expose for inline onclick handlers
 
         function sortPets() {
             const sort = document.getElementById('sortSelect').value;
@@ -1813,6 +1998,7 @@
                 window.closeLightbox();
                 window.closeShelterModal();
                 window.closeQRModal();
+                window.closeCompareModal();
             }
         });
 
@@ -1840,6 +2026,12 @@
             document.getElementById('savedToggle').classList.remove('active');
             document.querySelectorAll('.radius-chip').forEach(c => c.classList.remove('active'));
             activeRadius = null;
+            if (compareMode) {
+                compareMode = false;
+                document.getElementById('compareToggle').classList.remove('active');
+                compareList.clear();
+                updateCompareBar();
+            }
             applyFilters();
         });
 
@@ -1953,6 +2145,80 @@
             if (e && e.target !== document.getElementById('qrModalOverlay')) return;
             document.getElementById('qrModalOverlay').classList.remove('open');
         };
+
+        /* Compare Mode */
+        window.toggleCompare = (id) => {
+            if (compareList.has(id)) {
+                compareList.delete(id);
+            } else {
+                if (compareList.size >= 3) {
+                    showToast('You can compare up to 3 pets at a time.');
+                    return;
+                }
+                compareList.add(id);
+            }
+            renderSidebar();
+            updateCompareBar();
+        };
+        function updateCompareBar() {
+            const bar = document.getElementById('compareBar');
+            const count = document.getElementById('compareCount');
+            if (compareList.size === 0) {
+                bar.classList.remove('open');
+            } else {
+                bar.classList.add('open');
+                count.textContent = `${compareList.size} pet${compareList.size !== 1 ? 's' : ''} selected`;
+            }
+        }
+        window.openCompareModal = () => {
+            if (compareList.size < 2) {
+                showToast('Select at least 2 pets to compare.');
+                return;
+            }
+            const pets = [...compareList].map(id => allPets.find(p => p.id === id)).filter(Boolean);
+            const body = document.getElementById('cmBody');
+            body.innerHTML = `<div class="compare-grid">${pets.map(pet => {
+                const dist = formatDistance(getPetDistance(pet));
+                return `
+                <div class="compare-col">
+                    <img src="${pet.imageUrl || '/petPadNotebookDarkGreyTan.png'}" alt="${pet.name}" onerror="this.src='/petPadNotebookDarkGreyTan.png'">
+                    <h4>${pet.name}</h4>
+                    <div class="cm-meta">${pet.breed || 'Mixed'} &bull; ${pet.sex || ''}</div>
+                    <div class="cm-detail"><span class="cm-detail-label">Age</span><span class="cm-detail-value">${getAge(pet.dateOfBirth) || 'Unknown'}</span></div>
+                    <div class="cm-detail"><span class="cm-detail-label">Weight</span><span class="cm-detail-value">${pet.weight || 'Unknown'}</span></div>
+                    <div class="cm-detail"><span class="cm-detail-label">Type</span><span class="cm-detail-value">${pet.petType || 'Unknown'}</span></div>
+                    <div class="cm-detail"><span class="cm-detail-label">Color</span><span class="cm-detail-value">${pet.color || 'Unknown'}</span></div>
+                    <div class="cm-detail"><span class="cm-detail-label">Spayed/Neutered</span><span class="cm-detail-value">${pet.spayedNeuteredStatus || 'Unknown'}</span></div>
+                    ${dist ? `<div class="cm-detail"><span class="cm-detail-label">Distance</span><span class="cm-detail-value">${dist}</span></div>` : ''}
+                    <div class="cm-detail"><span class="cm-detail-label">Location</span><span class="cm-detail-value">${pet.shelterCity || (pet.shelterLocation ? pet.shelterLocation.split(',')[0] : 'Unknown')}</span></div>
+                </div>
+                `;
+            }).join('')}</div>`;
+            document.getElementById('compareModalOverlay').classList.add('open');
+        };
+        window.closeCompareModal = (e) => {
+            if (e && e.target !== document.getElementById('compareModalOverlay')) return;
+            document.getElementById('compareModalOverlay').classList.remove('open');
+        };
+
+        document.getElementById('compareToggle').addEventListener('click', function() {
+            compareMode = !compareMode;
+            this.classList.toggle('active', compareMode);
+            if (!compareMode) {
+                compareList.clear();
+                updateCompareBar();
+            }
+            renderSidebar();
+            if (compareMode) {
+                showToast('Tap pets to select them for comparison. Tap Details to view a pet.');
+            }
+        });
+        document.getElementById('compareClearBtn').addEventListener('click', () => {
+            compareList.clear();
+            renderSidebar();
+            updateCompareBar();
+        });
+        document.getElementById('compareViewBtn').addEventListener('click', window.openCompareModal);
 
         /* Keyboard Navigation */
         document.addEventListener('keydown', (e) => {
