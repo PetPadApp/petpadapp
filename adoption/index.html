@@ -121,6 +121,11 @@
             transition: color 0.2s;
         }
         .site-header nav a:hover { color: var(--primary-dark); }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
         .theme-toggle {
             background: transparent;
             border: 1px solid var(--border-color);
@@ -133,9 +138,8 @@
             justify-content: center;
             cursor: pointer;
             font-size: 1em;
-            margin-left: 18px;
             transition: all 0.2s;
-            vertical-align: middle;
+            flex-shrink: 0;
         }
         .theme-toggle:hover { border-color: var(--primary-color); color: var(--primary-color); transform: scale(1.08); }
         body[data-theme="dark"] .theme-toggle { border-color: #444; color: #ccc; }
@@ -153,7 +157,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2760%27%20height%3D%2760%27%20viewBox%3D%270%200%20100%20100%27%20fill%3D%27%23FF69B4%27%20fill-opacity%3D%270.09%27%3E%3Cellipse%20cx%3D%2720%27%20cy%3D%2732%27%20rx%3D%279%27%20ry%3D%2712%27%20transform%3D%27rotate(-20%2020%2032)%27%2F%3E%3Cellipse%20cx%3D%2740%27%20cy%3D%2720%27%20rx%3D%279%27%20ry%3D%2713%27%20transform%3D%27rotate(-5%2040%2020)%27%2F%3E%3Cellipse%20cx%3D%2760%27%20cy%3D%2720%27%20rx%3D%279%27%20ry%3D%2713%27%20transform%3D%27rotate(5%2060%2020)%27%2F%3E%3Cellipse%20cx%3D%2780%27%20cy%3D%2732%27%20rx%3D%279%27%20ry%3D%2712%27%20transform%3D%27rotate(20%2080%2032)%27%2F%3E%3Cpath%20d%3D%27M50%2044%20C32%2044%2022%2056%2022%2072%20C22%2085%2034%2093%2050%2093%20C66%2093%2078%2085%2078%2072%20C78%2056%2068%2044%2050%2044%20Z%27%2F%3E%3C%2Fsvg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2760%27%20height%3D%2760%27%20viewBox%3D%270%200%20100%20100%27%20fill%3D%27%23FF69B4%27%20fill-opacity%3D%270.09%27%3E%3Cellipse%20cx%3D%2722%27%20cy%3D%2730%27%20rx%3D%277%27%20ry%3D%279%27%20transform%3D%27rotate(-22%2022%2030)%27%2F%3E%3Cellipse%20cx%3D%2740%27%20cy%3D%2722%27%20rx%3D%277%27%20ry%3D%279%27%20transform%3D%27rotate(-5%2040%2022)%27%2F%3E%3Cellipse%20cx%3D%2758%27%20cy%3D%2722%27%20rx%3D%277%27%20ry%3D%279%27%20transform%3D%27rotate(5%2058%2022)%27%2F%3E%3Cellipse%20cx%3D%2776%27%20cy%3D%2730%27%20rx%3D%277%27%20ry%3D%279%27%20transform%3D%27rotate(22%2076%2030)%27%2F%3E%3Cellipse%20cx%3D%2749%27%20cy%3D%2762%27%20rx%3D%2722%27%20ry%3D%2717%27%2F%3E%3C%2Fsvg%3E");
             background-size: 80px 80px;
             pointer-events: none;
         }
@@ -192,12 +196,13 @@
         .map-wrap {
             flex: 1 1 60%;
             position: relative;
-            min-height: calc(100vh - 220px);
+            min-height: 550px;
+            height: calc(100vh - 160px);
         }
         #map {
             width: 100%;
             height: 100%;
-            min-height: calc(100vh - 220px);
+            min-height: 550px;
             border-radius: 16px;
             border: 1px solid var(--border-color);
             background: #EAE6E0;
@@ -221,7 +226,8 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
-            max-height: calc(100vh - 220px);
+            max-height: calc(100vh - 160px);
+            min-height: 550px;
             overflow-y: auto;
             padding-right: 4px;
         }
@@ -294,8 +300,8 @@
             box-shadow: 0 0 0 3px rgba(64, 224, 208, 0.15), var(--shadow-hover);
         }
         .pet-card .pet-img {
-            width: 90px;
-            height: 90px;
+            width: 82px;
+            height: 82px;
             border-radius: 12px;
             object-fit: cover;
             background: #EAE6E0;
@@ -566,7 +572,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2760%27%20height%3D%2760%27%20viewBox%3D%270%200%20100%20100%27%20fill%3D%27%2340E0D0%27%20fill-opacity%3D%270.07%27%3E%3Cellipse%20cx%3D%2720%27%20cy%3D%2732%27%20rx%3D%279%27%20ry%3D%2712%27%20transform%3D%27rotate(-20%2020%2032)%27%2F%3E%3Cellipse%20cx%3D%2740%27%20cy%3D%2720%27%20rx%3D%279%27%20ry%3D%2713%27%20transform%3D%27rotate(-5%2040%2020)%27%2F%3E%3Cellipse%20cx%3D%2760%27%20cy%3D%2720%27%20rx%3D%279%27%20ry%3D%2713%27%20transform%3D%27rotate(5%2060%2020)%27%2F%3E%3Cellipse%20cx%3D%2780%27%20cy%3D%2732%27%20rx%3D%279%27%20ry%3D%2712%27%20transform%3D%27rotate(20%2080%2032)%27%2F%3E%3Cpath%20d%3D%27M50%2044%20C32%2044%2022%2056%2022%2072%20C22%2085%2034%2093%2050%2093%20C66%2093%2078%2085%2078%2072%20C78%2056%2068%2044%2050%2044%20Z%27%2F%3E%3C%2Fsvg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2760%27%20height%3D%2760%27%20viewBox%3D%270%200%20100%20100%27%20fill%3D%27%2340E0D0%27%20fill-opacity%3D%270.07%27%3E%3Cellipse%20cx%3D%2722%27%20cy%3D%2730%27%20rx%3D%277%27%20ry%3D%279%27%20transform%3D%27rotate(-22%2022%2030)%27%2F%3E%3Cellipse%20cx%3D%2740%27%20cy%3D%2722%27%20rx%3D%277%27%20ry%3D%279%27%20transform%3D%27rotate(-5%2040%2022)%27%2F%3E%3Cellipse%20cx%3D%2758%27%20cy%3D%2722%27%20rx%3D%277%27%20ry%3D%279%27%20transform%3D%27rotate(5%2058%2022)%27%2F%3E%3Cellipse%20cx%3D%2776%27%20cy%3D%2730%27%20rx%3D%277%27%20ry%3D%279%27%20transform%3D%27rotate(22%2076%2030)%27%2F%3E%3Cellipse%20cx%3D%2749%27%20cy%3D%2762%27%20rx%3D%2722%27%20ry%3D%2717%27%2F%3E%3C%2Fsvg%3E");
             background-size: 80px 80px;
             pointer-events: none;
         }
@@ -740,8 +746,11 @@
             .hero h1 { font-size: 1.9em; }
         }
         @media (max-width: 600px) {
-            .site-header { padding: 12px 16px; }
-            .site-header .logo span { display: none; }
+            .site-header { padding: 10px 14px; }
+            .site-header .logo img { height: 32px; }
+            .site-header nav a { margin-left: 14px; font-size: 0.85em; }
+            .header-right { gap: 6px; }
+            .theme-toggle { width: 32px; height: 32px; font-size: 0.9em; }
             .hero { padding: 30px 16px 20px; }
             .hero h1 { font-size: 1.6em; }
             .hero p { font-size: 0.95em; }
@@ -782,13 +791,15 @@
         <a href="/" class="logo">
             <img src="/PetPadLogoTextGreen.png" alt="Pet Pad">
         </a>
-        <nav>
-            <a href="/">Home</a>
-            <a href="/adoption/">Adopt a Pet</a>
+        <div class="header-right">
+            <nav>
+                <a href="/">Home</a>
+                <a href="/adoption/">Adopt a Pet</a>
+            </nav>
             <button id="themeToggle" class="theme-toggle" title="Toggle dark mode">
                 <i class="fas fa-moon"></i>
             </button>
-        </nav>
+        </div>
     </header>
 
     <div class="hero">
