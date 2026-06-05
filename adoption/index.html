@@ -517,6 +517,7 @@
             margin-top: 22px;
             display: flex;
             gap: 12px;
+            flex-wrap: wrap;
         }
         .btn {
             display: inline-flex;
@@ -808,73 +809,6 @@
             background-size: 200% 100%;
         }
 
-        /* Card Hover Quick-Actions */
-        .pet-card .card-actions {
-            position: absolute;
-            inset: 0;
-            background: rgba(255,255,255,0.92);
-            backdrop-filter: blur(4px);
-            border-radius: 14px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s;
-        }
-        .pet-card:hover .card-actions {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .pet-card .card-actions .qa-btn {
-            background: var(--primary-color);
-            color: #111;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.85em;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .pet-card .card-actions .qa-btn:hover { transform: scale(1.05); }
-        .pet-card .card-actions .qa-btn.secondary {
-            background: transparent;
-            color: var(--text-muted);
-            border: 1px solid var(--border-color);
-        }
-        .pet-card .card-actions .qa-btn.secondary:hover {
-            border-color: var(--primary-color);
-            color: var(--primary-dark);
-        }
-        .pet-card .card-actions .qa-compare {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.8em;
-            transition: all 0.2s;
-        }
-        .pet-card .card-actions .qa-compare:hover,
-        .pet-card .card-actions .qa-compare.active {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-        }
-        body[data-theme="dark"] .pet-card .card-actions {
-            background: rgba(36,36,36,0.92);
-        }
-
         /* Distance Radius Chips */
         .radius-chips {
             display: flex;
@@ -1021,111 +955,58 @@
         .qr-modal img { border-radius: 12px; border: 1px solid var(--border-color); }
         .qr-modal .qr-link { margin-top: 12px; word-break: break-all; font-size: 0.8em; color: var(--text-muted); }
 
-        /* Comparison */
-        .compare-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--card-bg);
-            border-top: 1px solid var(--border-color);
-            padding: 12px 24px;
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            z-index: 100;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
-        }
-        .compare-bar.open { display: flex; }
-        .compare-bar .compare-count { font-weight: 600; color: var(--text-color); }
-        .compare-bar .compare-actions { display: flex; gap: 10px; }
-        .compare-bar .compare-btn {
-            background: var(--primary-color);
-            color: #111;
-            border: none;
-            padding: 8px 18px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.9em;
-            cursor: pointer;
-        }
-        .compare-bar .compare-btn.clear {
-            background: transparent;
+        /* Modal QR & Print buttons */
+        .modal .qr-btn, .modal .print-btn {
+            background: #fff;
+            border: 1px solid var(--border-color);
             color: var(--text-muted);
-            border: 1px solid var(--border-color);
+            padding: 11px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            font-weight: 500;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
         }
+        .modal .qr-btn:hover, .modal .print-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-dark);
+            box-shadow: 0 4px 12px rgba(64,224,208,0.12);
+        }
+        body[data-theme="dark"] .modal .qr-btn,
+        body[data-theme="dark"] .modal .print-btn { background: #2A2A2A; border-color: #444; }
 
-        .compare-modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            backdrop-filter: blur(4px);
-        }
-        .compare-modal-overlay.open { display: flex; }
-        .compare-modal {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            max-width: 700px;
-            width: 100%;
-            max-height: 85vh;
-            overflow-y: auto;
-            box-shadow: var(--shadow-hover);
-            position: relative;
-        }
-        .compare-modal .cm-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--border-color);
+        /* Shelter filter hint banner */
+        .filter-hint {
+            background: rgba(64,224,208,0.12);
+            border: 1px solid rgba(64,224,208,0.3);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin: 8px 12px;
+            font-size: 0.85em;
+            color: var(--text-color);
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            gap: 10px;
         }
-        .compare-modal .cm-header h3 { margin: 0; font-size: 1.2em; }
-        .compare-modal .cm-close {
+        .filter-hint button {
             background: none;
             border: none;
-            font-size: 1.4em;
-            color: var(--text-muted);
+            color: var(--primary-dark);
+            font-weight: 600;
             cursor: pointer;
+            font-size: 0.9em;
+            white-space: nowrap;
         }
-        .compare-modal .cm-body { padding: 20px 24px; }
-        .compare-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
-        }
-        .compare-col { text-align: center; }
-        .compare-col img {
-            width: 100px;
-            height: 100px;
-            border-radius: 12px;
-            object-fit: cover;
-            background: #EAE6E0;
-            margin-bottom: 10px;
-        }
-        .compare-col h4 { margin: 0 0 4px; font-size: 1.05em; color: var(--text-color); }
-        .compare-col .cm-meta { font-size: 0.85em; color: var(--text-muted); margin-bottom: 12px; }
-        .compare-col .cm-detail {
-            text-align: left;
-            font-size: 0.85em;
-            padding: 6px 0;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-        }
-        .compare-col .cm-detail:last-child { border-bottom: none; }
-        .compare-col .cm-detail-label { color: var(--text-muted); }
-        .compare-col .cm-detail-value { color: var(--text-color); font-weight: 500; }
 
         /* Print Styles */
         @media print {
-            .site-header, .hero, .filter-bar, #map, .sidebar, .modal-close, .fav-btn-modal, .share-btn, .modal .cta, .footer, .compare-bar { display: none !important; }
+            .site-header, .hero, .filter-bar, #map, .sidebar, .modal-close, .fav-btn-modal, .share-btn, .qr-btn, .print-btn, .modal .cta, .footer { display: none !important; }
             .modal-overlay { position: static; background: none; display: block !important; opacity: 1 !important; visibility: visible !important; }
             .modal { transform: none; max-width: 100%; border: none; box-shadow: none; }
             .modal-img { max-height: 400px; page-break-after: avoid; }
@@ -1289,6 +1170,8 @@
                 </div>
                 <div class="cta">
                     <button class="share-btn" id="modalShareBtn"><i class="fas fa-share-alt"></i> Share</button>
+                    <button class="qr-btn" id="modalQRBtn" title="QR Code"><i class="fas fa-qrcode"></i> QR</button>
+                    <button class="print-btn" id="modalPrintBtn" title="Print Profile"><i class="fas fa-print"></i></button>
                     <a id="modalAppLink" href="https://apps.apple.com/app/id6749177166" class="btn" target="_blank">
                         <i class="fab fa-apple"></i> Open in Pet Pad
                     </a>
@@ -1298,7 +1181,7 @@
     </div>
 
     <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
-        <button class="lightbox-close" onclick="closeLightbox(event); event.stopPropagation();">&times;</button>
+        <button class="lightbox-close" onclick="event.stopPropagation(); window.closeLightboxDirect();">&times;</button>
         <img id="lightboxImg" src="" alt="" onclick="event.stopPropagation();">
     </div>
 
@@ -1321,24 +1204,6 @@
             <p>Scan the QR code or copy the link</p>
             <img id="qrImg" src="" alt="QR Code" width="200" height="200">
             <div class="qr-link" id="qrLink"></div>
-        </div>
-    </div>
-
-    <div class="compare-bar" id="compareBar">
-        <span class="compare-count" id="compareCount">0 pets selected</span>
-        <div class="compare-actions">
-            <button class="compare-btn clear" id="compareClearBtn">Clear</button>
-            <button class="compare-btn" id="compareViewBtn">Compare</button>
-        </div>
-    </div>
-
-    <div class="compare-modal-overlay" id="compareModalOverlay" onclick="closeCompareModal(event)">
-        <div class="compare-modal" onclick="event.stopPropagation()">
-            <div class="cm-header">
-                <h3>Compare Pets</h3>
-                <button class="cm-close" onclick="closeCompareModal()">&times;</button>
-            </div>
-            <div class="cm-body" id="cmBody"></div>
         </div>
     </div>
 
@@ -1376,7 +1241,6 @@
         let filteredPets = [];
         let userLocation = null;
         let activeRadius = null; // miles
-        const compareList = new Set();
         let keyboardFocusIdx = -1;
 
         function showToast(msg) {
@@ -1466,6 +1330,8 @@
             return days <= 7;
         }
         window.filterByShelter = (shelterName) => {
+            window.closeModal();
+            window.closeShelterModal();
             document.getElementById('shelterFilter').value = shelterName;
             applyFilters();
             document.querySelector('.sidebar')?.scrollIntoView({ behavior: 'smooth' });
@@ -1486,6 +1352,11 @@
         };
         window.closeLightbox = (e) => {
             if (e && e.target !== document.getElementById('lightbox')) return;
+            document.getElementById('lightbox').classList.remove('open');
+            document.getElementById('lightboxImg').src = '';
+        };
+        // Also expose a direct close for the lightbox close button
+        window.closeLightboxDirect = () => {
             document.getElementById('lightbox').classList.remove('open');
             document.getElementById('lightboxImg').src = '';
         };
@@ -1529,11 +1400,18 @@
                 `;
                 return;
             }
-            sidebar.innerHTML = filteredPets.map((pet, idx) => {
+            const shelterFilterVal = document.getElementById('shelterFilter').value.trim();
+            const hintHtml = shelterFilterVal ? `
+                <div class="filter-hint">
+                    <span><i class="fas fa-filter" style="margin-right:6px;color:var(--primary-dark);"></i>Showing pets from: <strong>${shelterFilterVal}</strong></span>
+                    <button onclick="document.getElementById('shelterFilter').value='';applyFilters();">Clear</button>
+                </div>
+            ` : '';
+
+            sidebar.innerHTML = hintHtml + filteredPets.map((pet, idx) => {
                 const saved = isPetSaved(pet.id);
                 const dist = formatDistance(getPetDistance(pet));
                 const isNew = isNewPet(pet);
-                const inCompare = compareList.has(pet.id);
                 return `
                 <div class="pet-card" data-idx="${idx}" data-id="${pet.id}" tabindex="0">
                     <button class="fav-btn ${saved ? 'saved' : ''}" onclick="event.stopPropagation();window.toggleCardFav('${pet.id}', this);" title="${saved ? 'Remove from saved' : 'Save pet'}">
@@ -1553,22 +1431,13 @@
                             <i class="fas fa-info-circle"></i> Details
                         </button>
                     </div>
-                    <div class="card-actions">
-                        <button class="qa-compare ${inCompare ? 'active' : ''}" onclick="event.stopPropagation();window.toggleCompare('${pet.id}');" title="${inCompare ? 'Remove from compare' : 'Add to compare'}">
-                            <i class="fas fa-balance-scale"></i>
-                        </button>
-                        <button class="qa-btn" onclick="event.stopPropagation();window.showPetDetail('${pet.id}');">Quick View</button>
-                        <button class="qa-btn secondary" onclick="event.stopPropagation();window.toggleCardFav('${pet.id}', this.closest('.pet-card').querySelector('.fav-btn'));">
-                            <i class="${saved ? 'fas' : 'far'} fa-heart"></i> ${saved ? 'Saved' : 'Save'}
-                        </button>
-                    </div>
                 </div>
             `;
             }).join('');
 
             sidebar.querySelectorAll('.pet-card').forEach(card => {
                 card.addEventListener('click', (e) => {
-                    if (e.target.closest('.detail-btn') || e.target.closest('.fav-btn') || e.target.closest('.card-actions')) return;
+                    if (e.target.closest('.detail-btn') || e.target.closest('.fav-btn')) return;
                     const idx = parseInt(card.dataset.idx);
                     window.focusPet(idx);
                 });
@@ -1875,10 +1744,20 @@
                 const url = window.location.href;
                 if (navigator.share) {
                     try { await navigator.share({ title: `Adopt ${pet.name} on Pet Pad`, text: `Check out ${pet.name}, a ${pet.breed || 'pet'} available for adoption!`, url }); }
-                    catch (e) { window.openQRModal(url); }
+                    catch (e) { /* user cancelled or error */ }
                 } else {
-                    window.openQRModal(url);
+                    showToast('Sharing not supported on this device. Try the QR button!');
                 }
+            };
+
+            const qrBtn = document.getElementById('modalQRBtn');
+            qrBtn.onclick = () => {
+                window.openQRModal(window.location.href);
+            };
+
+            const printBtn = document.getElementById('modalPrintBtn');
+            printBtn.onclick = () => {
+                window.print();
             };
 
             const details = [
@@ -1934,7 +1813,6 @@
                 window.closeLightbox();
                 window.closeShelterModal();
                 window.closeQRModal();
-                window.closeCompareModal();
             }
         });
 
@@ -1962,8 +1840,6 @@
             document.getElementById('savedToggle').classList.remove('active');
             document.querySelectorAll('.radius-chip').forEach(c => c.classList.remove('active'));
             activeRadius = null;
-            compareList.clear();
-            updateCompareBar();
             applyFilters();
         });
 
@@ -2078,73 +1954,11 @@
             document.getElementById('qrModalOverlay').classList.remove('open');
         };
 
-        /* Compare Mode */
-        window.toggleCompare = (id) => {
-            if (compareList.has(id)) {
-                compareList.delete(id);
-            } else {
-                if (compareList.size >= 3) {
-                    showToast('You can compare up to 3 pets at a time.');
-                    return;
-                }
-                compareList.add(id);
-            }
-            renderSidebar();
-            updateCompareBar();
-        };
-        function updateCompareBar() {
-            const bar = document.getElementById('compareBar');
-            const count = document.getElementById('compareCount');
-            if (compareList.size === 0) {
-                bar.classList.remove('open');
-            } else {
-                bar.classList.add('open');
-                count.textContent = `${compareList.size} pet${compareList.size !== 1 ? 's' : ''} selected`;
-            }
-        }
-        window.openCompareModal = () => {
-            if (compareList.size < 2) {
-                showToast('Select at least 2 pets to compare.');
-                return;
-            }
-            const pets = [...compareList].map(id => allPets.find(p => p.id === id)).filter(Boolean);
-            const body = document.getElementById('cmBody');
-            body.innerHTML = `<div class="compare-grid">${pets.map(pet => {
-                const dist = formatDistance(getPetDistance(pet));
-                return `
-                <div class="compare-col">
-                    <img src="${pet.imageUrl || '/petPadNotebookDarkGreyTan.png'}" alt="${pet.name}" onerror="this.src='/petPadNotebookDarkGreyTan.png'">
-                    <h4>${pet.name}</h4>
-                    <div class="cm-meta">${pet.breed || 'Mixed'} &bull; ${pet.sex || ''}</div>
-                    <div class="cm-detail"><span class="cm-detail-label">Age</span><span class="cm-detail-value">${getAge(pet.dateOfBirth) || 'Unknown'}</span></div>
-                    <div class="cm-detail"><span class="cm-detail-label">Weight</span><span class="cm-detail-value">${pet.weight || 'Unknown'}</span></div>
-                    <div class="cm-detail"><span class="cm-detail-label">Type</span><span class="cm-detail-value">${pet.petType || 'Unknown'}</span></div>
-                    <div class="cm-detail"><span class="cm-detail-label">Color</span><span class="cm-detail-value">${pet.color || 'Unknown'}</span></div>
-                    <div class="cm-detail"><span class="cm-detail-label">Spayed/Neutered</span><span class="cm-detail-value">${pet.spayedNeuteredStatus || 'Unknown'}</span></div>
-                    ${dist ? `<div class="cm-detail"><span class="cm-detail-label">Distance</span><span class="cm-detail-value">${dist}</span></div>` : ''}
-                    <div class="cm-detail"><span class="cm-detail-label">Location</span><span class="cm-detail-value">${pet.shelterCity || pet.shelterLocation?.split(',')[0] || 'Unknown'}</span></div>
-                </div>
-                `;
-            }).join('')}</div>`;
-            document.getElementById('compareModalOverlay').classList.add('open');
-        };
-        window.closeCompareModal = (e) => {
-            if (e && e.target !== document.getElementById('compareModalOverlay')) return;
-            document.getElementById('compareModalOverlay').classList.remove('open');
-        };
-        document.getElementById('compareClearBtn').addEventListener('click', () => {
-            compareList.clear();
-            renderSidebar();
-            updateCompareBar();
-        });
-        document.getElementById('compareViewBtn').addEventListener('click', window.openCompareModal);
-
         /* Keyboard Navigation */
         document.addEventListener('keydown', (e) => {
-            if (document.querySelector('.modal-overlay.open') || document.querySelector('.compare-modal-overlay.open')) {
+            if (document.querySelector('.modal-overlay.open')) {
                 if (e.key === 'Escape') {
                     window.closeModal();
-                    window.closeCompareModal();
                 }
                 return;
             }
@@ -2161,34 +1975,6 @@
                 const idx = parseInt(cards[keyboardFocusIdx].dataset.idx);
                 window.showPetDetail(filteredPets[idx].id);
             }
-        });
-
-        /* Scroll-Triggered Map Sync */
-        const sidebarEl = document.getElementById('sidebar');
-        let scrollSyncTimeout;
-        sidebarEl.addEventListener('scroll', () => {
-            clearTimeout(scrollSyncTimeout);
-            scrollSyncTimeout = setTimeout(() => {
-                const cards = sidebarEl.querySelectorAll('.pet-card');
-                let closest = null, closestDist = Infinity;
-                const sidebarRect = sidebarEl.getBoundingClientRect();
-                const centerY = sidebarRect.top + sidebarRect.height / 2;
-                cards.forEach(card => {
-                    const rect = card.getBoundingClientRect();
-                    const cardCenter = rect.top + rect.height / 2;
-                    const dist = Math.abs(cardCenter - centerY);
-                    if (dist < closestDist) { closestDist = dist; closest = card; }
-                });
-                if (closest) {
-                    const idx = parseInt(closest.dataset.idx);
-                    const marker = markers[idx];
-                    if (marker) {
-                        marker.openPopup();
-                        document.querySelectorAll('.pet-card').forEach(c => c.classList.remove('active'));
-                        closest.classList.add('active');
-                    }
-                }
-            }, 150);
         });
 
         document.getElementById('year').textContent = new Date().getFullYear();
