@@ -1155,14 +1155,31 @@
 
         /* Print Styles */
         @media print {
-            .site-header, .hero, .filter-bar, #map, .sidebar, .modal-close, .fav-btn-modal, .share-btn, .qr-btn, .print-btn, .modal .cta, .footer { display: none !important; }
-            .modal-overlay { position: static; background: none; display: block !important; opacity: 1 !important; visibility: visible !important; }
-            .modal { transform: none; max-width: 100%; border: none; box-shadow: none; margin: 0; }
-            .modal-img { max-height: none !important; height: auto !important; width: 100% !important; object-fit: contain !important; page-break-inside: avoid; }
-            .modal-body { padding: 16px 0; }
-            body { background: #fff; color: #000; }
-            .detail-row { border-bottom: 1px solid #ddd; padding: 6px 0; }
-            .shelter-box { border: 1px solid #ddd; padding: 12px; border-radius: 8px; margin-top: 12px; }
+            .site-header, .hero, .filter-bar, #map, .sidebar, .modal-close, .fav-btn-modal, .share-btn, .qr-btn, .print-btn, .modal .cta, .footer, .compare-bar { display: none !important; }
+            .modal-overlay { position: static !important; background: none !important; display: block !important; opacity: 1 !important; visibility: visible !important; overflow: visible !important; }
+            .modal { transform: none !important; max-width: 100% !important; border: none !important; box-shadow: none !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; }
+            .modal-img {
+                display: block !important;
+                max-width: 100% !important;
+                max-height: 280px !important;
+                width: auto !important;
+                height: auto !important;
+                object-fit: contain !important;
+                margin: 0 auto 12px !important;
+                border-radius: 0 !important;
+                page-break-inside: avoid !important;
+            }
+            .modal-body { padding: 0 !important; }
+            .modal-header-row { margin-bottom: 4px !important; }
+            .modal-header-row h2 { font-size: 1.4em !important; margin: 0 !important; }
+            .modal-meta { font-size: 0.9em !important; margin-bottom: 8px !important; }
+            #modalDetails { margin-bottom: 8px !important; }
+            .detail-row { border-bottom: 1px solid #ddd; padding: 4px 0 !important; font-size: 0.85em !important; }
+            .detail-label { font-size: 0.85em !important; }
+            .shelter-box { border: 1px solid #ddd; padding: 8px 10px !important; border-radius: 6px; margin-top: 8px !important; font-size: 0.85em !important; }
+            .shelter-box h4 { font-size: 0.9em !important; margin: 0 0 4px !important; }
+            body { background: #fff !important; color: #000 !important; }
+            @page { margin: 0.5in; }
         }
 
         /* Mobile */
