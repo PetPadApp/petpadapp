@@ -183,6 +183,37 @@
             background: rgba(212, 167, 106, 0.15);
             color: var(--secondary-color);
         }
+        .pet-card .tag.new-badge {
+            background: rgba(255, 105, 180, 0.2);
+            color: var(--accent-color);
+        }
+        .pet-card .fav-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.4);
+            border: none;
+            color: #888;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.2s;
+            z-index: 2;
+        }
+        .pet-card .fav-btn:hover { background: rgba(0,0,0,0.6); color: var(--accent-color); }
+        .pet-card .fav-btn.saved { color: var(--accent-color); }
+        .pet-card { position: relative; }
+        .pet-card .distance-tag {
+            font-size: 0.75em;
+            color: #888;
+            margin-top: 4px;
+        }
+        .pet-card .distance-tag i { color: var(--primary-color); margin-right: 3px; }
 
         /* Detail Modal */
         .modal-overlay {
@@ -268,6 +299,51 @@
             font-size: 0.85em;
             color: #aaa;
         }
+        .modal .modal-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .modal .fav-btn-modal {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: #888;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .modal .fav-btn-modal:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        .modal .fav-btn-modal.saved { color: var(--accent-color); border-color: var(--accent-color); }
+        .modal .share-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .modal .share-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+        .modal .shelter-name-link {
+            color: var(--secondary-color);
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-color: rgba(212, 167, 106, 0.4);
+        }
+        .modal .shelter-name-link:hover { color: #E8C080; }
         .modal .cta {
             margin-top: 18px;
             display: flex;
@@ -394,6 +470,22 @@
             font-size: 0.8em;
             font-weight: 600;
         }
+        .filter-bar .saved-toggle {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: #888;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .filter-bar .saved-toggle:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        .filter-bar .saved-toggle.active { border-color: var(--accent-color); color: var(--accent-color); background: rgba(255,105,180,0.1); }
 
         /* Pet Card detail button */
         .pet-card .detail-btn {
@@ -544,6 +636,7 @@
             </select>
             <input type="text" class="search-input" id="shelterFilter" placeholder="Shelter / Location..." style="flex:1 1 160px;min-width:140px;">
             <button class="btn-sm secondary" id="resetBtn">Reset</button>
+            <button class="saved-toggle" id="savedToggle" title="Show only saved pets"><i class="fas fa-heart"></i> Saved</button>
             <span class="count-badge" id="resultCount">0 pets</span>
         </div>
         <div class="layout">
@@ -559,7 +652,10 @@
             <button class="modal-close" onclick="closeModal()">&times;</button>
             <img id="modalImg" class="modal-img" src="" alt="">
             <div class="modal-body">
-                <h2 id="modalName"></h2>
+                <div class="modal-header-row">
+                    <h2 id="modalName"></h2>
+                    <button class="fav-btn-modal" id="modalFavBtn" title="Save pet"><i class="fas fa-heart"></i></button>
+                </div>
                 <div class="modal-meta" id="modalMeta"></div>
                 <div id="modalDetails"></div>
                 <div class="shelter-box">
@@ -567,6 +663,7 @@
                     <p id="modalShelter"></p>
                 </div>
                 <div class="cta">
+                    <button class="share-btn" id="modalShareBtn"><i class="fas fa-share-alt"></i> Share</button>
                     <a id="modalAppLink" href="https://apps.apple.com/app/id6749177166" class="btn" target="_blank">
                         <i class="fab fa-apple"></i> Open in Pet Pad
                     </a>
@@ -657,6 +754,49 @@
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         }
 
+        function getSavedPets() {
+            try { return JSON.parse(localStorage.getItem('petpad_favorites') || '[]'); }
+            catch (e) { return []; }
+        }
+        function toggleSavedPet(id) {
+            const saved = getSavedPets();
+            const idx = saved.indexOf(id);
+            if (idx >= 0) saved.splice(idx, 1);
+            else saved.push(id);
+            localStorage.setItem('petpad_favorites', JSON.stringify(saved));
+            return idx < 0; // returns true if now saved
+        }
+        function isPetSaved(id) { return getSavedPets().includes(id); }
+        function formatDistance(miles) {
+            if (miles === null || miles === undefined || isNaN(miles)) return null;
+            if (miles < 0.1) return '< 0.1 mi';
+            if (miles < 10) return `${miles.toFixed(1)} mi`;
+            return `${Math.round(miles)} mi`;
+        }
+        function getPetDistance(pet) {
+            if (!userLocation || pet._lat == null || pet._lng == null) return null;
+            return haversine(userLocation.lat, userLocation.lng, pet._lat, pet._lng);
+        }
+        function isNewPet(pet) {
+            if (!pet.adoptableSince) return false;
+            const listed = new Date(pet.adoptableSince);
+            const now = new Date();
+            const days = (now - listed) / (1000 * 60 * 60 * 24);
+            return days <= 7;
+        }
+        window.filterByShelter = (shelterName) => {
+            document.getElementById('shelterFilter').value = shelterName;
+            applyFilters();
+            document.querySelector('.sidebar')?.scrollIntoView({ behavior: 'smooth' });
+        };
+        function updateSavedToggleCount() {
+            const count = getSavedPets().length;
+            const btn = document.getElementById('savedToggle');
+            if (btn) {
+                btn.innerHTML = `<i class="fas fa-heart"></i> Saved${count > 0 ? ` (${count})` : ''}`;
+            }
+        }
+
         window.openLightbox = (src) => {
             const box = document.getElementById('lightbox');
             const img = document.getElementById('lightboxImg');
@@ -685,14 +825,23 @@
                 sidebar.innerHTML = '<div class="empty"><i class="fas fa-paw" style="font-size:2em;color:#555;margin-bottom:10px;"></i><p>No pets match your filters.<br>Try adjusting your search!</p></div>';
                 return;
             }
-            sidebar.innerHTML = filteredPets.map((pet, idx) => `
-                <div class="pet-card" data-idx="${idx}">
+            sidebar.innerHTML = filteredPets.map((pet, idx) => {
+                const saved = isPetSaved(pet.id);
+                const dist = formatDistance(getPetDistance(pet));
+                const isNew = isNewPet(pet);
+                return `
+                <div class="pet-card" data-idx="${idx}" data-id="${pet.id}">
+                    <button class="fav-btn ${saved ? 'saved' : ''}" onclick="event.stopPropagation();window.toggleCardFav('${pet.id}', this);" title="${saved ? 'Remove from saved' : 'Save pet'}">
+                        <i class="${saved ? 'fas' : 'far'} fa-heart"></i>
+                    </button>
                     <img class="pet-img" src="${pet.imageUrl || '/petPadNotebookDarkGreyTan.png'}" alt="${pet.name}" onerror="this.src='/petPadNotebookDarkGreyTan.png'">
                     <div class="pet-info">
                         <div class="pet-name">${pet.name}</div>
                         <div class="pet-meta">${pet.breed || 'Mixed'} &bull; ${pet.sex || ''} &bull; ${getAge(pet.dateOfBirth) || 'Age unknown'}</div>
+                        ${dist ? `<div class="distance-tag"><i class="fas fa-location-arrow"></i> ${dist}</div>` : ''}
                         <div class="pet-tags">
                             ${pet.petType ? `<span class="tag">${pet.petType}</span>` : ''}
+                            ${isNew ? `<span class="tag new-badge">New</span>` : ''}
                             ${(pet.shelterCity || pet.shelterLocation) ? `<span class="tag secondary"><i class="fas fa-map-marker-alt" style="font-size:0.75em;"></i> ${pet.shelterCity || (pet.shelterLocation ? pet.shelterLocation.split(',')[0] : '')}</span>` : ''}
                         </div>
                         <button class="detail-btn" onclick="event.stopPropagation();window.showPetDetail('${pet.id}');">
@@ -700,16 +849,29 @@
                         </button>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
 
             sidebar.querySelectorAll('.pet-card').forEach(card => {
                 card.addEventListener('click', (e) => {
-                    if (e.target.closest('.detail-btn')) return;
+                    if (e.target.closest('.detail-btn') || e.target.closest('.fav-btn')) return;
                     const idx = parseInt(card.dataset.idx);
                     window.focusPet(idx);
                 });
             });
         }
+
+        window.toggleCardFav = (id, btn) => {
+            const nowSaved = toggleSavedPet(id);
+            btn.classList.toggle('saved', nowSaved);
+            btn.title = nowSaved ? 'Remove from saved' : 'Save pet';
+            const icon = btn.querySelector('i');
+            icon.className = nowSaved ? 'fas fa-heart' : 'far fa-heart';
+            updateSavedToggleCount();
+            if (document.getElementById('savedToggle').classList.contains('active')) {
+                applyFilters();
+            }
+        };
 
         function clearMarkers() {
             if (markerClusterGroup) {
@@ -789,8 +951,11 @@
             const maxWeight = parseFloat(document.getElementById('maxWeight').value);
             const spayed = document.getElementById('spayedFilter').value;
             const shelter = document.getElementById('shelterFilter').value.toLowerCase().trim();
+            const showSavedOnly = document.getElementById('savedToggle').classList.contains('active');
+            const savedIds = showSavedOnly ? getSavedPets() : [];
 
             filteredPets = allPets.filter(pet => {
+                if (showSavedOnly && !savedIds.includes(pet.id)) return false;
                 if (keyword) {
                     const text = [pet.name, pet.breed, pet.color, pet.petType, pet.customPetType, pet.additionalNotes, pet.medicalInfo, pet.allergies, pet.medications].join(' ').toLowerCase();
                     if (!text.includes(keyword)) return false;
@@ -826,6 +991,7 @@
             sortPets();
             renderMarkers();
             renderSidebar();
+            updateSavedToggleCount();
             document.getElementById('resultCount').textContent = `${filteredPets.length} pet${filteredPets.length !== 1 ? 's' : ''}`;
         }
 
@@ -896,12 +1062,14 @@
                 populateTypeFilter();
                 filteredPets = [...allPets];
                 applyFilters();
+                updateSavedToggleCount();
 
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(
                         pos => {
                             userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
                             if (document.getElementById('sortSelect').value === 'distance') applyFilters();
+                            renderSidebar(); // refresh distances
                         },
                         () => console.log('Location permission denied or unavailable')
                     );
@@ -925,12 +1093,17 @@
             }
         };
 
+        let currentModalPetId = null;
+
         window.showPetDetail = (id) => {
             const pet = allPets.find(p => p.id === id);
             if (!pet) return;
+            currentModalPetId = id;
+            history.replaceState(null, '', '#pet=' + encodeURIComponent(id));
+
             const modalImg = document.getElementById('modalImg');
             modalImg.src = pet.imageUrl || '/petPadNotebookDarkGreyTan.png';
-            modalImg.onerror = function() { this.src = '/petPadNotebookDarkGreyTan.png'; };
+            modalImg.onerror = function() { this.src='/petPadNotebookDarkGreyTan.png'; };
             modalImg.style.cursor = pet.imageUrl ? 'zoom-in' : 'default';
             modalImg.onclick = pet.imageUrl ? function() { window.openLightbox(pet.imageUrl); } : null;
             modalImg.style.objectFit = 'contain';
@@ -938,7 +1111,44 @@
             modalImg.style.maxHeight = '320px';
             modalImg.style.background = '#111';
             document.getElementById('modalName').textContent = pet.name;
-            document.getElementById('modalMeta').textContent = `${pet.breed || 'Mixed'} • ${pet.sex || ''} • ${getAge(pet.dateOfBirth) || 'Age unknown'}`;
+
+            const dist = formatDistance(getPetDistance(pet));
+            const distText = dist ? ` • ${dist}` : '';
+            document.getElementById('modalMeta').textContent = `${pet.breed || 'Mixed'} • ${pet.sex || ''} • ${getAge(pet.dateOfBirth) || 'Age unknown'}${distText}`;
+
+            const favBtn = document.getElementById('modalFavBtn');
+            const saved = isPetSaved(id);
+            favBtn.classList.toggle('saved', saved);
+            favBtn.innerHTML = `<i class="${saved ? 'fas' : 'far'} fa-heart"></i>`;
+            favBtn.title = saved ? 'Remove from saved' : 'Save pet';
+            favBtn.onclick = () => {
+                const nowSaved = toggleSavedPet(id);
+                favBtn.classList.toggle('saved', nowSaved);
+                favBtn.innerHTML = `<i class="${nowSaved ? 'fas' : 'far'} fa-heart"></i>`;
+                favBtn.title = nowSaved ? 'Remove from saved' : 'Save pet';
+                const cardBtn = document.querySelector(`.pet-card[data-id="${id}"] .fav-btn`);
+                if (cardBtn) {
+                    cardBtn.classList.toggle('saved', nowSaved);
+                    cardBtn.innerHTML = `<i class="${nowSaved ? 'fas' : 'far'} fa-heart"></i>`;
+                    cardBtn.title = nowSaved ? 'Remove from saved' : 'Save pet';
+                }
+                updateSavedToggleCount();
+                if (document.getElementById('savedToggle').classList.contains('active')) {
+                    applyFilters();
+                }
+            };
+
+            const shareBtn = document.getElementById('modalShareBtn');
+            shareBtn.onclick = async () => {
+                const url = window.location.href;
+                if (navigator.share) {
+                    try { await navigator.share({ title: `Adopt ${pet.name} on Pet Pad`, text: `Check out ${pet.name}, a ${pet.breed || 'pet'} available for adoption!`, url }); }
+                    catch (e) { /* user cancelled */ }
+                } else {
+                    try { await navigator.clipboard.writeText(url); shareBtn.innerHTML = '<i class="fas fa-check"></i> Copied!'; setTimeout(() => shareBtn.innerHTML = '<i class="fas fa-share-alt"></i> Share', 2000); }
+                    catch (e) { prompt('Copy this link:', url); }
+                }
+            };
 
             const details = [
                 ['Color', pet.color],
@@ -961,8 +1171,10 @@
             const websiteHtml = pet.shelterWebsite ? `<a href="${pet.shelterWebsite}" target="_blank" rel="noopener" style="color:#40E0D0;text-decoration:none;"><i class="fas fa-globe" style="font-size:0.85em;margin-right:4px;"></i>Shelter Website</a><br>` : '';
             const petPageHtml = pet.petWebpageUrl ? `<a href="${pet.petWebpageUrl}" target="_blank" rel="noopener" style="color:#40E0D0;text-decoration:none;"><i class="fas fa-link" style="font-size:0.85em;margin-right:4px;"></i>Pet Webpage</a><br>` : '';
             const coordsWarning = !pet._hasRealCoords ? `<span style="color:#ff9900;font-size:0.8em;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>Location approximate</span><br>` : '';
+            const shelterName = pet.shelterName || 'Unknown Shelter';
             document.getElementById('modalShelter').innerHTML = `
-                <strong>${pet.shelterName || 'Unknown Shelter'}</strong><br>
+                <strong class="shelter-name-link" onclick="window.filterByShelter('${shelterName.replace(/'/g, "\\'")}');window.closeModal();">${shelterName}</strong>
+                <span style="font-size:0.8em;color:#666;margin-left:6px;">(click to see all pets)</span><br>
                 ${displayAddress}<br>
                 ${phoneHtml}
                 ${websiteHtml}
@@ -979,6 +1191,10 @@
             if (e && e.target !== document.getElementById('modalOverlay')) return;
             document.getElementById('modalOverlay').classList.remove('open');
             document.body.style.overflow = '';
+            currentModalPetId = null;
+            if (window.location.hash.startsWith('#pet=')) {
+                history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
         };
 
         document.addEventListener('keydown', e => {
@@ -993,6 +1209,10 @@
             if (el) el.addEventListener('input', applyFilters);
         });
         document.getElementById('sortSelect').addEventListener('change', applyFilters);
+        document.getElementById('savedToggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+            applyFilters();
+        });
         document.getElementById('resetBtn').addEventListener('click', () => {
             document.getElementById('searchInput').value = '';
             document.getElementById('typeFilter').value = '';
@@ -1005,11 +1225,20 @@
             document.getElementById('spayedFilter').value = '';
             document.getElementById('shelterFilter').value = '';
             document.getElementById('sortSelect').value = 'recent';
+            document.getElementById('savedToggle').classList.remove('active');
             applyFilters();
         });
 
         document.getElementById('year').textContent = new Date().getFullYear();
-        loadPets();
+        loadPets().then(() => {
+            if (window.location.hash.startsWith('#pet=')) {
+                const id = decodeURIComponent(window.location.hash.slice(5));
+                const pet = allPets.find(p => p.id === id);
+                if (pet) {
+                    setTimeout(() => window.showPetDetail(id), 300);
+                }
+            }
+        });
     </script>
 </body>
 </html>
