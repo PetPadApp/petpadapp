@@ -26,6 +26,54 @@
             --shadow-colored: 0 4px 20px rgba(64, 224, 208, 0.12);
         }
 
+        /* Dark Mode Overrides */
+        body[data-theme="dark"] {
+            --text-color: #E8E8E8;
+            --text-muted: #999;
+            --light-bg: #181818;
+            --card-bg: #242424;
+            --border-color: #333;
+            --shadow: 0 4px 20px rgba(0,0,0,0.4);
+            --shadow-hover: 0 8px 30px rgba(0,0,0,0.5);
+            --shadow-colored: 0 4px 20px rgba(64, 224, 208, 0.15);
+        }
+        body[data-theme="dark"] .site-header {
+            background: rgba(30,30,30,0.92);
+            border-bottom-color: #333;
+        }
+        body[data-theme="dark"] .site-header nav a { color: #aaa; }
+        body[data-theme="dark"] .site-header nav a:hover { color: var(--primary-color); }
+        body[data-theme="dark"] .hero {
+            background: linear-gradient(135deg, #1A1A1A 0%, #2A1A1E 50%, #1A2826 100%);
+        }
+        body[data-theme="dark"] .hero h1 { color: #fff; }
+        body[data-theme="dark"] #map { background: #111; }
+        body[data-theme="dark"] .filter-bar .search-input,
+        body[data-theme="dark"] .filter-bar select,
+        body[data-theme="dark"] .filter-bar input[type="number"] {
+            background: #1A1A1A;
+            color: var(--text-color);
+            border-color: #333;
+        }
+        body[data-theme="dark"] .filter-bar .search-input:focus,
+        body[data-theme="dark"] .filter-bar select:focus,
+        body[data-theme="dark"] .filter-bar input[type="number"]:focus {
+            background: #222;
+        }
+        body[data-theme="dark"] .modal .modal-img { background: #111; }
+        body[data-theme="dark"] .modal .modal-close { background: rgba(40,40,40,0.9); border-color: #444; color: #ccc; }
+        body[data-theme="dark"] .modal .modal-close:hover { background: #333; color: #fff; }
+        body[data-theme="dark"] .modal .fav-btn-modal,
+        body[data-theme="dark"] .modal .share-btn { background: #2A2A2A; border-color: #444; }
+        body[data-theme="dark"] .pet-card .pet-img { background: #2A2A2A; }
+        body[data-theme="dark"] .pet-card .fav-btn { background: rgba(40,40,40,0.85); border-color: #444; }
+        body[data-theme="dark"] .lightbox .lightbox-close { background: rgba(40,40,40,0.9); color: #ccc; }
+        body[data-theme="dark"] .footer { background: linear-gradient(135deg, #1A2826 0%, #2A1A1E 100%); }
+        body[data-theme="dark"] .btn { color: #111; }
+        body[data-theme="dark"] .btn.secondary { color: var(--primary-color); background: transparent; }
+        body[data-theme="dark"] .leaflet-popup-content-wrapper { background: var(--card-bg); }
+        body[data-theme="dark"] .leaflet-popup-tip { background: var(--card-bg); }
+
         * { box-sizing: border-box; }
 
         body {
@@ -73,6 +121,25 @@
             transition: color 0.2s;
         }
         .site-header nav a:hover { color: var(--primary-dark); }
+        .theme-toggle {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1em;
+            margin-left: 18px;
+            transition: all 0.2s;
+            vertical-align: middle;
+        }
+        .theme-toggle:hover { border-color: var(--primary-color); color: var(--primary-color); transform: scale(1.08); }
+        body[data-theme="dark"] .theme-toggle { border-color: #444; color: #ccc; }
+        body[data-theme="dark"] .theme-toggle:hover { border-color: var(--primary-color); color: var(--primary-color); }
 
         /* Hero */
         .hero {
@@ -669,6 +736,9 @@
         <nav>
             <a href="/">Home</a>
             <a href="/adoption/">Adopt a Pet</a>
+            <button id="themeToggle" class="theme-toggle" title="Toggle dark mode">
+                <i class="fas fa-moon"></i>
+            </button>
         </nav>
     </header>
 
@@ -1309,6 +1379,42 @@
             document.getElementById('savedToggle').classList.remove('active');
             applyFilters();
         });
+
+        /* Theme Toggle */
+        function setThemeIcon(isDark) {
+            const btn = document.getElementById('themeToggle');
+            if (!btn) return;
+            btn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            btn.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+        }
+        function toggleTheme() {
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            if (isDark) {
+                document.body.removeAttribute('data-theme');
+                localStorage.setItem('petpad-theme', 'light');
+                setThemeIcon(false);
+            } else {
+                document.body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('petpad-theme', 'dark');
+                setThemeIcon(true);
+            }
+        }
+        (function initTheme() {
+            const saved = localStorage.getItem('petpad-theme');
+            if (saved === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                setThemeIcon(true);
+            } else if (saved === 'light') {
+                setThemeIcon(false);
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('petpad-theme', 'dark');
+                setThemeIcon(true);
+            } else {
+                setThemeIcon(false);
+            }
+        })();
+        document.getElementById('themeToggle').addEventListener('click', toggleTheme);
 
         document.getElementById('year').textContent = new Date().getFullYear();
         loadPets().then(() => {
