@@ -337,14 +337,20 @@
             background: #111;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 8px 12px;
+            padding: 8px 12px 8px 34px;
             color: var(--text-color);
             font-family: inherit;
             font-size: 0.9em;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2340E0D0' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 10px center;
+            background-size: 16px 16px;
+            -webkit-appearance: none;
+            appearance: none;
         }
         .filter-bar .search-input:focus { outline: none; border-color: var(--primary-color); }
         .filter-bar select, .filter-bar input[type="number"] {
-            background: #111;
+            background: #1a1a1a;
             border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 8px 10px;
@@ -352,6 +358,15 @@
             font-family: inherit;
             font-size: 0.85em;
             min-width: 110px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .filter-bar select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23888' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 12px 12px;
+            padding-right: 28px;
         }
         .filter-bar select:focus, .filter-bar input[type="number"]:focus { outline: none; border-color: var(--primary-color); }
         .filter-bar .filter-group { display: flex; align-items: center; gap: 6px; font-size: 0.85em; color: #aaa; }
@@ -445,8 +460,28 @@
             .hero h1 { font-size: 1.5em; }
             .pet-card { gap: 10px; padding: 10px; }
             .pet-card .pet-img { width: 60px; height: 60px; }
-            .filter-bar { flex-direction: column; align-items: stretch; }
-            .filter-bar .search-input, .filter-bar select, .filter-bar input[type="number"] { width: 100%; }
+            .filter-bar { flex-direction: column; align-items: stretch; gap: 8px; padding: 12px; }
+            .filter-bar .search-input, .filter-bar select, .filter-bar input[type="number"] {
+                width: 100%;
+                min-height: 40px;
+                height: 40px;
+                padding-top: 0;
+                padding-bottom: 0;
+                font-size: 16px; /* prevents iOS zoom */
+                flex: none !important;
+                min-width: auto !important;
+            }
+            .filter-bar .search-input {
+                background-position: 12px center;
+                padding-left: 38px;
+                border-left: 3px solid var(--primary-color);
+            }
+            .filter-bar select {
+                background-color: #151515;
+                border-left: 3px solid var(--secondary-color);
+            }
+            .filter-bar .filter-group { justify-content: flex-start; }
+            .filter-bar .filter-group input[type="number"] { flex: 1; max-width: 80px; }
         }
     </style>
 </head>
