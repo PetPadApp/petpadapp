@@ -887,6 +887,131 @@
         }
         .lightbox .lightbox-close:hover { background: #fff; transform: scale(1.05); }
 
+        /* Modal Photo Gallery */
+        .modal-gallery {
+            padding: 10px 16px 6px;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal-gallery-arrow {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.9em;
+            cursor: pointer;
+            padding: 4px 6px;
+            flex-shrink: 0;
+            transition: color 0.2s;
+        }
+        .modal-gallery-arrow:hover { color: var(--primary-dark); }
+        .modal-gallery-thumbs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            flex: 1;
+            scrollbar-width: none;
+        }
+        .modal-gallery-thumbs::-webkit-scrollbar { display: none; }
+        .modal-gallery-thumb {
+            width: 56px;
+            height: 56px;
+            border-radius: 8px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid transparent;
+            background: #EAE6E0;
+            flex-shrink: 0;
+            transition: border-color 0.2s, transform 0.15s;
+        }
+        .modal-gallery-thumb:hover { transform: scale(1.05); }
+        .modal-gallery-thumb.active { border-color: var(--primary-color); }
+        .gallery-nav {
+            position: absolute;
+            top: 120px;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.85);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8em;
+            z-index: 10;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .gallery-nav:hover { background: #fff; transform: translateY(-50%) scale(1.05); }
+        .gallery-nav.prev { left: 10px; }
+        .gallery-nav.next { right: 10px; }
+        body[data-theme="dark"] .gallery-nav { background: rgba(40,40,40,0.85); border-color: #444; color: #ccc; }
+        body[data-theme="dark"] .gallery-nav:hover { background: rgba(50,50,50,0.95); color: #fff; }
+
+        /* Card Photo Carousel */
+        .card-carousel {
+            width: 82px;
+            height: 82px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            background: #EAE6E0;
+            cursor: grab;
+        }
+        .card-carousel:active { cursor: grabbing; }
+        .card-carousel-track {
+            display: flex;
+            height: 100%;
+            transition: transform 0.25s ease;
+        }
+        .card-carousel-track.no-transition { transition: none; }
+        .card-carousel-track img {
+            width: 82px;
+            height: 82px;
+            object-fit: cover;
+            flex-shrink: 0;
+            pointer-events: none;
+            -webkit-user-drag: none;
+        }
+        .card-carousel-dots {
+            position: absolute;
+            bottom: 4px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+        }
+        .card-carousel-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.55);
+            transition: background 0.2s;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+        .card-carousel-dot.active { background: rgba(255,255,255,0.95); }
+        .card-carousel-count {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(0,0,0,0.45);
+            color: #fff;
+            font-size: 0.6em;
+            font-weight: 600;
+            padding: 1px 5px;
+            border-radius: 8px;
+            pointer-events: none;
+        }
+
         /* Toast Notification */
         .toast-container {
             position: fixed;
@@ -1156,7 +1281,7 @@
         /* Print Styles */
         @media print {
             /* Hide all non-essential UI */
-            .site-header, .hero, .filter-bar, #map, .sidebar, .lightbox, .modal-close, .fav-btn-modal, .share-btn, .qr-btn, .print-btn, .modal .cta, .footer, .compare-bar { display: none !important; }
+            .site-header, .hero, .filter-bar, #map, .sidebar, .lightbox, .modal-close, .fav-btn-modal, .share-btn, .qr-btn, .print-btn, .modal .cta, .footer, .compare-bar, .modal-gallery, .gallery-nav, .card-carousel-dots, .card-carousel-count { display: none !important; }
 
             /* Overlay: strip fixed positioning, place at top-left with no padding */
             .modal-overlay, .modal-overlay.open {
@@ -1308,6 +1433,8 @@
             .container { padding: 0 16px 40px; }
             .pet-card { gap: 12px; padding: 12px; }
             .pet-card .pet-img { width: 70px; height: 70px; }
+            .card-carousel { width: 70px; height: 70px; }
+            .card-carousel-track img { width: 70px; height: 70px; }
             .filter-bar { flex-direction: column; align-items: stretch; gap: 8px; padding: 14px; border-radius: 14px; }
             .filter-bar .search-input, .filter-bar select, .filter-bar input[type="number"] {
                 width: 100%;
@@ -1432,6 +1559,13 @@
         <div class="modal" id="modal" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="closeModal()">&times;</button>
             <img id="modalImg" class="modal-img" src="" alt="">
+            <button class="gallery-nav prev" id="galleryPrev" onclick="event.stopPropagation();window.changeGalleryPhoto(-1);" style="display:none;"><i class="fas fa-chevron-left"></i></button>
+            <button class="gallery-nav next" id="galleryNext" onclick="event.stopPropagation();window.changeGalleryPhoto(1);" style="display:none;"><i class="fas fa-chevron-right"></i></button>
+            <div class="modal-gallery" id="modalGallery" style="display:none;">
+                <button class="modal-gallery-arrow" onclick="event.stopPropagation();window.scrollGalleryThumbs(-1);"><i class="fas fa-chevron-left"></i></button>
+                <div class="modal-gallery-thumbs" id="modalGalleryThumbs"></div>
+                <button class="modal-gallery-arrow" onclick="event.stopPropagation();window.scrollGalleryThumbs(1);"><i class="fas fa-chevron-right"></i></button>
+            </div>
             <div class="modal-body">
                 <div class="modal-header-row">
                     <h2 id="modalName"></h2>
@@ -1537,6 +1671,15 @@
         let keyboardFocusIdx = -1;
         let compareMode = false;
         const compareList = new Set();
+
+        function getPetPhotoArray(pet) {
+            const photos = [];
+            if (pet.imageUrl) photos.push(pet.imageUrl);
+            if (Array.isArray(pet.adoptionPhotoUrls)) {
+                pet.adoptionPhotoUrls.forEach(url => { if (url) photos.push(url); });
+            }
+            return photos;
+        }
 
         function showToast(msg) {
             const container = document.getElementById('toastContainer');
@@ -1708,13 +1851,25 @@
                 const dist = formatDistance(getPetDistance(pet));
                 const isNew = isNewPet(pet);
                 const inCompare = compareList.has(pet.id);
+                const photos = getPetPhotoArray(pet);
+                const imgHtml = photos.length > 1 ? `
+                    <div class="card-carousel" data-photos='${JSON.stringify(photos).replace(/'/g, "&#39;")}' onclick="event.stopPropagation();">
+                        <div class="card-carousel-track">
+                            ${photos.map(url => `<img src="${url}" alt="${pet.name}" onerror="this.src='/petPadNotebookDarkGreyTan.png'">`).join('')}
+                        </div>
+                        <div class="card-carousel-dots">
+                            ${photos.map((_, i) => `<div class="card-carousel-dot ${i === 0 ? 'active' : ''}"></div>`).join('')}
+                        </div>
+                        <div class="card-carousel-count">${photos.length}</div>
+                    </div>
+                ` : `<img class="pet-img" src="${pet.imageUrl || '/petPadNotebookDarkGreyTan.png'}" alt="${pet.name}" onerror="this.src='/petPadNotebookDarkGreyTan.png'">`;
                 return `
                 <div class="pet-card ${compareMode ? 'compare-mode' : ''} ${inCompare ? 'compare-selected' : ''}" data-idx="${idx}" data-id="${pet.id}" tabindex="0">
                     ${compareMode ? `<div class="compare-circle" onclick="event.stopPropagation();window.toggleCompare('${pet.id}');"><i class="fas fa-check"></i></div>` : ''}
                     <button class="fav-btn ${saved ? 'saved' : ''}" onclick="event.stopPropagation();window.toggleCardFav('${pet.id}', this);" title="${saved ? 'Remove from saved' : 'Save pet'}">
                         <i class="${saved ? 'fas' : 'far'} fa-heart"></i>
                     </button>
-                    <img class="pet-img" src="${pet.imageUrl || '/petPadNotebookDarkGreyTan.png'}" alt="${pet.name}" onerror="this.src='/petPadNotebookDarkGreyTan.png'">
+                    ${imgHtml}
                     <div class="pet-info">
                         <div class="pet-name">${pet.name}</div>
                         <div class="pet-meta">${pet.breed || 'Mixed'} &bull; ${pet.sex || ''} &bull; ${getAge(pet.dateOfBirth) || 'Age unknown'}</div>
@@ -1754,6 +1909,81 @@
                         window.showPetDetail(filteredPets[idx].id);
                     }
                 });
+            });
+
+            /* Card photo carousel swipe + click navigation */
+            sidebar.querySelectorAll('.card-carousel').forEach(carousel => {
+                const track = carousel.querySelector('.card-carousel-track');
+                const dots = carousel.querySelectorAll('.card-carousel-dot');
+                let currentIdx = 0;
+                let startX = 0;
+                let isDragging = false;
+                let dragStartX = 0;
+                let dragCurrentX = 0;
+                const photoCount = dots.length;
+
+                function updateCarousel(animate = true) {
+                    const imgWidth = carousel.clientWidth;
+                    track.classList.toggle('no-transition', !animate);
+                    track.style.transform = `translateX(-${currentIdx * imgWidth}px)`;
+                    dots.forEach((d, i) => d.classList.toggle('active', i === currentIdx));
+                }
+
+                carousel.addEventListener('touchstart', e => {
+                    startX = e.touches[0].clientX;
+                }, {passive: true});
+
+                carousel.addEventListener('touchend', e => {
+                    const endX = e.changedTouches[0].clientX;
+                    const diff = startX - endX;
+                    if (Math.abs(diff) > 30) {
+                        if (diff > 0 && currentIdx < photoCount - 1) currentIdx++;
+                        else if (diff < 0 && currentIdx > 0) currentIdx--;
+                        updateCarousel();
+                    }
+                }, {passive: true});
+
+                carousel.addEventListener('mousedown', e => {
+                    isDragging = true;
+                    dragStartX = e.clientX;
+                    carousel.style.cursor = 'grabbing';
+                });
+
+                carousel.addEventListener('mousemove', e => {
+                    if (!isDragging) return;
+                    dragCurrentX = e.clientX;
+                });
+
+                carousel.addEventListener('mouseup', e => {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    carousel.style.cursor = 'grab';
+                    const diff = dragStartX - dragCurrentX;
+                    if (Math.abs(diff) > 20) {
+                        if (diff > 0 && currentIdx < photoCount - 1) currentIdx++;
+                        else if (diff < 0 && currentIdx > 0) currentIdx--;
+                        updateCarousel();
+                    }
+                });
+
+                carousel.addEventListener('mouseleave', () => {
+                    if (isDragging) { isDragging = false; carousel.style.cursor = 'grab'; }
+                });
+
+                /* Click left/right halves to navigate (desktop) */
+                carousel.addEventListener('click', e => {
+                    if (isDragging) { e.stopPropagation(); return; }
+                    const rect = carousel.getBoundingClientRect();
+                    const clickX = e.clientX - rect.left;
+                    if (clickX < rect.width / 2) {
+                        if (currentIdx > 0) { currentIdx--; updateCarousel(); }
+                    } else {
+                        if (currentIdx < photoCount - 1) { currentIdx++; updateCarousel(); }
+                    }
+                    e.stopPropagation();
+                });
+
+                window.addEventListener('resize', () => updateCarousel(false));
             });
         }
 
@@ -1941,7 +2171,8 @@
                     const data = doc.data();
                     data.id = doc.id;
                     allPets.push(data);
-                    console.log(`Pet ${data.name}: imageUrl=${data.imageUrl || 'MISSING'}`);
+                    const photoCount = (data.adoptionPhotoUrls?.length || 0) + (data.imageUrl ? 1 : 0);
+                    console.log(`Pet ${data.name}: photos=${photoCount}, imageUrl=${data.imageUrl ? 'yes' : 'MISSING'}`);
                 });
 
                 allPets.forEach(pet => {
@@ -2003,6 +2234,8 @@
         };
 
         let currentModalPetId = null;
+        let modalGalleryPhotos = [];
+        let modalGalleryIndex = 0;
 
         window.showPetDetail = (id) => {
             const pet = allPets.find(p => p.id === id);
@@ -2010,15 +2243,42 @@
             currentModalPetId = id;
             history.replaceState(null, '', '#pet=' + encodeURIComponent(id));
 
-            const modalImg = document.getElementById('modalImg');
-            modalImg.src = pet.imageUrl || '/petPadNotebookDarkGreyTan.png';
-            modalImg.onerror = function() { this.src='/petPadNotebookDarkGreyTan.png'; };
-            modalImg.style.cursor = pet.imageUrl ? 'zoom-in' : 'default';
-            modalImg.onclick = pet.imageUrl ? function() { window.openLightbox(pet.imageUrl); } : null;
-            modalImg.style.objectFit = 'contain';
-            modalImg.style.height = 'auto';
-            modalImg.style.maxHeight = '320px';
-            modalImg.style.background = '#111';
+            modalGalleryPhotos = getPetPhotoArray(pet);
+            modalGalleryIndex = 0;
+
+            function updateModalPhoto(idx) {
+                modalGalleryIndex = idx;
+                const modalImg = document.getElementById('modalImg');
+                const url = modalGalleryPhotos[idx] || '/petPadNotebookDarkGreyTan.png';
+                modalImg.src = url;
+                modalImg.onerror = function() { this.src='/petPadNotebookDarkGreyTan.png'; };
+                modalImg.style.cursor = url ? 'zoom-in' : 'default';
+                modalImg.onclick = url ? function() { window.openLightbox(modalGalleryPhotos[modalGalleryIndex]); } : null;
+
+                // Update thumbnails
+                document.querySelectorAll('.modal-gallery-thumb').forEach((thumb, i) => {
+                    thumb.classList.toggle('active', i === idx);
+                });
+
+                // Update nav arrows visibility
+                document.getElementById('galleryPrev').style.display = modalGalleryPhotos.length > 1 ? 'flex' : 'none';
+                document.getElementById('galleryNext').style.display = modalGalleryPhotos.length > 1 ? 'flex' : 'none';
+            }
+
+            // Show gallery strip if multiple photos
+            const galleryEl = document.getElementById('modalGallery');
+            const thumbsEl = document.getElementById('modalGalleryThumbs');
+            if (modalGalleryPhotos.length > 1) {
+                galleryEl.style.display = 'flex';
+                thumbsEl.innerHTML = modalGalleryPhotos.map((url, i) => `
+                    <img class="modal-gallery-thumb ${i === 0 ? 'active' : ''}" src="${url}" alt="${pet.name} photo ${i+1}" onerror="this.src='/petPadNotebookDarkGreyTan.png'" onclick="event.stopPropagation();window.setModalGalleryPhoto(${i});">
+                `).join('');
+            } else {
+                galleryEl.style.display = 'none';
+                thumbsEl.innerHTML = '';
+            }
+
+            updateModalPhoto(0);
             document.getElementById('modalName').textContent = pet.name;
 
             const dist = formatDistance(getPetDistance(pet));
@@ -2104,6 +2364,42 @@
             document.getElementById('modalOverlay').classList.add('open');
             document.body.style.overflow = 'hidden';
         };
+
+        window.setModalGalleryPhoto = (idx) => {
+            if (idx < 0 || idx >= modalGalleryPhotos.length) return;
+            modalGalleryIndex = idx;
+            const modalImg = document.getElementById('modalImg');
+            const url = modalGalleryPhotos[idx] || '/petPadNotebookDarkGreyTan.png';
+            modalImg.src = url;
+            modalImg.onclick = url ? function() { window.openLightbox(modalGalleryPhotos[modalGalleryIndex]); } : null;
+            document.querySelectorAll('.modal-gallery-thumb').forEach((thumb, i) => {
+                thumb.classList.toggle('active', i === idx);
+            });
+        };
+        window.changeGalleryPhoto = (offset) => {
+            const newIdx = modalGalleryIndex + offset;
+            if (newIdx >= 0 && newIdx < modalGalleryPhotos.length) {
+                window.setModalGalleryPhoto(newIdx);
+            }
+        };
+        window.scrollGalleryThumbs = (direction) => {
+            const container = document.getElementById('modalGalleryThumbs');
+            if (container) container.scrollBy({ left: direction * 80, behavior: 'smooth' });
+        };
+
+        /* Swipe on modal image */
+        (function() {
+            let startX = 0;
+            const modalImg = document.getElementById('modalImg');
+            modalImg.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive: true});
+            modalImg.addEventListener('touchend', e => {
+                const endX = e.changedTouches[0].clientX;
+                const diff = startX - endX;
+                if (Math.abs(diff) > 40) {
+                    window.changeGalleryPhoto(diff > 0 ? 1 : -1);
+                }
+            }, {passive: true});
+        })();
 
         window.closeModal = (e) => {
             if (e && e.target !== document.getElementById('modalOverlay')) return;
