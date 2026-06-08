@@ -1656,6 +1656,8 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        window.app = app;
+        window.db = db;
 
         const map = L.map('map').setView([39.8283, -98.5795], 4); // US center
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -1665,6 +1667,7 @@
         const markers = [];
         let markerClusterGroup = null;
         const allPets = [];
+        window.allPets = allPets;
         let filteredPets = [];
         let userLocation = null;
         let activeRadius = null; // miles
