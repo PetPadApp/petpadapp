@@ -2288,7 +2288,7 @@
             const card = document.querySelector(`.pet-card[data-idx="${idx}"]`);
             if (card) {
                 card.classList.add('active');
-                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
             keyboardFocusIdx = idx;
         };
