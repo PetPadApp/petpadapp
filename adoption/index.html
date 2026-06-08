@@ -1979,8 +1979,9 @@
                 const isNew = isNewPet(pet);
                 const inCompare = compareList.has(pet.id);
                 const photos = getPetPhotoArray(pet);
+                const photosJson = JSON.stringify(photos).replace(/"/g, '&quot;');
                 const imgHtml = photos.length > 1 ? `
-                    <div class="card-carousel" onclick="event.stopPropagation();window.openLightbox(${JSON.stringify(photos).replace(/'/g, "&#39;")}, 0);" style="cursor:zoom-in;">
+                    <div class="card-carousel" data-photos="${photosJson}" style="cursor:zoom-in;">
                         <img src="${photos[0]}" alt="${pet.name}" onerror="this.src='/petPadNotebookDarkGreyTan.png'" style="width:82px;height:82px;object-fit:cover;border-radius:12px;display:block;">
                         <div class="card-carousel-dots">
                             ${photos.map((_, i) => `<div class="card-carousel-dot ${i === 0 ? 'active' : ''}"></div>`).join('')}
@@ -2036,6 +2037,14 @@
                 });
             });
 
+            /* Card photo tap-to-enlarge */
+            sidebar.querySelectorAll('.card-carousel').forEach(el => {
+                el.addEventListener('click', e => {
+                    e.stopPropagation();
+                    const photos = JSON.parse(el.dataset.photos || '[]');
+                    if (photos.length) window.openLightbox(photos, 0);
+                });
+            });
         }
 
         window.toggleCardFav = (id, btn) => {
