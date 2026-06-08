@@ -886,6 +886,62 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
         .lightbox .lightbox-close:hover { background: #fff; transform: scale(1.05); }
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.85);
+            border: none;
+            color: var(--text-color);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            font-size: 1.2em;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        .lightbox-nav:hover { background: #fff; transform: translateY(-50%) scale(1.05); }
+        .lightbox-nav.prev { left: 16px; }
+        .lightbox-nav.next { right: 16px; }
+        .lightbox-nav.visible { display: flex; }
+        .lightbox-dots {
+            position: absolute;
+            bottom: 24px;
+            left: 0; right: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            z-index: 10;
+        }
+        .lightbox-dots.visible { display: flex; }
+        .lightbox-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            transition: background 0.2s;
+        }
+        .lightbox-dot.active { background: rgba(255,255,255,0.95); }
+        .lightbox-counter {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            display: none;
+            z-index: 10;
+        }
+        .lightbox-counter.visible { display: block; }
 
         /* Modal Photo Gallery */
         .modal-gallery {
@@ -963,20 +1019,13 @@
             flex-shrink: 0;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
             background: #EAE6E0;
-            cursor: grab;
+            cursor: zoom-in;
         }
-        .card-carousel:active { cursor: grabbing; }
-        .card-carousel-track {
-            display: flex;
-            height: 100%;
-            transition: transform 0.25s ease;
-        }
-        .card-carousel-track.no-transition { transition: none; }
-        .card-carousel-track img {
+        .card-carousel img {
             width: 82px;
             height: 82px;
             object-fit: cover;
-            flex-shrink: 0;
+            display: block;
             pointer-events: none;
             -webkit-user-drag: none;
         }
@@ -1281,7 +1330,7 @@
         /* Print Styles */
         @media print {
             /* Hide all non-essential UI */
-            .site-header, .hero, .filter-bar, #map, .sidebar, .lightbox, .modal-close, .fav-btn-modal, .share-btn, .qr-btn, .print-btn, .modal .cta, .footer, .compare-bar, .modal-gallery, .gallery-nav, .card-carousel-dots, .card-carousel-count { display: none !important; }
+            .site-header, .hero, .filter-bar, #map, .sidebar, .lightbox, .lightbox-nav, .lightbox-dots, .lightbox-counter, .modal-close, .fav-btn-modal, .share-btn, .qr-btn, .print-btn, .modal .cta, .footer, .compare-bar, .modal-gallery, .gallery-nav, .card-carousel-dots, .card-carousel-count { display: none !important; }
 
             /* Overlay: strip fixed positioning, place at top-left with no padding */
             .modal-overlay, .modal-overlay.open {
@@ -1434,7 +1483,7 @@
             .pet-card { gap: 12px; padding: 12px; }
             .pet-card .pet-img { width: 70px; height: 70px; }
             .card-carousel { width: 70px; height: 70px; }
-            .card-carousel-track img { width: 70px; height: 70px; }
+            .card-carousel img { width: 70px; height: 70px; }
             .filter-bar { flex-direction: column; align-items: stretch; gap: 8px; padding: 14px; border-radius: 14px; }
             .filter-bar .search-input, .filter-bar select, .filter-bar input[type="number"] {
                 width: 100%;
@@ -1591,7 +1640,11 @@
 
     <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
         <button class="lightbox-close" onclick="event.stopPropagation(); window.closeLightboxDirect();">&times;</button>
+        <button class="lightbox-nav prev" id="lightboxPrev" onclick="event.stopPropagation(); window.lightboxPrev();"><i class="fas fa-chevron-left"></i></button>
+        <button class="lightbox-nav next" id="lightboxNext" onclick="event.stopPropagation(); window.lightboxNext();"><i class="fas fa-chevron-right"></i></button>
         <img id="lightboxImg" src="" alt="" onclick="event.stopPropagation();">
+        <div class="lightbox-dots" id="lightboxDots"></div>
+        <div class="lightbox-counter" id="lightboxCounter"></div>
     </div>
 
     <div class="toast-container" id="toastContainer"></div>
@@ -1785,22 +1838,93 @@
             }
         }
 
-        window.openLightbox = (src) => {
+        let lightboxPhotos = [];
+        let lightboxIndex = 0;
+
+        window.openLightbox = (srcOrPhotos, startIdx = 0) => {
             const box = document.getElementById('lightbox');
             const img = document.getElementById('lightboxImg');
-            img.src = src;
+            const prevBtn = document.getElementById('lightboxPrev');
+            const nextBtn = document.getElementById('lightboxNext');
+            const dotsEl = document.getElementById('lightboxDots');
+            const counterEl = document.getElementById('lightboxCounter');
+
+            if (Array.isArray(srcOrPhotos)) {
+                lightboxPhotos = srcOrPhotos.filter(u => u);
+                lightboxIndex = Math.min(startIdx, lightboxPhotos.length - 1);
+                prevBtn.classList.toggle('visible', lightboxPhotos.length > 1);
+                nextBtn.classList.toggle('visible', lightboxPhotos.length > 1);
+                dotsEl.classList.toggle('visible', lightboxPhotos.length > 1);
+                counterEl.classList.toggle('visible', lightboxPhotos.length > 1);
+                updateLightboxGallery();
+            } else {
+                lightboxPhotos = [];
+                lightboxIndex = 0;
+                img.src = srcOrPhotos;
+                prevBtn.classList.remove('visible');
+                nextBtn.classList.remove('visible');
+                dotsEl.classList.remove('visible');
+                counterEl.classList.remove('visible');
+            }
             box.classList.add('open');
         };
+
+        function updateLightboxGallery() {
+            const img = document.getElementById('lightboxImg');
+            const dotsEl = document.getElementById('lightboxDots');
+            const counterEl = document.getElementById('lightboxCounter');
+            const url = lightboxPhotos[lightboxIndex] || '';
+            img.src = url;
+            img.onerror = function() { this.src='/petPadNotebookDarkGreyTan.png'; };
+            if (lightboxPhotos.length > 1) {
+                dotsEl.innerHTML = lightboxPhotos.map((_, i) =>
+                    `<div class="lightbox-dot ${i === lightboxIndex ? 'active' : ''}"></div>`
+                ).join('');
+                counterEl.textContent = `${lightboxIndex + 1} / ${lightboxPhotos.length}`;
+            }
+        }
+
+        window.lightboxPrev = () => {
+            if (!lightboxPhotos.length) return;
+            lightboxIndex = (lightboxIndex - 1 + lightboxPhotos.length) % lightboxPhotos.length;
+            updateLightboxGallery();
+        };
+        window.lightboxNext = () => {
+            if (!lightboxPhotos.length) return;
+            lightboxIndex = (lightboxIndex + 1) % lightboxPhotos.length;
+            updateLightboxGallery();
+        };
+
         window.closeLightbox = (e) => {
             if (e && e.target !== document.getElementById('lightbox')) return;
             document.getElementById('lightbox').classList.remove('open');
             document.getElementById('lightboxImg').src = '';
+            lightboxPhotos = [];
+            lightboxIndex = 0;
         };
         // Also expose a direct close for the lightbox close button
         window.closeLightboxDirect = () => {
             document.getElementById('lightbox').classList.remove('open');
             document.getElementById('lightboxImg').src = '';
+            lightboxPhotos = [];
+            lightboxIndex = 0;
         };
+
+        // Swipe support for lightbox gallery
+        (function() {
+            const box = document.getElementById('lightbox');
+            let startX = 0;
+            box.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive: true});
+            box.addEventListener('touchend', e => {
+                if (!lightboxPhotos.length) return;
+                const endX = e.changedTouches[0].clientX;
+                const diff = startX - endX;
+                if (Math.abs(diff) > 40) {
+                    if (diff > 0) window.lightboxNext();
+                    else window.lightboxPrev();
+                }
+            }, {passive: true});
+        })();
 
         function createPopupContent(pet) {
             const img = pet.imageUrl ? `<img src="${pet.imageUrl}" onerror="this.style.display='none'" onclick="event.stopPropagation();window.openLightbox('${pet.imageUrl}');" style="width:100%;max-height:180px;object-fit:contain;border-radius:8px;margin-bottom:8px;background:#F0EDE7;cursor:zoom-in;">` : '';
@@ -1856,10 +1980,8 @@
                 const inCompare = compareList.has(pet.id);
                 const photos = getPetPhotoArray(pet);
                 const imgHtml = photos.length > 1 ? `
-                    <div class="card-carousel" data-photos='${JSON.stringify(photos).replace(/'/g, "&#39;")}' onclick="event.stopPropagation();">
-                        <div class="card-carousel-track">
-                            ${photos.map(url => `<img src="${url}" alt="${pet.name}" onerror="this.src='/petPadNotebookDarkGreyTan.png'">`).join('')}
-                        </div>
+                    <div class="card-carousel" onclick="event.stopPropagation();window.openLightbox(${JSON.stringify(photos).replace(/'/g, "&#39;")}, 0);" style="cursor:zoom-in;">
+                        <img src="${photos[0]}" alt="${pet.name}" onerror="this.src='/petPadNotebookDarkGreyTan.png'" style="width:82px;height:82px;object-fit:cover;border-radius:12px;display:block;">
                         <div class="card-carousel-dots">
                             ${photos.map((_, i) => `<div class="card-carousel-dot ${i === 0 ? 'active' : ''}"></div>`).join('')}
                         </div>
@@ -1914,80 +2036,6 @@
                 });
             });
 
-            /* Card photo carousel swipe + click navigation */
-            sidebar.querySelectorAll('.card-carousel').forEach(carousel => {
-                const track = carousel.querySelector('.card-carousel-track');
-                const dots = carousel.querySelectorAll('.card-carousel-dot');
-                let currentIdx = 0;
-                let startX = 0;
-                let isDragging = false;
-                let dragStartX = 0;
-                let dragCurrentX = 0;
-                const photoCount = dots.length;
-
-                function updateCarousel(animate = true) {
-                    const imgWidth = carousel.clientWidth;
-                    track.classList.toggle('no-transition', !animate);
-                    track.style.transform = `translateX(-${currentIdx * imgWidth}px)`;
-                    dots.forEach((d, i) => d.classList.toggle('active', i === currentIdx));
-                }
-
-                carousel.addEventListener('touchstart', e => {
-                    startX = e.touches[0].clientX;
-                }, {passive: true});
-
-                carousel.addEventListener('touchend', e => {
-                    const endX = e.changedTouches[0].clientX;
-                    const diff = startX - endX;
-                    if (Math.abs(diff) > 30) {
-                        if (diff > 0 && currentIdx < photoCount - 1) currentIdx++;
-                        else if (diff < 0 && currentIdx > 0) currentIdx--;
-                        updateCarousel();
-                    }
-                }, {passive: true});
-
-                carousel.addEventListener('mousedown', e => {
-                    isDragging = true;
-                    dragStartX = e.clientX;
-                    carousel.style.cursor = 'grabbing';
-                });
-
-                carousel.addEventListener('mousemove', e => {
-                    if (!isDragging) return;
-                    dragCurrentX = e.clientX;
-                });
-
-                carousel.addEventListener('mouseup', e => {
-                    if (!isDragging) return;
-                    isDragging = false;
-                    carousel.style.cursor = 'grab';
-                    const diff = dragStartX - dragCurrentX;
-                    if (Math.abs(diff) > 20) {
-                        if (diff > 0 && currentIdx < photoCount - 1) currentIdx++;
-                        else if (diff < 0 && currentIdx > 0) currentIdx--;
-                        updateCarousel();
-                    }
-                });
-
-                carousel.addEventListener('mouseleave', () => {
-                    if (isDragging) { isDragging = false; carousel.style.cursor = 'grab'; }
-                });
-
-                /* Click left/right halves to navigate (desktop) */
-                carousel.addEventListener('click', e => {
-                    if (isDragging) { e.stopPropagation(); return; }
-                    const rect = carousel.getBoundingClientRect();
-                    const clickX = e.clientX - rect.left;
-                    if (clickX < rect.width / 2) {
-                        if (currentIdx > 0) { currentIdx--; updateCarousel(); }
-                    } else {
-                        if (currentIdx < photoCount - 1) { currentIdx++; updateCarousel(); }
-                    }
-                    e.stopPropagation();
-                });
-
-                window.addEventListener('resize', () => updateCarousel(false));
-            });
         }
 
         window.toggleCardFav = (id, btn) => {
@@ -2421,6 +2469,10 @@
                 window.closeShelterModal();
                 window.closeQRModal();
                 window.closeCompareModal();
+            }
+            if (document.getElementById('lightbox').classList.contains('open') && lightboxPhotos.length > 1) {
+                if (e.key === 'ArrowLeft') { e.preventDefault(); window.lightboxPrev(); }
+                else if (e.key === 'ArrowRight') { e.preventDefault(); window.lightboxNext(); }
             }
         });
 
