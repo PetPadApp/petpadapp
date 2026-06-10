@@ -1791,6 +1791,11 @@
             return `${years} yr`;
         }
 
+        function getPetAge(pet) {
+            if (pet.ageText) return pet.ageText;
+            return getAge(pet.dateOfBirth);
+        }
+
         function getAgeInMonths(dob) {
             if (!dob) return null;
             const birth = new Date(dob);
@@ -2025,7 +2030,7 @@
                     ${imgHtml}
                     <div class="pet-info">
                         <div class="pet-name">${pet.name}</div>
-                        <div class="pet-meta">${pet.breed || 'Mixed'} &bull; ${pet.sex || ''} &bull; ${getAge(pet.dateOfBirth) || 'Age unknown'}</div>
+                        <div class="pet-meta">${pet.breed || 'Mixed'} &bull; ${pet.sex || ''} &bull; ${getPetAge(pet) || 'Age unknown'}</div>
                         ${dist ? `<div class="distance-tag"><i class="fas fa-location-arrow"></i> ${dist}</div>` : ''}
                         <div class="pet-tags">
                             ${pet.petType ? `<span class="tag">${pet.petType}</span>` : ''}
@@ -2370,7 +2375,7 @@
 
             const dist = formatDistance(getPetDistance(pet));
             const distText = dist ? ` • ${dist}` : '';
-            document.getElementById('modalMeta').textContent = `${pet.breed || 'Mixed'} • ${pet.sex || ''} • ${getAge(pet.dateOfBirth) || 'Age unknown'}${distText}`;
+            document.getElementById('modalMeta').textContent = `${pet.breed || 'Mixed'} • ${pet.sex || ''} • ${getPetAge(pet) || 'Age unknown'}${distText}`;
 
             const favBtn = document.getElementById('modalFavBtn');
             const saved = isPetSaved(id);
@@ -2704,7 +2709,7 @@
                     <img src="${pet.imageUrl || '/petPadNotebookDarkGreyTan.png'}" alt="${pet.name}" onerror="this.src='/petPadNotebookDarkGreyTan.png'">
                     <h4>${pet.name}</h4>
                     <div class="cm-meta">${pet.breed || 'Mixed'} &bull; ${pet.sex || ''}</div>
-                    <div class="cm-detail"><span class="cm-detail-label">Age</span><span class="cm-detail-value">${getAge(pet.dateOfBirth) || 'Unknown'}</span></div>
+                    <div class="cm-detail"><span class="cm-detail-label">Age</span><span class="cm-detail-value">${getPetAge(pet) || 'Unknown'}</span></div>
                     <div class="cm-detail"><span class="cm-detail-label">Weight</span><span class="cm-detail-value">${pet.weight || 'Unknown'}</span></div>
                     <div class="cm-detail"><span class="cm-detail-label">Type</span><span class="cm-detail-value">${pet.petType || 'Unknown'}</span></div>
                     <div class="cm-detail"><span class="cm-detail-label">Color</span><span class="cm-detail-value">${pet.color || 'Unknown'}</span></div>
