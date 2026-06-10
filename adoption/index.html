@@ -464,6 +464,29 @@
             color: var(--text-muted);
             line-height: 1.7;
         }
+        .modal .pet-info-box {
+            background: var(--light-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 18px;
+            border: 1px solid var(--border-color);
+        }
+        .modal .pet-info-box h4 {
+            margin: 0 0 8px;
+            color: var(--secondary-color);
+            font-size: 0.95em;
+        }
+        .modal .pet-info-box .pet-info-content {
+            margin: 0;
+            font-size: 0.9em;
+            color: var(--text-color);
+            line-height: 1.7;
+        }
+        .modal .pet-info-box .pet-info-content:empty::before {
+            content: "No description provided.";
+            color: var(--text-muted);
+            font-style: italic;
+        }
         .modal .modal-header-row {
             display: flex;
             align-items: center;
@@ -1626,6 +1649,10 @@
                     <h4><i class="fas fa-home"></i> Shelter / Foster</h4>
                     <p id="modalShelter"></p>
                 </div>
+                <div class="pet-info-box">
+                    <h4><i class="fas fa-paw"></i> About</h4>
+                    <div id="modalAdoptionInfo" class="pet-info-content"></div>
+                </div>
                 <div class="cta">
                     <button class="share-btn" id="modalShareBtn"><i class="fas fa-share-alt"></i> Share</button>
                     <button class="qr-btn" id="modalQRBtn" title="QR Code"><i class="fas fa-qrcode"></i> QR</button>
@@ -2388,9 +2415,12 @@
                 window.print();
             };
 
+            const weightLbs = parseWeight(pet.weight);
+            const weightDisplay = weightLbs !== null ? `${Math.round(weightLbs)} lbs` : (pet.weight || null);
+
             const details = [
                 ['Color', pet.color],
-                ['Weight', pet.weight],
+                ['Weight', weightDisplay],
                 ['Microchip', pet.hasMicrochip ? 'Yes' : 'No'],
                 ['Spayed/Neutered', pet.spayedNeuteredStatus],
                 ['Allergies', pet.allergies],
@@ -2401,6 +2431,13 @@
             document.getElementById('modalDetails').innerHTML = details.map(([label, value]) => `
                 <div class="detail-row"><span class="detail-label">${label}</span><span class="detail-value">${value}</span></div>
             `).join('') || '<div class="detail-row"><span class="detail-label">Info</span><span class="detail-value">Contact shelter for details</span></div>';
+
+            const adoptionInfoEl = document.getElementById('modalAdoptionInfo');
+            if (pet.adoptionListingInfo) {
+                adoptionInfoEl.innerHTML = pet.adoptionListingInfo;
+            } else {
+                adoptionInfoEl.innerHTML = '';
+            }
 
             const addressParts = [pet.shelterAddress, pet.shelterCity, pet.shelterState, pet.shelterZip].filter(Boolean);
             const displayAddress = addressParts.length > 0 ? addressParts.join(', ') : (pet.shelterLocation || 'Location not provided');
