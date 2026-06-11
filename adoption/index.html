@@ -1722,23 +1722,6 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" crossorigin=""></script>
     <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-        import { getFirestore, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAIUlJCdgy4AtZLIGBihdlnZP4NnqxNghQ",
-            authDomain: "mypet-b1143.firebaseapp.com",
-            projectId: "mypet-b1143",
-            storageBucket: "mypet-b1143.firebasestorage.app",
-            messagingSenderId: "554504547921",
-            appId: "1:554504547921:web:2214121c31a7d03f785270"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        window.app = app;
-        window.db = db;
-
         const map = L.map('map').setView([39.8283, -98.5795], 4); // US center
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
@@ -2256,16 +2239,16 @@
 
         async function loadPets() {
             try {
-                const q = query(collection(db, 'adoptablePets'), where('isAdoptable', '==', true));
-                const snapshot = await getDocs(q);
+                const response = await fetch('https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=100');
+                const result = await response.json();
                 allPets.length = 0;
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    data.id = doc.id;
-                    allPets.push(data);
-                    const photoCount = (data.adoptionPhotoUrls?.length || 0) + (data.imageUrl ? 1 : 0);
-                    console.log(`Pet ${data.name}: photos=${photoCount}, imageUrl=${data.imageUrl ? 'yes' : 'MISSING'}`);
-                });
+                if (result.success && result.pets) {
+                    result.pets.forEach(data => {
+                        allPets.push(data);
+                        const photoCount = (data.adoptionPhotoUrls?.length || 0) + (data.imageUrl ? 1 : 0);
+                        console.log(`Pet ${data.name}: photos=${photoCount}, imageUrl=${data.imageUrl ? 'yes' : 'MISSING'}`);
+                    });
+                }
 
                 allPets.forEach(pet => {
                     let lat, lng;
