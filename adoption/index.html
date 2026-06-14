@@ -82,6 +82,7 @@
         body[data-theme="dark"] .leaflet-popup-tip { background: var(--card-bg); }
 
         * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -211,6 +212,28 @@
             z-index: 2;
         }
         .mobile-break { display: none; }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 14px;
+            padding: 6px 16px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 50px;
+            color: #fff;
+            font-size: 0.85em;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            z-index: 2;
+            position: relative;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .hero-badge span {
+            font-weight: 700;
+            color: #FFD1DC;
+        }
         .hero-texture {
             position: absolute;
             inset: 0;
@@ -334,6 +357,8 @@
             box-shadow: var(--shadow-hover);
             border-color: rgba(64, 224, 208, 0.3);
         }
+        .pet-card:hover .pet-img { transform: scale(1.08); }
+        .pet-card:hover .card-carousel img { transform: scale(1.08); }
         .pet-card.active {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(64, 224, 208, 0.15), var(--shadow-hover);
@@ -346,6 +371,8 @@
             background: #EAE6E0;
             flex-shrink: 0;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         .pet-card .pet-info { flex: 1; min-width: 0; }
         .pet-card .pet-name {
@@ -619,8 +646,35 @@
             padding: 50px 20px;
             color: var(--text-muted);
         }
+        .empty-illustration {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 16px;
+            opacity: 0.5;
+        }
+        .empty h3 {
+            font-size: 1.15em;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0 0 6px;
+        }
+        .empty p {
+            font-size: 0.9em;
+            margin: 0 0 16px;
+            max-width: 280px;
+            margin-left: auto;
+            margin-right: auto;
+        }
         .loading i { font-size: 2em; color: var(--primary-color); animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-in {
+            opacity: 0;
+            animation: fadeSlideUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
 
         /* Footer */
         .footer {
@@ -682,6 +736,40 @@
         }
         .footer-bottom a { color: var(--purple-color); text-decoration: none; font-weight: 500; }
         .footer-bottom a:hover { color: var(--accent-color); }
+
+        /* Back to Top */
+        .back-to-top {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-hover);
+            color: var(--purple-color);
+            font-size: 1.1em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 100;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        .back-to-top:hover {
+            background: var(--purple-color);
+            color: #fff;
+            border-color: var(--purple-color);
+        }
 
         /* Filter / Sort Panel */
         .filter-bar {
@@ -1135,6 +1223,7 @@
             display: block;
             pointer-events: none;
             -webkit-user-drag: none;
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         .card-carousel-dots {
             position: absolute;
@@ -1646,7 +1735,8 @@
     <div class="hero">
         <div class="hero-texture"></div>
         <h1>Adopt with <img src="/PetPadLogoTextGreen.png" alt="Pet Pad" class="hero-logo"></h1>
-        <p>Browse adoptable pets from shelters and fosters<br class="mobile-break"> near you</p>
+        <p>Browse adoptable pets from shelters<br class="mobile-break"> and fosters near you</p>
+        <div class="hero-badge"><span id="heroBadgeCount">0</span> pets available</div>
     </div>
 
     <div class="container">
@@ -1843,6 +1933,7 @@
         </div>
     </footer>
 
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'});" title="Back to top"><i class="fas fa-arrow-up"></i></button>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" crossorigin=""></script>
     <script type="module">
@@ -2096,10 +2187,18 @@
 
                 sidebar.innerHTML = `
                     <div class="empty">
-                        <i class="fas fa-paw" style="font-size:2em;color:#D5D0C8;margin-bottom:10px;"></i>
-                        <p style="font-weight:600;margin-bottom:4px;">No pets match your filters.</p>
-                        <p style="font-size:0.9em;color:var(--text-muted);margin-bottom:12px;">${suggestion}</p>
-                        <button class="btn-sm" onclick="document.getElementById('resetBtn').click();" style="background:var(--primary-color);color:#111;border:none;padding:8px 18px;border-radius:20px;font-weight:600;cursor:pointer;">Clear All Filters</button>
+                        <svg class="empty-illustration" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="60" cy="60" r="50" stroke="currentColor" stroke-width="2" stroke-dasharray="6 4" opacity="0.3"/>
+                            <ellipse cx="60" cy="68" rx="22" ry="18" fill="currentColor" opacity="0.08"/>
+                            <circle cx="46" cy="52" r="5" fill="currentColor" opacity="0.15"/>
+                            <circle cx="74" cy="52" r="5" fill="currentColor" opacity="0.15"/>
+                            <path d="M52 64C52 64 56 68 60 68C64 68 68 64 68 64" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" opacity="0.2"/>
+                            <path d="M38 48C38 44 42 40 46 42" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.15"/>
+                            <path d="M82 48C82 44 78 40 74 42" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.15"/>
+                        </svg>
+                        <h3>No pets match your filters</h3>
+                        <p>${suggestion}</p>
+                        <button class="btn-sm" onclick="document.getElementById('resetBtn').click();" style="background:var(--primary-color);color:#111;border:none;padding:8px 18px;border-radius:20px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">Clear All Filters</button>
                     </div>
                 `;
                 return;
@@ -2129,7 +2228,7 @@
                     </div>
                 ` : `<img class="pet-img" src="${pet.imageUrl || '/petPadNotebookDarkGreyTan.png'}" alt="${pet.name}" onerror="this.src='/petPadNotebookDarkGreyTan.png'">`;
                 return `
-                <div class="pet-card ${compareMode ? 'compare-mode' : ''} ${inCompare ? 'compare-selected' : ''}" data-idx="${idx}" data-id="${pet.id}" tabindex="0">
+                <div class="pet-card ${compareMode ? 'compare-mode' : ''} ${inCompare ? 'compare-selected' : ''} animate-in" data-idx="${idx}" data-id="${pet.id}" tabindex="0" style="animation-delay: ${idx * 0.04}s">
                     ${compareMode ? `<div class="compare-circle" onclick="event.stopPropagation();window.toggleCompare('${pet.id}');"><i class="fas fa-check"></i></div>` : ''}
                     <button class="fav-btn ${saved ? 'saved' : ''}" onclick="event.stopPropagation();window.toggleCardFav('${pet.id}', this);" title="${saved ? 'Remove from saved' : 'Save pet'}">
                         <i class="${saved ? 'fas' : 'far'} fa-heart"></i>
@@ -2393,6 +2492,7 @@
 
                 populateTypeFilter();
                 filteredPets = [...allPets];
+                document.getElementById('heroBadgeCount').textContent = allPets.length.toLocaleString();
                 applyFilters();
                 updateSavedToggleCount();
 
@@ -2876,6 +2976,14 @@
         });
 
         document.getElementById('year').textContent = new Date().getFullYear();
+
+        /* Back to top visibility */
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 500) backToTop.classList.add('visible');
+            else backToTop.classList.remove('visible');
+        });
+
         loadPets().then(() => {
             if (window.location.hash.startsWith('#pet=')) {
                 const id = decodeURIComponent(window.location.hash.slice(5));
