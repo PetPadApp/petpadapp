@@ -81,16 +81,16 @@
             content: '🐾';
             margin: 0 10px;
             font-size: 1.8em;
-            display: inline-block; /* Ensure the transform works */
+            display: inline-block;
             filter: sepia(30%) saturate(50%) hue-rotate(30deg) brightness(1.8) contrast(0.7);
         }
 
         h1::after {
             transform: scaleX(-1);
-            -webkit-transform: scaleX(-1); /* For Safari/Chrome */
-            -ms-transform: scaleX(-1); /* For IE/Edge */
+            -webkit-transform: scaleX(-1);
+            -ms-transform: scaleX(-1);
         }
-        
+
         h2 {
             color: var(--primary-color);
             margin-top: 40px;
