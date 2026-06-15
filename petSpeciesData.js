@@ -5,8 +5,13 @@
 
 const allSpecies = [
   "Alpaca",
+  "Anole",
+  "Axolotl",
+  "Bearded Dragon",
   "Bird",
+  "Caiman Lizard",
   "Cat",
+  "Chameleon",
   "Chicken",
   "Chinchilla",
   "Cow",
@@ -29,16 +34,23 @@ const allSpecies = [
   "Hermit Crab",
   "Horse",
   "Iguana",
+  "Isopod",
+  "Jumping Spider",
   "Lizard",
   "Llama",
+  "Millipede",
+  "Monitor",
   "Mouse",
   "Otter",
   "Pig",
   "Prairie Dog",
   "Rabbit",
-  "Rat",
+  "Rat (Fancy)",
+  "Scorpion",
   "Sheep",
+  "Skink",
   "Skunk",
+  "Snail",
   "Snake",
   "Sugar Glider",
   "Tarantula",
@@ -149,8 +161,8 @@ const breedsBySpecies = {
     "Syrian", "Dwarf Campbell Russian", "Winter White Dwarf", "Roborovski Dwarf", "Chinese",
     "Enter Manually"
   ],
-  "Rat": [
-    "Standard", "Dumbo", "Rex", "Hairless", "Satin",
+  "Rat (Fancy)": [
+    "Standard", "Dumbo", "Rex", "Hairless", "Satin", "Hooded",
     "Enter Manually"
   ],
   "Guinea Pig": [
@@ -285,6 +297,24 @@ const breedsBySpecies = {
   "Skunk": ["Enter Manually"],
   "Sugar Glider": ["Standard Grey", "White Face", "Mosaic", "Enter Manually"],
   "Turkey": ["Broad Breasted White", "Bourbon Red", "Enter Manually"],
+  "Anole": ["Green Anole", "Bahaman (Brown) Anole", "Enter Manually"],
+  "Axolotl": [
+    "Leucistic", "Wild Type", "Golden Albino", "Melanoid", "Copper", "Piebald",
+    "Enter Manually"
+  ],
+  "Bearded Dragon": ["Central (Inland)", "Rankin's", "Enter Manually"],
+  "Caiman Lizard": ["Northern", "Guianan", "Enter Manually"],
+  "Chameleon": ["Veiled", "Jackson's", "Panther", "Enter Manually"],
+  "Isopod": ["Dairy Cow", "Powder Blue", "Zebra", "Enter Manually"],
+  "Jumping Spider": ["Regal Jumping Spider", "Enter Manually"],
+  "Millipede": ["Giant African", "Ivory", "Smoky Oak", "Scarlet", "Enter Manually"],
+  "Monitor": ["Savannah Monitor", "Ackie Monitor", "Enter Manually"],
+  "Scorpion": ["Emperor", "Asian Forest", "Desert Hairy", "Tanzanian Red-clawed", "Enter Manually"],
+  "Skink": ["Blue-Tongued Skink", "Fire Skink", "Enter Manually"],
+  "Snail": [
+    "Mystery Snail", "Nerite", "Apple Snail", "Assassin Snail", "Giant African Land Snail",
+    "Enter Manually"
+  ],
   "Other": ["Enter Manually"]
 };
 
