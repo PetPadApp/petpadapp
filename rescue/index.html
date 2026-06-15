@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pet Pad Home — Your All-in-One Pet Care Companion</title>
+    <title>Pet Pad for Rescues & Shelters — Manage, Share & Find Homes</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -42,7 +42,7 @@
             line-height: 1.7;
             color: var(--text-color);
             margin: 0;
-            padding: 28px 0 0;
+            padding: 0;
             background-color: var(--light-bg);
             position: relative;
             overflow-x: hidden;
@@ -123,82 +123,6 @@
             z-index: 2;
         }
 
-        .hero-section {
-            text-align: center;
-            padding: 20px 0 10px;
-        }
-        .hero-section p {
-            font-size: 1.25em;
-            font-weight: 500;
-            color: var(--text-color);
-            line-height: 1.6;
-            max-width: 640px;
-            margin: 0 auto;
-            letter-spacing: -0.01em;
-        }
-
-        .rescue-section {
-            background: linear-gradient(135deg, #FAFAFF 0%, #FFF5FB 50%, #F0FDFB 100%);
-            border-radius: 16px;
-            padding: 30px;
-            margin: 30px 0;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-md);
-            text-align: center;
-        }
-        body[data-theme="dark"] .rescue-section { background: #18181F; }
-        .rescue-section h3 {
-            color: var(--primary-dark);
-            margin-top: 0;
-            font-size: 1.4em;
-            font-weight: 700;
-        }
-        .rescue-section .rescue-features {
-            text-align: left;
-            max-width: 700px;
-            margin: 20px auto 0;
-            list-style: none;
-            padding: 0;
-        }
-        .rescue-section .rescue-features li {
-            margin-bottom: 14px;
-            padding-left: 32px;
-            position: relative;
-            line-height: 1.5;
-        }
-        .rescue-section .rescue-features li::before {
-            content: '\f1b0';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            color: var(--primary-color);
-            position: absolute;
-            left: 0;
-            top: 2px;
-        }
-        .rescue-cta {
-            margin-top: 24px;
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .rescue-cta .btn-outline {
-            display: inline-block;
-            background: transparent;
-            color: var(--primary-dark);
-            padding: 12px 25px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 600;
-            border: 2px solid var(--primary-color);
-            transition: all 0.3s ease;
-        }
-        .rescue-cta .btn-outline:hover {
-            background: var(--primary-color);
-            color: white;
-            transform: translateY(-2px);
-        }
-
         h2 {
             color: var(--text-color);
             margin: 30px 0 20px;
@@ -213,17 +137,6 @@
             border: 1px solid var(--border-color);
             margin: 20px 0;
             transition: background-color 0.3s, border-color 0.3s;
-        }
-
-        .app-icon {
-            width: 200px;
-            height: 200px;
-            margin: 0 auto 0px;
-            border-radius: 22px;
-            background-color: transparent;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .feature-box {
@@ -258,31 +171,11 @@
         }
 
         .feature-list li::before {
-            content: '•';
+            content: '\2022';
             color: var(--primary-color);
             position: absolute;
             left: 8px;
             font-size: 1.2em;
-        }
-
-        .secure-sharing {
-            background-color: var(--light-bg);
-            padding: 25px;
-            border-radius: 10px;
-            margin: 30px 0;
-            border-left: 4px solid var(--accent-color);
-        }
-
-        .secure-sharing h3 {
-            color: var(--primary-color);
-            margin-top: 0;
-            display: flex;
-            align-items: center;
-        }
-
-        .secure-sharing h3 i {
-            margin-right: 12px;
-            color: var(--accent-color);
         }
 
         .steps {
@@ -314,36 +207,76 @@
             font-weight: 600;
         }
 
-        .download-section {
-            margin: 40px auto;
-            max-width: 800px;
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
         }
 
-        .download-box {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 40px;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-md);
-        }
-
-        .download-title {
-            color: var(--primary-color);
-            font-size: 1.5em;
-            margin-bottom: 15px;
+        .pricing-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
             text-align: center;
+            transition: all 0.3s ease;
         }
-
-        .qr-section {
-            text-align: center;
-            margin-top: 40px;
+        .pricing-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
         }
-
-        .qr-title {
+        .pricing-card.rescue {
+            border-color: var(--accent-color);
+            box-shadow: var(--shadow-colored);
+        }
+        .pricing-card .tier-name {
+            font-size: 1.3em;
+            font-weight: 700;
             color: var(--text-color);
-            font-size: 1.2em;
-            margin-bottom: 20px;
+            margin-bottom: 4px;
+        }
+        .pricing-card .tier-price {
+            font-size: 2em;
+            font-weight: 800;
+            color: var(--primary-dark);
+            margin: 10px 0;
+        }
+        .pricing-card .tier-period {
+            color: var(--text-muted);
+            font-size: 0.9em;
+            margin-bottom: 16px;
+        }
+        .pricing-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px;
+            text-align: left;
+        }
+        .pricing-card ul li {
+            margin-bottom: 10px;
+            padding-left: 22px;
+            position: relative;
+            font-size: 0.95em;
+        }
+        .pricing-card ul li::before {
+            content: '\2713';
+            color: var(--primary-color);
+            position: absolute;
+            left: 0;
+            font-weight: 700;
+        }
+        .pricing-card .badge {
+            display: inline-block;
+            background: var(--accent-color);
+            color: #fff;
+            font-size: 0.7em;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
         }
 
         .btn {
@@ -368,14 +301,21 @@
             margin-right: 8px;
         }
 
-        .qr-code {
-            margin: 20px auto;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-            display: block;
-            border: 1px solid var(--primary-color);
-            width: fit-content;
+        .btn-outline {
+            display: inline-block;
+            background: transparent;
+            color: var(--primary-dark);
+            padding: 12px 25px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 2px solid var(--primary-color);
+            transition: all 0.3s ease;
+        }
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
         }
 
         /* Header */
@@ -393,7 +333,9 @@
             top: 0;
             left: 28px;
             filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+            border-bottom: none;
         }
+        .brand-lockup:hover { border-bottom: none; }
         .brand-lockup .logo-notebook {
             height: 130px;
             width: auto;
@@ -505,6 +447,24 @@
         body[data-theme="dark"] .footer { background: #18181F; }
         body[data-theme="dark"] .footer-col a:hover { color: var(--primary-color); }
 
+        .cta-section {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(64,224,208,0.08) 0%, rgba(236,72,153,0.08) 100%);
+            border-radius: 16px;
+            margin: 30px 0;
+        }
+        .cta-section h3 {
+            color: var(--text-color);
+            margin: 0 0 12px;
+            font-size: 1.5em;
+        }
+        .cta-section p {
+            color: var(--text-muted);
+            max-width: 520px;
+            margin: 0 auto 20px;
+        }
+
         @media (max-width: 600px) {
             body {
                 padding: 0;
@@ -526,15 +486,8 @@
             .hero h2 { font-size: 2em; }
             .hero p { font-size: 0.95em; }
             .hero h1 img { height: 1.6em; }
-            .app-icon {
-                width: 150px;
-                height: 150px;
-            }
-            .feature-box, .secure-sharing {
-                padding: 15px;
-            }
-            .steps li {
-                padding-left: 30px;
+            .pricing-cards {
+                grid-template-columns: 1fr;
             }
             .footer-inner {
                 grid-template-columns: 1fr;
@@ -547,8 +500,8 @@
 <body>
     <header class="site-header">
         <a href="/home" class="brand-lockup">
-            <img src="petPadNotebookDarkGreyTan.png" alt="Pet Pad" class="logo-notebook">
-            <img src="PetPadLogoTextGreen.png" alt="Pet Pad" class="logo-text">
+            <img src="../petPadNotebookDarkGreyTan.png" alt="Pet Pad" class="logo-notebook">
+            <img src="../PetPadLogoTextGreen.png" alt="Pet Pad" class="logo-text">
         </a>
         <div class="header-right">
             <nav>
@@ -561,112 +514,145 @@
     </header>
 
     <div class="hero">
-        <h1><img src="PetPadLogoTextGreen.png" alt="Pet Pad"></h1>
-        <h2>Welcome!</h2>
-        <p>Your all-in-one pet care companion</p>
+        <h1><img src="../PetPadLogoTextGreen.png" alt="Pet Pad"></h1>
+        <h2>Built for Rescues & Shelters</h2>
+        <p>Manage pet profiles, collaborate with your team, and find forever homes — all from one powerful app.</p>
     </div>
 
     <div class="page-wrap">
         <div class="content">
-        <div class="hero-section">
-            <p>Organize your pet's important info.<br>Share everything your vet or pet sitter needs - in one secure link!</p>
-        </div>
+            <h2 style="text-align: center; border-left: none;">Everything You Need to Save More Lives</h2>
+            <p style="text-align: center; color: var(--text-muted); max-width: 640px; margin: -10px auto 20px;">Pet Pad gives fosters and shelters the tools to create rich pet profiles, work together, and connect adoptable pets with loving families.</p>
 
-        <div class="feature-box">
-            <h3><i class="fas fa-paw"></i> All Your Pet's Info in One Place</h3>
-            <ul class="feature-list">
-                <li>Store complete pet profiles with photos and medical information</li>
-                <li>Upload and organize veterinary documents and medical records</li>
-                <li>Track vaccination history with dates and reminders</li>
-                <li>Print or share PDF tables of vaccine history and medical documents</li>
-                <li>Maintain emergency contacts and veterinary clinic information</li>
-                <li>Store feeding instructions, schedules, and dietary restrictions</li>
-                <li>Access all your pet's info when you need it</li>
-                <li>Securely share pet profiles with pet sitters using PIN-protected 'Share Links'</li>  
-            </ul>
-        </div>
+            <div class="feature-box">
+                <h3><i class="fas fa-clipboard-list"></i> Complete Pet Profiles</h3>
+                <p>Build detailed profiles for every animal in your care. Store microchip numbers, vaccination history, medical records, feeding instructions, behavioral notes, emergency contacts, and more — all in one organized, accessible place.</p>
+            </div>
 
-        <div class="secure-sharing">
-            <h3><i class="fas fa-lock"></i> Secure Pet Profile Sharing</h3>
-            <p>No more writing lengthy pet care instructions or worrying about missing important details. Pet Pad's secure sharing feature lets you give pet sitters exactly what they need:</p>
-            
+            <div class="feature-box">
+                <h3><i class="fas fa-users"></i> Co-Manage with Your Team</h3>
+                <p>Invite fosters, volunteers, and staff as <strong>coparents</strong> to collaborate on pet profiles in real time. Everyone stays on the same page with instant updates and shared access to critical information.</p>
+            </div>
+
+            <div class="feature-box">
+                <h3><i class="fas fa-globe"></i> Post to the Adoption Website Instantly</h3>
+                <p>Upgrade to the <strong>Rescue tier</strong> and toggle any pet as adoptable. They appear automatically on the Pet Pad Adoption website within moments. No waiting, no manual uploads, no back-and-forth.</p>
+            </div>
+
+            <div class="feature-box">
+                <h3><i class="fas fa-exchange-alt"></i> Transfer to New Owners Seamlessly</h3>
+                <p>When a pet finds their forever home, transfer the entire profile to the new parent with a single tap. All records, photos, and history move intact. The new owner gets full control and editability instantly.</p>
+            </div>
+
+            <h2 style="text-align: center; border-left: none; margin-top: 40px;">How It Works</h2>
             <ul class="steps">
-                <li data-step="1">Create your pet's complete profile with medical history, emergency contacts, and feeding schedules</li>
-                <li data-step="2">Generate a secure 'Share Link' protected by a 4-digit PIN</li>
-                <li data-step="3">Share the link and PIN with your pet sitter</li>
-                <li data-step="4">Sitters get instant read-only access to all care instructions — no account needed</li>
+                <li data-step="1"><strong>Download Pet Pad</strong> and upgrade to the Rescue tier ($29.99/year)</li>
+                <li data-step="2"><strong>Create pet profiles</strong> with all important info, photos, and medical records</li>
+                <li data-step="3"><strong>Invite coparents</strong> so your team can help manage and update profiles</li>
+                <li data-step="4"><strong>Toggle "Mark as Adoptable"</strong> — pets appear instantly on our adoption website</li>
+                <li data-step="5"><strong>Transfer the profile</strong> to the new owner when the perfect match is found</li>
             </ul>
-            
-            <p style="color: var(--accent-color); margin-top: 15px;"><i class="fas fa-shield-alt"></i> Your pet's sensitive information stays protected with PIN verification and time-limited access.</p>
-        </div>
 
-        <div class="download-section">
-            <div class="download-box">
-                <h2 style="color: var(--primary-color); border-left: none; text-align: center; margin-bottom: 15px;">Ready to Download?</h2>
-                <p style="text-align: center;">Use the button below to download Pet Pad from the App Store:</p>
-                
-                <div style="text-align: center;">
-                    <a href="https://apps.apple.com/app/id6749177166" class="btn" style="background-color: rgb(64, 224, 208); display: inline-block; margin: 15px auto;">
-                        <i class="fab fa-apple"></i> Download on the App Store
-                    </a>
-                </div>
-            </div>
+            <h2 style="text-align: center; border-left: none; margin-top: 40px;">Pricing</h2>
+            <p style="text-align: center; color: var(--text-muted); max-width: 520px; margin: -10px auto 20px;">The Rescue tier is designed specifically for fosters, shelters, and rescue organizations.</p>
 
-            <div class="qr-section">
-                <h3 class="qr-title">Or Scan to Download</h3>
-                
-                <div class="qr-code" style="background: var(--card-bg); padding: 10px; border-radius: 10px; border: 1px solid var(--primary-color); display: inline-block;">
-                    <img src="QRcodePetPadAppStoreURL.PNG" alt="App Store QR Code" style="width:150px;height:150px;display:block;margin:auto;border-radius:8px;border:1px solid var(--primary-color);">
-                </div>
-            </div>
-        </div>
-
-        <div class="rescue-section">
-            <h3><i class="fas fa-heart" style="color: var(--accent-color); margin-right: 8px;"></i> Pet Pad for Rescues & Shelters</h3>
-            <p style="color: var(--text-muted); max-width: 640px; margin: 10px auto 0; line-height: 1.6;">Create complete pet profiles, co-manage with your team, and post adoptable pets directly to the Pet Pad Adoption website — all from one app.</p>
-            <ul class="rescue-features">
-                <li><strong>Complete Pet Profiles</strong> — Store microchip numbers, vaccination history, medical records, special contacts, feeding instructions, and more.</li>
-                <li><strong>Co-Manage with Coparents</strong> — Invite team members or fosters to help manage and update pet profiles in real time.</li>
-                <li><strong>One-Click Adoption Posting</strong> — Upgrade to the <strong>Rescue tier</strong> ($29.99/year) and toggle pets as adoptable. They appear instantly on our adoption website.</li>
-                <li><strong>Seamless Transfer to New Owners</strong> — When a pet finds their forever home, transfer the entire profile to the new parent with one tap. All history, records, and info stay intact.</li>
-            </ul>
-            <div class="rescue-cta">
-                <a href="/rescue" class="btn-outline">Learn More for Rescues</a>
-                <a href="https://apps.apple.com/app/id6749177166" class="btn"><i class="fab fa-apple"></i> Get the App</a>
-            </div>
-        </div>
-
-        <footer class="footer">
-            <div class="footer-accent"></div>
-            <div class="footer-inner">
-                <div class="footer-brand">
-                    <img src="PetPadLogoTextGreen.png" alt="Pet Pad">
-                    <p>Your all-in-one pet care companion. Manage your pet's health, find adoptable pets, and share profiles with ease.</p>
-                </div>
-                <div class="footer-col">
-                    <h4>Product</h4>
+            <div class="pricing-cards">
+                <div class="pricing-card">
+                    <div class="tier-name">Free</div>
+                    <div class="tier-price">$0.00</div>
+                    <div class="tier-period">per month</div>
                     <ul>
-                        <li><a href="/home">Home</a></li>
-                        <li><a href="/adoption/">Adopt a Pet</a></li>
-                        <li><a href="/rescue">For Rescues</a></li>
-                        <li><a href="https://apps.apple.com/app/id6749177166">Download App</a></li>
+                        <li>1 pet total lifetime</li>
+                        <li>2 food photos per pet</li>
+                        <li>5 documents per pet</li>
+                        <li>5 vaccinations per pet</li>
+                        <li>1 Photo Memoir chapter</li>
                     </ul>
                 </div>
-                <div class="footer-col">
-                    <h4>Support</h4>
+
+                <div class="pricing-card">
+                    <div class="tier-name">Pro</div>
+                    <div class="tier-price">$5.99</div>
+                    <div class="tier-period">per year</div>
                     <ul>
-                        <li><a href="https://petpadapp.link/privacy">Privacy Policy</a></li>
-                        <li><a href="https://petpadapp.link/support">Support</a></li>
-                        <li><a href="mailto:getpetpadapp@gmail.com">Contact Us</a></li>
+                        <li>3 pets total lifetime</li>
+                        <li>2 food photos per pet</li>
+                        <li>10 documents per pet</li>
+                        <li>10 vaccinations per pet</li>
+                        <li>6 Photo Memoir chapters</li>
+                    </ul>
+                </div>
+
+                <div class="pricing-card">
+                    <div class="tier-name">Pro Plus</div>
+                    <div class="tier-price">$9.99</div>
+                    <div class="tier-period">per year</div>
+                    <ul>
+                        <li>7 pets total lifetime</li>
+                        <li>2 food photos per pet</li>
+                        <li>20 documents per pet</li>
+                        <li>50 vaccinations per pet</li>
+                        <li>24 Photo Memoir chapters</li>
+                    </ul>
+                </div>
+
+                <div class="pricing-card rescue">
+                    <div class="badge">For Shelters</div>
+                    <div class="tier-name">Rescue</div>
+                    <div class="tier-price">$29.99</div>
+                    <div class="tier-period">per year</div>
+                    <ul>
+                        <li>10 pets total lifetime</li>
+                        <li>2 food photos per pet</li>
+                        <li>20 documents per pet</li>
+                        <li>50 vaccinations per pet</li>
+                        <li>Post pets to adoption website</li>
+                        <li>Up to 5 adoption photos per pet</li>
+                        <li>Full profile transfer to new owners</li>
+                        <li>Add 10 more pets for $9.99 (unlimited)</li>
                     </ul>
                 </div>
             </div>
-            <div class="footer-bottom">
-                &copy; <span id="currentYear"></span> Pet Pad. All rights reserved.
+
+            <div class="cta-section">
+                <h3>Ready to Help More Pets Find Homes?</h3>
+                <p>Download Pet Pad today and upgrade to the Rescue tier to start posting adoptable pets and managing your shelter's profiles with ease.</p>
+                <a href="https://apps.apple.com/app/id6749177166" class="btn" style="background-color: var(--primary-color); display: inline-block;">
+                    <i class="fab fa-apple"></i> Download on the App Store
+                </a>
             </div>
-        </footer>
+        </div>
     </div>
-    </div>
+
+    <footer class="footer">
+        <div class="footer-accent"></div>
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <img src="../PetPadLogoTextGreen.png" alt="Pet Pad">
+                <p>Your all-in-one pet care companion. Manage your pet's health, find adoptable pets, and share profiles with ease.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Product</h4>
+                <ul>
+                    <li><a href="/home">Home</a></li>
+                    <li><a href="/adoption">Adopt a Pet</a></li>
+                    <li><a href="/rescue">For Rescues</a></li>
+                    <li><a href="https://apps.apple.com/app/id6749177166">Download App</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="https://petpadapp.link/privacy">Privacy Policy</a></li>
+                    <li><a href="https://petpadapp.link/support">Support</a></li>
+                    <li><a href="mailto:getpetpadapp@gmail.com">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; <span id="currentYear"></span> Pet Pad. All rights reserved.
+        </div>
+    </footer>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

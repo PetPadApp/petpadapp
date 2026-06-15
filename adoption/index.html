@@ -48,12 +48,6 @@
             background: linear-gradient(135deg, #0F0E1C 0%, #1E1B4B 25%, #4C1D95 50%, #9D174D 75%, #831843 100%);
         }
         body[data-theme="dark"] .hero h1 { color: #fff; }
-        body[data-theme="dark"] .hero::before {
-            background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
-        }
-        body[data-theme="dark"] .hero::after {
-            background: radial-gradient(circle, rgba(236,72,153,0.12) 0%, transparent 70%);
-        }
         body[data-theme="dark"] #map { background: #111; }
         body[data-theme="dark"] .filter-bar .search-input,
         body[data-theme="dark"] .filter-bar select,
@@ -166,22 +160,16 @@
             position: absolute;
             top: -50%;
             left: -20%;
-            width: 600px;
-            height: 600px;
+            width: 140%;
+            height: 200%;
             background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
-            border-radius: 50%;
+            animation: float 20s ease-in-out infinite;
             pointer-events: none;
         }
-        .hero::after {
-            content: '';
-            position: absolute;
-            bottom: -30%;
-            right: -10%;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(236,72,153,0.18) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-20px, 20px) rotate(240deg); }
         }
         .hero h1 {
             color: #fff;
@@ -1725,6 +1713,7 @@
             <nav>
                 <a href="/">Home</a>
                 <a href="/adoption/">Adopt</a>
+                <a href="/rescue">Rescue</a>
             </nav>
             <button id="themeToggle" class="theme-toggle" title="Toggle dark mode">
                 <i class="fas fa-moon"></i>
@@ -1907,6 +1896,7 @@
                 <h4>Adopt</h4>
                 <ul>
                     <li><a href="/adoption/">Find a Pet</a></li>
+                    <li><a href="/rescue">For Rescues</a></li>
                     <li><a href="#">Shelters</a></li>
                     <li><a href="#">Fosters</a></li>
                 </ul>

@@ -126,20 +126,16 @@
             position: absolute;
             top: -50%;
             left: -20%;
-            width: 500px;
-            height: 500px;
+            width: 140%;
+            height: 200%;
             background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
+            animation: float 20s ease-in-out infinite;
             pointer-events: none;
         }
-        .hero::after {
-            content: '';
-            position: absolute;
-            bottom: -30%;
-            right: -10%;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(64,224,208,0.15) 0%, transparent 70%);
-            pointer-events: none;
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-20px, 20px) rotate(240deg); }
         }
         .hero-content {
             position: relative;
@@ -417,6 +413,7 @@
             <nav>
                 <a href="/home">Home</a>
                 <a href="/adoption/">Adopt</a>
+                <a href="/rescue">Rescue</a>
             </nav>
             <button id="themeToggle" class="theme-toggle" title="Toggle dark mode">
                 <i class="fas fa-moon"></i>
@@ -511,6 +508,7 @@
                     <ul>
                         <li><a href="/home">Home</a></li>
                         <li><a href="/adoption/">Adopt a Pet</a></li>
+                        <li><a href="/rescue">For Rescues</a></li>
                         <li><a href="https://apps.apple.com/app/id6749177166">Download App</a></li>
                     </ul>
                 </div>
