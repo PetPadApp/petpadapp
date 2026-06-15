@@ -120,7 +120,7 @@ const breedsBySpecies = {
     "Vizsla", "Weimaraner", "Welsh Corgi", "Welsh Springer Spaniel", "Welsh Terrier",
     "West Highland White Terrier Westie", "Wheaten Terrier", "Whippet", "White German Shepherd",
     "White Swiss Shepherd Dog (Swiss Berger)", "Wire-haired Pointing Griffon", "Wirehaired Fox Terrier",
-    "Wolf Dog", "Xoloitzcuintle/Mexican Hairless", "Yellow Labrador Retriever", "Yorkshire Terrier Yorkie",
+    "Wolf Dog", "Xoloitzcuintle/Mexican Hairless", "Yellow Labrador Retriever", "Yorkshire Terrier Yorkie", "Miniature American Shepherd", "Belgian Shepherd", "Cockalier", "Bernedoodle", "Sheepadoodle", "Aussiedoodle", "Cavachon", "Shorkie", "Morkie",
     "Enter Manually"
   ],
   "Cat": [
@@ -136,7 +136,7 @@ const breedsBySpecies = {
     "Persian", "Pixie-Bob", "Ragamuffin", "Ragdoll", "Rex", "Russian Blue", "Savannah", "Scottish Fold",
     "Scottish Straight", "Selkirk Rex", "Siamese", "Siberian", "Singapura", "Snowshoe", "Somali",
     "Sphynx (hairless cat)", "Tabby", "Tiffany", "Tiger", "Tonkinese", "Torbie", "Tortoiseshell",
-    "Turkish Angora", "Turkish Van", "Tuxedo",
+    "Turkish Angora", "Turkish Van", "Tuxedo", "American Bobtail", "Australian Mist", "Highlander", "Lykoi", "Peterbald", "Toyger", "Turkish Vankedisi",
     "Enter Manually"
   ],
   "Bird": [
@@ -146,15 +146,15 @@ const breedsBySpecies = {
     "Kakariki", "Lory/Lorikeet", "Lovebird", "Macaw", "Mourning", "Mynah", "Ostrich",
     "Parakeet - Other", "Parrot Other", "Parrotlet", "Peacock/Pea fowl", "Pheasant", "Pigeon",
     "Pionus", "Poicephalus", "Quail", "Quaker Parakeet", "Rhea", "Ringneck/Psittacula", "Rock",
-    "Rose-breasted", "Rosella", "Senegal", "Softbill (Other)", "Swan", "Toucan", "Turkey",
+    "Rose-breasted", "Rosella", "Senegal", "Softbill (Other)", "Swan", "Toucan", "Turkey", "Indian Ringneck", "Bourke's Parakeet", "Lineolated Parakeet", "Green-Cheek Conure", "Sun Conure", "Jenday Conure", "Crimson Rosella", "Galah", "Major Mitchell's Cockatoo", "Umbrella Cockatoo", "Sulphur-Crested Cockatoo", "Goffin's Cockatoo", "Zebra Finch", "Gouldian Finch", "Society Finch", "Diamond Dove", "Nicobar Pigeon",
     "Enter Manually"
   ],
   "Fish (Freshwater)": [
-    "Betta", "Goldfish", "Angelfish", "Guppy", "Molly", "Platy", "Neon Tetra", "Corydoras", "Cichlid", "Plecostomus",
+    "Betta", "Goldfish", "Angelfish", "Guppy", "Molly", "Platy", "Neon Tetra", "Corydoras", "Cichlid", "Plecostomus", "Discus", "Oscar", "Zebra Danio", "Kuhli Loach", "Cherry Barb", "Swordtail", "Rainbowfish", "Arowana", "Koi", "Ranchu Goldfish",
     "Enter Manually"
   ],
   "Fish (Saltwater)": [
-    "Clownfish", "Damselfish", "Blue Tang", "Yellow Tang", "Blenny", "Goby", "Wrasse", "Butterflyfish",
+    "Clownfish", "Damselfish", "Blue Tang", "Yellow Tang", "Blenny", "Goby", "Wrasse", "Butterflyfish", "Firefish", "Royal Gramma", "Cardinalfish", "Anthias", "Mandarin Dragonet", "Foxface Rabbitfish", "Triggerfish", "Lionfish", "Seahorse",
     "Enter Manually"
   ],
   "Hamster": [
@@ -166,22 +166,24 @@ const breedsBySpecies = {
     "Enter Manually"
   ],
   "Guinea Pig": [
-    "American", "Abyssinian", "Peruvian", "Silkie", "Teddy", "Skinny",
+    "American", "Abyssinian", "Peruvian", "Silkie", "Teddy", "Skinny", "Skinny Pig",
+    "Coronet", "Crested", "English Crested", "White Crested", "Texel", "Sheba Mini Yak",
+    "Alpaca", "Lunkarya", "Merino", "Baldwin", "Ridgeback",
     "Enter Manually"
   ],
   "Frog": [
-    "African Dwarf Frog", "Pacman Frog", "White's Tree Frog", "American Bullfrog",
+    "African Dwarf Frog", "Pacman Frog", "White's Tree Frog", "American Bullfrog", "Dart Frog", "Tomato Frog",
     "Enter Manually"
   ],
   "Gecko": [
-    "Leopard Gecko", "Crested Gecko", "African Fat-Tailed Gecko", "Day Gecko", "Gargoyle",
+    "Leopard Gecko", "Crested Gecko", "African Fat-Tailed Gecko", "Day Gecko", "Gargoyle", "Tokay Gecko",
     "Enter Manually"
   ],
   "Rabbit": [
     "American", "American Chinchilla", "American Fuzzy Lop", "American Sable", "Angora Rabbit",
     "Belgian Hare", "Beveren", "Britannia Petite", "Bunny Rabbit", "Californian",
     "Champagne D'Argent", "Checkered Giant", "Chinchilla", "Cinnamon", "Creme D'Argent", "Dutch",
-    "Dwarf", "Dwarf Eared", "Dwarf Hotot", "English Angora", "English Lop", "English Spot",
+    "Dwarf", "Dwarf Eared", "Dwarf Hotot", "English Angora", "French Angora", "English Lop", "English Spot",
     "Flemish Giant", "Florida White", "French-Lop", "Giant Angora", "Giant Chinchilla",
     "Harlequin", "Havana", "Himalayan", "Holland Lop", "Hotot", "Jersey Wooly", "Lilac",
     "Lionhead", "Longhaired Rabbit", "Lop Eared", "Mini Lop", "Mini Rex", "Mini Satin",
@@ -207,7 +209,7 @@ const breedsBySpecies = {
   "Chicken": [
     "Araucana", "Australorp", "Bantam", "Barred Rock", "Cochin", "Cornish", "Dominique",
     "Gamefowl", "Jersey", "Leghorn", "New Hampshire", "Orpington", "Polish", "Rhode Island Red",
-    "Sebright", "Silkie", "Wyandotte",
+    "Sebright", "Silkie", "Wyandotte", "Plymouth Rock", "Easter Egger", "Ameraucana", "Brahma",
     "Enter Manually"
   ],
   "Duck": [
@@ -238,17 +240,17 @@ const breedsBySpecies = {
   "Snake": [
     "Ball Python", "Boa Constrictor", "Corn Snake", "Rat Snake", "Hognose Snake",
     "Kingsnake", "Milk Snake", "Garter Snake", "Boa", "Bull", "Corn/Rat Snake", "Hognose",
-    "King/Milk Snake", "Python", "Ribbon/Garter", "Snake",
+    "King/Milk Snake", "Python", "Ribbon/Garter", "Snake", "Rosy Boa", "Carpet Python",
     "Enter Manually"
   ],
   "Tortoise": [
     "Desert", "Greek Tortoise", "Leopard Tortoise", "Red-footed Tortoise", "Russian Tortoise",
-    "Sulcata (African Spur Thigh)", "Texas Tortoise", "Tortoise",
+    "Sulcata (African Spur Thigh)", "Texas Tortoise", "Tortoise", "Hermann's Tortoise", "Yellow-Footed Tortoise",
     "Box Turtle", "Red-Eared Slider", "Turtle",
     "Enter Manually"
   ],
   "Turtle": [
-    "Box Turtle", "Red-Eared Slider", "Painted Turtle", "Map Turtle",
+    "Box Turtle", "Red-Eared Slider", "Painted Turtle", "Map Turtle", "Musk Turtle", "Diamondback Terrapin",
     "Enter Manually"
   ],
   "Tarantula": [
@@ -272,22 +274,22 @@ const breedsBySpecies = {
   "Pig": [
     "Berkshire", "Chester White", "Duroc", "Feral", "Hampshire", "Hereford", "Landrace",
     "Pietrain", "Pig", "Pig (Farm)", "Poland China", "Pot Bellied", "Vietnamese Pot Bellied",
-    "Wild Boar", "Yorkshire",
+    "Wild Boar", "Yorkshire", "Juliana Pig", "Kunekune", "Mini Pig", "American Mini Pig",
     "Enter Manually"
   ],
   "Sheep": [
-    "Dorper", "Merino", "Suffolk", "Hampshire", "Jacob", "Katahdin",
+    "Dorper", "Merino", "Suffolk", "Hampshire", "Jacob", "Katahdin", "Dorset", "Southdown", "Shetland",
     "Enter Manually"
   ],
   "Alpaca": ["Huacaya", "Suri", "Enter Manually"],
   "Llama": ["Ccara", "Curaca", "Enter Manually"],
-  "Chinchilla": ["Standard Grey", "Mosaic", "Black Velvet", "Beige", "Enter Manually"],
-  "Degu": ["Enter Manually"],
-  "Ferret": ["Sable", "Albino", "Dark-eyed White", "Silver", "Enter Manually"],
-  "Gerbil": ["Mongolian", "Enter Manually"],
+  "Chinchilla": ["Standard Grey", "Mosaic", "Black Velvet", "Beige", "White", "Ebony", "Violet", "Sapphire", "Enter Manually"],
+  "Degu": ["Standard", "Blue", "Sand", "Cream", "Enter Manually"],
+  "Ferret": ["Sable", "Albino", "Dark-eyed White", "Silver", "Standard", "Angora", "European Polecat Hybrid", "Enter Manually"],
+  "Gerbil": ["Mongolian", "Fat-Tailed", "Enter Manually"],
   "Goose": ["Embden", "Toulouse", "Chinese", "African", "Enter Manually"],
   "Groundhog": ["Enter Manually"],
-  "Hedgehog": ["African Pygmy", "Enter Manually"],
+  "Hedgehog": ["African Pygmy", "Algerian", "Long-Eared", "Enter Manually"],
   "Hermit Crab": ["Purple Pincher", "Ecuadorian", "Enter Manually"],
   "Iguana": ["Green Iguana", "Rhino Iguana", "Enter Manually"],
   "Lizard": ["Bearded Dragon", "Blue-Tongued Skink", "Monitor", "Tegu", "Enter Manually"],
@@ -302,7 +304,7 @@ const breedsBySpecies = {
     "Leucistic", "Wild Type", "Golden Albino", "Melanoid", "Copper", "Piebald",
     "Enter Manually"
   ],
-  "Bearded Dragon": ["Central (Inland)", "Rankin's", "Enter Manually"],
+  "Bearded Dragon": ["Central (Inland)", "Rankin's", "Standard", "Leatherback", "Silkback", "Hypomelanistic", "Translucent", "Zero", "Witblits", "Enter Manually"],
   "Caiman Lizard": ["Northern", "Guianan", "Enter Manually"],
   "Chameleon": ["Veiled", "Jackson's", "Panther", "Enter Manually"],
   "Isopod": ["Dairy Cow", "Powder Blue", "Zebra", "Enter Manually"],
