@@ -1743,7 +1743,9 @@
             <select id="typeFilter">
                 <option value="">All Types</option>
             </select>
-            <input type="text" class="search-input" id="breedFilter" placeholder="Breed..." style="flex:1 1 120px;min-width:100px;">
+            <select id="breedFilter" style="flex:1 1 120px;min-width:100px;">
+                <option value="">All Breeds</option>
+            </select>
             <select id="sexFilter">
                 <option value="">All Sexes</option>
                 <option value="Male">Male</option>
@@ -1926,6 +1928,7 @@
     <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'});" title="Back to top"><i class="fas fa-arrow-up"></i></button>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" crossorigin=""></script>
+    <script src="../petSpeciesData.js"></script>
     <script type="module">
         const map = L.map('map').setView([39.8283, -98.5795], 4); // US center
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -1942,7 +1945,6 @@
         let keyboardFocusIdx = -1;
         let compareMode = false;
         const compareList = new Set();
-
         function getPetPhotoArray(pet) {
             const photos = [];
             if (pet.imageUrl) photos.push(pet.imageUrl);
@@ -2333,17 +2335,45 @@
         }
 
         function populateTypeFilter() {
-            const types = [...new Set(allPets.map(p => p.petType).filter(Boolean))].sort();
             const sel = document.getElementById('typeFilter');
             const first = sel.options[0];
             sel.innerHTML = '';
             sel.appendChild(first);
-            types.forEach(t => {
+            window.petSpeciesData.allSpecies.forEach(t => {
                 const opt = document.createElement('option');
                 opt.value = t;
                 opt.textContent = t;
                 sel.appendChild(opt);
             });
+        }
+
+        function populateBreedFilter(species) {
+            const sel = document.getElementById('breedFilter');
+            const currentVal = sel.value;
+            sel.innerHTML = '';
+            const allOpt = document.createElement('option');
+            allOpt.value = '';
+            allOpt.textContent = 'All Breeds';
+            sel.appendChild(allOpt);
+
+            if (!species || !window.petSpeciesData.breedsBySpecies[species]) {
+                sel.disabled = true;
+                return;
+            }
+
+            sel.disabled = false;
+            const breeds = window.petSpeciesData.breedsBySpecies[species];
+            breeds.forEach(b => {
+                if (b === 'Enter Manually') return;
+                const opt = document.createElement('option');
+                opt.value = b;
+                opt.textContent = b;
+                sel.appendChild(opt);
+            });
+
+            if (currentVal && Array.from(sel.options).some(o => o.value === currentVal)) {
+                sel.value = currentVal;
+            }
         }
 
         function applyFilters() {
@@ -2472,10 +2502,8 @@
                     pet._hasRealCoords = hasRealCoords;
                 });
 
-                populateTypeFilter();
                 filteredPets = [...allPets];
                 document.getElementById('heroBadgeCount').textContent = allPets.length.toLocaleString();
-                applyFilters();
                 updateSavedToggleCount();
 
                 if (navigator.geolocation) {
@@ -2716,9 +2744,13 @@
             }
         });
 
-        ['searchInput','typeFilter','breedFilter','sexFilter','minAge','maxAge','minWeight','maxWeight','spayedFilter','shelterFilter'].forEach(id => {
+        ['searchInput','breedFilter','sexFilter','minAge','maxAge','minWeight','maxWeight','spayedFilter','shelterFilter'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.addEventListener('input', applyFilters);
+        });
+        document.getElementById('typeFilter').addEventListener('change', () => {
+            populateBreedFilter(document.getElementById('typeFilter').value);
+            applyFilters();
         });
         document.getElementById('sortSelect').addEventListener('change', applyFilters);
         document.getElementById('savedToggle').addEventListener('click', function() {
@@ -2728,6 +2760,7 @@
         document.getElementById('resetBtn').addEventListener('click', () => {
             document.getElementById('searchInput').value = '';
             document.getElementById('typeFilter').value = '';
+            populateBreedFilter('');
             document.getElementById('breedFilter').value = '';
             document.getElementById('sexFilter').value = '';
             document.getElementById('minAge').value = '';
@@ -2967,6 +3000,9 @@
         });
 
         loadPets().then(() => {
+            populateTypeFilter();
+            populateBreedFilter(document.getElementById('typeFilter').value);
+            applyFilters();
             if (window.location.hash.startsWith('#pet=')) {
                 const id = decodeURIComponent(window.location.hash.slice(5));
                 const pet = allPets.find(p => p.id === id);
