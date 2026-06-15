@@ -15,7 +15,8 @@ const allSpecies = [
   "Donkey",
   "Duck",
   "Ferret",
-  "Fish",
+  "Fish (Freshwater)",
+  "Fish (Saltwater)",
   "Frog",
   "Gecko",
   "Gerbil",
@@ -33,7 +34,6 @@ const allSpecies = [
   "Mouse",
   "Otter",
   "Pig",
-  "Pony",
   "Prairie Dog",
   "Rabbit",
   "Rat",
@@ -65,7 +65,7 @@ const breedsBySpecies = {
     "Brazilian Mastiff", "Briard", "Brittany", "Brussels Griffon", "Bull Terrier", "Bulldog", "Bullmastiff",
     "Cairn Terrier", "Canaan Dog", "Cane Corso Mastiff", "Cardigan Welsh Corgi", "Carolina Dog",
     "Catahoula Leopard Dog", "Cattle Dog", "Caucasian Sheepdog (Caucasian Ovtcharka)", "Cavalier King Charles Spaniel",
-    "Chesapeake Bay Retriever", "Chihuahua", "Chinese Crested-Hairless", "Chinese Crested-Powder Puff",
+    "Cavapoo", "Chesapeake Bay Retriever", "Chiweenie", "Chihuahua", "Chinese Crested-Hairless", "Chinese Crested-Powder Puff",
     "Chinese Foo Dog", "Chinese Shar-Pei", "Chinook", "Chocolate Labrador Retriever", "Chow Chow",
     "Cirneco dellEtna", "Clumber Spaniel", "Cockapoo", "Cocker Spaniel", "Collie", "Coonhound", "Corgi",
     "Coton de Tulear", "Curly-Coated Retriever", "Dachshund", "Dalmatian", "Dandie Dinmont Terrier",
@@ -77,14 +77,14 @@ const breedsBySpecies = {
     "Finnish Spitz", "Flat-coated Retriever", "Fox Terrier", "Foxhound", "French Brittany",
     "French Bulldog", "French Mastiff", "Galgo Spanish Greyhound", "German Pinscher", "German Shepherd Dog",
     "German Shorthaired Pointer", "German Spitz", "German Wirehaired Pointer", "Giant Schnauzer",
-    "Glen of Imaal Terrier", "Golden Retriever", "Gordon Setter", "Great Dane", "Great Pyrenees",
+    "Glen of Imaal Terrier", "Goldendoodle", "Golden Retriever", "Gordon Setter", "Great Dane", "Great Pyrenees",
     "Greater Swiss Mountain Dog", "Greyhound", "Halden Hound (Haldenstrover)", "Harrier", "Havanese",
     "Hollandse Tulphond", "Hound", "Hovawart", "Husky", "Ibizan Hound", "Illyrian Sheepdog",
     "Irish Setter", "Irish Terrier", "Irish Water Spaniel", "Irish Wolfhound", "Italian Greyhound",
     "Italian Mastiff", "Italian Spinone", "Jack Russell Terrier", "Jack Russell Terrier (Parson Russell Terrier)",
     "Japanese Chin", "Jindo (Korean)", "Kai Dog", "Karelian Bear Dog", "Keeshond", "Kerry Blue Terrier",
-    "Kishu", "Klee Kai", "Komondor", "Kuvasz", "Kyi Leo", "Labrador Retriever", "Lakeland Terrier",
-    "Lancashire Heeler", "Leonberger", "Lhasa Apso", "Löwchen", "Maltese", "Manchester Terrier",
+    "Kishu", "Klee Kai", "Komondor", "Kuvasz", "Kyi Leo", "Labradoodle", "Labrador Retriever", "Lakeland Terrier",
+    "Lancashire Heeler", "Leonberger", "Lhasa Apso", "Löwchen", "Maltese", "Maltipoo", "Manchester Terrier",
     "Maremma Sheepdog", "Markiesje", "Mastiff", "McNab", "Mexican Hairless", "Miniature Bull Terrier",
     "Miniature Pinscher", "Miniature Schnauzer", "Mountain Cur", "Mountain Dog", "Munsterlander",
     "Neapolitan Mastiff", "New Guinea Singing Dog", "Newfoundland Dog", "Norfolk Terrier",
@@ -93,8 +93,8 @@ const breedsBySpecies = {
     "Parson Russell Terrier", "Patterdale Terrier (Fell Terrier)", "Pekingese", "Pembroke Welsh Corgi",
     "Peruvian Inca Orchid", "Petit Basset Griffon Vendeen", "Pharaoh Hound", "Picardy Shepherd",
     "Pit Bull Terrier", "Plott Hound", "Podengo Portugueso", "Pointer", "Polish Lowland Sheepdog",
-    "Pomeranian", "Poodle (Miniature)", "Poodle (Standard)", "Poodle (T-Cup)", "Poodle (Toy)",
-    "Poodle (unknown type)", "Portuguese Water Dog", "Presa Canario", "Pug", "Puli", "Pumi",
+    "Pomeranian", "Pomsky", "Poodle (Miniature)", "Poodle (Standard)", "Poodle (T-Cup)", "Poodle (Toy)",
+    "Poodle (unknown type)", "Portuguese Water Dog", "Presa Canario", "Pug", "Puggle", "Puli", "Pumi",
     "Queensland Heeler", "Rat Terrier", "Red Heeler", "Redbone Coonhound", "Retriever",
     "Rhodesian Ridgeback", "Rottweiler", "Russian Wolfhound", "Saarlooswolfhond", "Saint Bernard",
     "Saluki", "Saluki Greyhound", "Samoyed", "Schiller Hound", "Schipperke", "Schnauzer",
@@ -137,18 +137,32 @@ const breedsBySpecies = {
     "Rose-breasted", "Rosella", "Senegal", "Softbill (Other)", "Swan", "Toucan", "Turkey",
     "Enter Manually"
   ],
-  "Horse": [
-    "Akhal-Teke", "American Saddlebred", "Andalusian", "Anglo-Arab", "Appaloosa", "Arabian",
-    "Bashkir Curly", "Belgian", "Cleveland Bay", "Clydesdale", "Curly Horse", "Donkey/Mule",
-    "Draft", "Friesian", "Gaited", "Gelderlander", "Grade", "Gypsy Vanner", "Hanoverian",
-    "Holsteiner", "Horse", "Icelandic", "Lipizzano", "Lusitano", "Miniature Horse",
-    "Missouri Foxtrotter", "Morgan", "Mustang", "Norwegian Fjord", "Oldenburg", "Paint/Pinto",
-    "Palomino", "Paso Fino", "Percheron", "Peruvian Paso", "Pony", "Quarterhorse",
-    "Rocky Mountain", "Saddlebred", "Selle Francais", "Shetland Pony", "Shire", "Standardbred",
-    "Suffolk", "Tennessee Walker", "Thoroughbred", "Warmblood",
-    "American Walking Pony", "Appaloosa", "Chincoteague", "Connemara", "Dale Pony", "Fell Pony",
-    "Gotland", "Hackney", "Haflinger", "Miniature", "New Forest Pony", "Paint", "Pinto", "Pony",
-    "Pony of Americas", "Quarter Pony", "Shetland", "Tennessee Walking Horse", "Welsh Pony",
+  "Fish (Freshwater)": [
+    "Betta", "Goldfish", "Angelfish", "Guppy", "Molly", "Platy", "Neon Tetra", "Corydoras", "Cichlid", "Plecostomus",
+    "Enter Manually"
+  ],
+  "Fish (Saltwater)": [
+    "Clownfish", "Damselfish", "Blue Tang", "Yellow Tang", "Blenny", "Goby", "Wrasse", "Butterflyfish",
+    "Enter Manually"
+  ],
+  "Hamster": [
+    "Syrian", "Dwarf Campbell Russian", "Winter White Dwarf", "Roborovski Dwarf", "Chinese",
+    "Enter Manually"
+  ],
+  "Rat": [
+    "Standard", "Dumbo", "Rex", "Hairless", "Satin",
+    "Enter Manually"
+  ],
+  "Guinea Pig": [
+    "American", "Abyssinian", "Peruvian", "Silkie", "Teddy", "Skinny",
+    "Enter Manually"
+  ],
+  "Frog": [
+    "African Dwarf Frog", "Pacman Frog", "White's Tree Frog", "American Bullfrog",
+    "Enter Manually"
+  ],
+  "Gecko": [
+    "Leopard Gecko", "Crested Gecko", "African Fat-Tailed Gecko", "Day Gecko", "Gargoyle",
     "Enter Manually"
   ],
   "Rabbit": [
@@ -164,14 +178,38 @@ const breedsBySpecies = {
     "Thrianta", "Wild",
     "Enter Manually"
   ],
-  "Snake": [
-    "Ball Python", "Boa", "Bull", "Corn/Rat Snake", "Hognose", "King/Milk Snake", "Python",
-    "Ribbon/Garter", "Snake",
+  "Horse": [
+    "Akhal-Teke", "American Saddlebred", "Andalusian", "Anglo-Arab", "Appaloosa", "Arabian",
+    "Bashkir Curly", "Belgian", "Cleveland Bay", "Clydesdale", "Curly Horse", "Donkey/Mule",
+    "Draft", "Friesian", "Gaited", "Gelderlander", "Grade", "Gypsy Vanner", "Hanoverian",
+    "Holsteiner", "Horse", "Icelandic", "Lipizzano", "Lusitano", "Miniature Horse",
+    "Missouri Foxtrotter", "Morgan", "Mustang", "Norwegian Fjord", "Oldenburg", "Paint/Pinto",
+    "Palomino", "Paso Fino", "Percheron", "Peruvian Paso", "Pony", "Quarterhorse",
+    "Rocky Mountain", "Saddlebred", "Selle Francais", "Shetland Pony", "Shire", "Standardbred",
+    "Suffolk", "Tennessee Walker", "Thoroughbred", "Warmblood",
+    "American Walking Pony", "Appaloosa", "Chincoteague", "Connemara", "Dale Pony", "Fell Pony",
+    "Gotland", "Hackney", "Haflinger", "Miniature", "New Forest Pony", "Paint", "Pinto", "Pony",
+    "Pony of Americas", "Quarter Pony", "Shetland", "Tennessee Walking Horse", "Welsh Pony",
+    "Enter Manually"
+  ],
+  "Chicken": [
+    "Araucana", "Australorp", "Bantam", "Barred Rock", "Cochin", "Cornish", "Dominique",
+    "Gamefowl", "Jersey", "Leghorn", "New Hampshire", "Orpington", "Polish", "Rhode Island Red",
+    "Sebright", "Silkie", "Wyandotte",
+    "Enter Manually"
+  ],
+  "Duck": [
+    "Call Duck", "Cayuga", "Indian Runner", "Khaki Campbell", "Mallard", "Muscovy", "Pekin",
+    "Rouen", "Swedish Blue", "Welsh Harlequin",
+    "American Saxony", "Anconas", "Australian Spotteds", "Aylesbury", "Black East Indies",
+    "Buff", "Campbells", "Coast", "Crested", "Duck", "Duclair",
+    "Hook Bulls (Kromsnaveleend)", "Magpie", "Odd", "Orpington", "Rouen Clair", "Runner",
+    "Saxony", "Silky", "Silver Appleyards", "Swedish Yellow", "Wood",
     "Enter Manually"
   ],
   "Goat": [
     "Alpine", "Angora", "Boer", "Goat", "Kinder", "LaMancha", "Miniature", "Mix",
-    "Nigerian Dwarf", "Nubian", "Oberhasli", "Pygmy", "Saanan", "Toggenburg",
+    "Nigerian Dwarf", "Nubian", "Oberhasli", "Pygmy", "Saanen", "Toggenburg",
     "Enter Manually"
   ],
   "Donkey": [
@@ -179,10 +217,26 @@ const breedsBySpecies = {
     "Mini", "Poitou", "Standard",
     "Enter Manually"
   ],
-  "Chicken": [
-    "Araucana", "Astralorp", "Bantam", "Barred Rock", "Chicken", "Cochin", "Cornish", "Dominique",
-    "Gamefowl", "Jersey", "Leghorn", "New Hampshire", "Orpington", "Polish", "Rhode Island",
-    "Sebright", "Silkie", "Wyandottes",
+  "Cow": [
+    "Angus", "Ayrshire", "Beefmaster", "Brahma", "Brangus", "Brown Swiss", "Charolais", "Cow",
+    "Guernsey", "Hereford", "Holstein", "Jersey", "Limousin", "Longhorn", "Milking Shorthorn",
+    "Murray Gray", "Pinzgauer", "Salers", "Santa Gertrudis", "Shorthorn", "Simmental",
+    "Enter Manually"
+  ],
+  "Snake": [
+    "Ball Python", "Boa Constrictor", "Corn Snake", "Rat Snake", "Hognose Snake",
+    "Kingsnake", "Milk Snake", "Garter Snake", "Boa", "Bull", "Corn/Rat Snake", "Hognose",
+    "King/Milk Snake", "Python", "Ribbon/Garter", "Snake",
+    "Enter Manually"
+  ],
+  "Tortoise": [
+    "Desert", "Greek Tortoise", "Leopard Tortoise", "Red-footed Tortoise", "Russian Tortoise",
+    "Sulcata (African Spur Thigh)", "Texas Tortoise", "Tortoise",
+    "Box Turtle", "Red-Eared Slider", "Turtle",
+    "Enter Manually"
+  ],
+  "Turtle": [
+    "Box Turtle", "Red-Eared Slider", "Painted Turtle", "Map Turtle",
     "Enter Manually"
   ],
   "Tarantula": [
@@ -203,64 +257,37 @@ const breedsBySpecies = {
     "Trinidad Chevron", "Venezuelan Sun Tiger", "Whitetoe Tarantula", "Zimbabwe Grey Baboon",
     "Enter Manually"
   ],
-  "Tortoise": [
-    "Desert", "Greek Tortoise", "Leopard Tortoise", "Red-footed Tortoise", "Russian Tortoise",
-    "Sulcata (African Spur Thigh)", "Texas Tortoise", "Tortoise",
-    "Box Turtle", "Red-Eared Slider", "Turtle",
-    "Enter Manually"
-  ],
-  "Cow": [
-    "Angus", "Ayrshire", "Beefmaster", "Brahma", "Brangus", "Brown Swiss", "Charolais", "Cow",
-    "Guernsey", "Hereford", "Holstein", "Jersey", "Limousin", "Longhorn", "Milking Shorthorn",
-    "Murray Gray", "Pinzgauer", "Salers", "Santa Gertrudis", "Shorthorn", "Simmental",
-    "Enter Manually"
-  ],
-  "Duck": [
-    "American Saxony", "Anconas", "Australian Spotteds", "Aylesbury", "Black East Indies",
-    "Buff", "Call", "Campbells", "Cayuga", "Coast", "Crested", "Duck", "Duclair",
-    "Hook Bulls (Kromsnaveleend)", "Indian Runner", "Khaki Campbell", "Magpie", "Mallard",
-    "Muscovy", "Odd", "Orpington", "Pekin", "Rouen", "Rouen Clair", "Runner", "Saxony",
-    "Silky", "Silver Appleyards", "Swedish Blue", "Swedish Yellow", "Welsh Harlequins", "Wood",
-    "Enter Manually"
-  ],
   "Pig": [
     "Berkshire", "Chester White", "Duroc", "Feral", "Hampshire", "Hereford", "Landrace",
     "Pietrain", "Pig", "Pig (Farm)", "Poland China", "Pot Bellied", "Vietnamese Pot Bellied",
     "Wild Boar", "Yorkshire",
     "Enter Manually"
   ],
-  "Alpaca": ["Enter Manually"],
-  "Chinchilla": ["Enter Manually"],
-  "Cow": ["Enter Manually"],
+  "Sheep": [
+    "Dorper", "Merino", "Suffolk", "Hampshire", "Jacob", "Katahdin",
+    "Enter Manually"
+  ],
+  "Alpaca": ["Huacaya", "Suri", "Enter Manually"],
+  "Llama": ["Ccara", "Curaca", "Enter Manually"],
+  "Chinchilla": ["Standard Grey", "Mosaic", "Black Velvet", "Beige", "Enter Manually"],
   "Degu": ["Enter Manually"],
-  "Ferret": ["Enter Manually"],
-  "Fish": ["Enter Manually"],
-  "Frog": ["Enter Manually"],
-  "Gecko": ["Enter Manually"],
-  "Gerbil": ["Enter Manually"],
-  "Goose": ["Enter Manually"],
+  "Ferret": ["Sable", "Albino", "Dark-eyed White", "Silver", "Enter Manually"],
+  "Gerbil": ["Mongolian", "Enter Manually"],
+  "Goose": ["Embden", "Toulouse", "Chinese", "African", "Enter Manually"],
   "Groundhog": ["Enter Manually"],
-  "Guinea Pig": ["Enter Manually"],
-  "Hamster": ["Enter Manually"],
-  "Hedgehog": ["Enter Manually"],
-  "Hermit Crab": ["Enter Manually"],
-  "Iguana": ["Enter Manually"],
-  "Lizard": ["Enter Manually"],
-  "Llama": ["Enter Manually"],
-  "Mouse": ["Enter Manually"],
+  "Hedgehog": ["African Pygmy", "Enter Manually"],
+  "Hermit Crab": ["Purple Pincher", "Ecuadorian", "Enter Manually"],
+  "Iguana": ["Green Iguana", "Rhino Iguana", "Enter Manually"],
+  "Lizard": ["Bearded Dragon", "Blue-Tongued Skink", "Monitor", "Tegu", "Enter Manually"],
+  "Mouse": ["Fancy Mouse", "Enter Manually"],
   "Otter": ["Enter Manually"],
-  "Pony": ["Enter Manually"],
-  "Prairie Dog": ["Enter Manually"],
-  "Rat": ["Enter Manually"],
-  "Sheep": ["Enter Manually"],
+  "Prairie Dog": ["Black-tailed", "Enter Manually"],
   "Skunk": ["Enter Manually"],
-  "Sugar Glider": ["Enter Manually"],
-  "Turkey": ["Enter Manually"],
-  "Turtle": ["Enter Manually"],
+  "Sugar Glider": ["Standard Grey", "White Face", "Mosaic", "Enter Manually"],
+  "Turkey": ["Broad Breasted White", "Bourbon Red", "Enter Manually"],
   "Other": ["Enter Manually"]
 };
 
-// Pony is consolidated into Horse to avoid duplication.
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { allSpecies, breedsBySpecies };
 }
