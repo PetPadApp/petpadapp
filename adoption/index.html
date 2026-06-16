@@ -238,26 +238,63 @@
         }
         .layout {
             display: flex;
+            flex-direction: column;
             gap: 24px;
             margin-top: 24px;
         }
 
         /* Map */
-        .map-wrap {
-            flex: 1 1 60%;
+        .map-section {
             position: relative;
-            min-height: 550px;
-            height: calc(100vh - 160px);
+            width: 100%;
+        }
+        .map-wrap {
+            width: 100%;
+            position: relative;
+            min-height: 300px;
+            height: 420px;
+            transition: height 0.35s ease;
+        }
+        .map-wrap.collapsed {
+            height: 0;
+            min-height: 0;
+            overflow: hidden;
         }
         #map {
             width: 100%;
             height: 100%;
-            min-height: 550px;
+            min-height: 300px;
             border-radius: 16px;
             border: 1px solid var(--border-color);
             background: #EAE6E0;
             box-shadow: var(--shadow);
         }
+        .map-toggle-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px;
+            margin-top: 8px;
+        }
+        .map-toggle-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .map-toggle-btn:hover { border-color: var(--primary-color); color: var(--primary-dark); }
+        .map-toggle-btn i { transition: transform 0.3s ease; }
+        .map-toggle-btn.collapsed i { transform: rotate(180deg); }
         .leaflet-popup-content-wrapper {
             background: var(--card-bg);
             color: var(--text-color);
@@ -270,16 +307,17 @@
         }
         .leaflet-container a { color: var(--primary-dark); }
 
-        /* Sidebar */
+        /* Pet Grid */
+        .pet-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
         .sidebar {
-            flex: 1 1 35%;
             display: flex;
             flex-direction: column;
             gap: 16px;
-            max-height: calc(100vh - 160px);
-            min-height: 550px;
-            overflow-y: auto;
-            padding-right: 4px;
+            min-height: auto;
         }
 
         /* Map Controls */
@@ -332,13 +370,14 @@
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 14px;
-            padding: 16px;
+            padding: 0;
             display: flex;
-            gap: 16px;
+            flex-direction: column;
             cursor: pointer;
             transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
             box-shadow: var(--shadow);
             position: relative;
+            overflow: hidden;
         }
         .pet-card:hover {
             transform: translateY(-3px);
@@ -351,28 +390,33 @@
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(64, 224, 208, 0.15), var(--shadow-hover);
         }
-        .pet-card .pet-img {
-            width: 82px;
-            height: 82px;
-            border-radius: 12px;
-            object-fit: cover;
-            background: #EAE6E0;
-            flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        .pet-card .pet-img-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4 / 3;
             overflow: hidden;
+            background: var(--card-bg);
+            padding: 16px;
+            box-sizing: border-box;
+        }
+        .pet-card .pet-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
             transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
-        .pet-card .pet-info { flex: 1; min-width: 0; }
+        .pet-card .pet-info { padding: 14px; min-width: 0; }
         .pet-card .pet-name {
             font-weight: 600;
             color: var(--text-color);
             margin: 0 0 5px;
-            font-size: 1.1em;
+            font-size: 1.05em;
         }
         .pet-card .pet-meta {
-            font-size: 0.85em;
+            font-size: 0.82em;
             color: var(--text-muted);
-            margin: 0 0 6px;
+            margin: 0 0 8px;
         }
         .pet-card .pet-tags {
             display: flex;
@@ -382,8 +426,8 @@
         .pet-card .tag {
             background: rgba(64, 224, 208, 0.10);
             color: var(--primary-dark);
-            font-size: 0.75em;
-            padding: 5px 14px;
+            font-size: 0.72em;
+            padding: 4px 10px;
             border-radius: 20px;
             font-weight: 600;
             letter-spacing: 0.02em;
@@ -882,8 +926,8 @@
         .pet-card .compare-circle {
             position: absolute;
             left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
+            top: 10px;
+            transform: none;
             width: 22px;
             height: 22px;
             border-radius: 50%;
@@ -1194,20 +1238,19 @@
 
         /* Card Photo Carousel */
         .card-carousel {
-            width: 82px;
-            height: 82px;
-            border-radius: 12px;
+            width: 100%;
+            height: 100%;
+            border-radius: 0;
             overflow: hidden;
             position: relative;
             flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            background: #EAE6E0;
+            background: var(--card-bg);
             cursor: zoom-in;
         }
         .card-carousel img {
-            width: 82px;
-            height: 82px;
-            object-fit: cover;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
             display: block;
             pointer-events: none;
             -webkit-user-drag: none;
@@ -1277,22 +1320,21 @@
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 14px;
-            padding: 16px;
+            padding: 0;
             display: flex;
-            align-items: center;
-            gap: 16px;
+            flex-direction: column;
             animation: pulse-skeleton 1.8s ease-in-out infinite;
+            overflow: hidden;
         }
         .skeleton-img {
-            width: 82px;
-            height: 82px;
-            border-radius: 12px;
-            background: linear-gradient(90deg, var(--border-color) 25%, #f0ede7 50%, var(--border-color) 75%);
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            background: linear-gradient(90deg, var(--border-color) 25%, var(--card-bg) 50%, var(--border-color) 75%);
             background-size: 200% 100%;
             animation: shimmer 1.8s ease-in-out infinite;
             flex-shrink: 0;
         }
-        .skeleton-lines { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+        .skeleton-lines { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
         .skeleton-line {
             height: 12px;
             border-radius: 6px;
@@ -1646,13 +1688,50 @@
             @page { margin: 0.5in; }
         }
 
+        /* Pagination */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 24px 0 8px;
+            flex-wrap: wrap;
+        }
+        .pagination-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            min-width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.2s;
+            padding: 0 10px;
+        }
+        .pagination-btn:hover { border-color: var(--primary-color); color: var(--primary-dark); }
+        .pagination-btn.active { background: var(--primary-color); border-color: var(--primary-color); color: #111; }
+        .pagination-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .pagination-info { color: var(--text-muted); font-size: 0.85em; margin-left: 8px; }
+
         /* Mobile */
+        @media (max-width: 1100px) {
+            .pet-grid { grid-template-columns: repeat(3, 1fr); }
+        }
         @media (max-width: 900px) {
             .layout { flex-direction: column; }
-            .map-wrap { min-height: 350px; }
-            #map { min-height: 350px; }
+            .map-wrap { min-height: 300px; height: 350px; }
+            #map { min-height: 300px; }
             .sidebar { max-height: none; }
             .hero h1 { font-size: 2.4em; }
+        }
+        @media (max-width: 700px) {
+            .pet-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
         }
         @media (max-width: 600px) {
             .site-header { padding: 10px 14px; }
@@ -1665,10 +1744,6 @@
             .hero p { font-size: 0.95em; }
             .mobile-break { display: block; }
             .container { padding: 0 16px 40px; }
-            .pet-card { gap: 12px; padding: 12px; }
-            .pet-card .pet-img { width: 70px; height: 70px; }
-            .card-carousel { width: 70px; height: 70px; }
-            .card-carousel img { width: 70px; height: 70px; }
             .filter-bar { flex-direction: column; align-items: stretch; gap: 8px; padding: 14px; border-radius: 14px; }
             .filter-bar .search-input, .filter-bar select, .filter-bar input[type="number"] {
                 width: 100%;
@@ -1783,19 +1858,30 @@
             <span class="count-badge" id="resultCount">0 pets</span>
         </div>
         <div class="layout">
-            <div class="map-wrap">
-                <div id="map"></div>
-                <div class="map-controls">
-                    <button class="map-btn" id="locateBtn" title="My location"><i class="fas fa-crosshairs"></i></button>
-                    <button class="map-btn" id="fitAllBtn" title="Show all pets"><i class="fas fa-expand-arrows-alt"></i></button>
+            <div class="map-section">
+                <div class="map-wrap" id="mapWrap">
+                    <div id="map"></div>
+                    <div class="map-controls">
+                        <button class="map-btn" id="locateBtn" title="My location"><i class="fas fa-crosshairs"></i></button>
+                        <button class="map-btn" id="fitAllBtn" title="Show all pets"><i class="fas fa-expand-arrows-alt"></i></button>
+                    </div>
+                </div>
+                <div class="map-toggle-bar">
+                    <button class="map-toggle-btn" id="mapToggleBtn"><i class="fas fa-chevron-up"></i> Hide Map</button>
                 </div>
             </div>
             <div class="sidebar" id="sidebar">
-                <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:45%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
-                <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:55%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
-                <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:40%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
-                <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:50%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
-                <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:48%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
+                <div class="pet-grid" id="petGrid">
+                    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:45%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
+                    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:55%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
+                    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:40%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
+                    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:50%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
+                    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:48%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
+                    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:42%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
+                    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:60%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
+                    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:38%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
+                </div>
+                <div class="pagination" id="pagination"></div>
             </div>
         </div>
     </div>
@@ -2050,7 +2136,7 @@
             window.closeShelterModal();
             document.getElementById('shelterFilter').value = shelterName;
             applyFilters();
-            document.querySelector('.sidebar')?.scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('petGrid')?.scrollIntoView({ behavior: 'smooth' });
         };
         function updateSavedToggleCount() {
             const count = getSavedPets().length;
@@ -2158,7 +2244,39 @@
             `;
         }
 
+        const ITEMS_PER_PAGE = 24;
+        let currentPage = 1;
+
+        function renderPagination(totalItems) {
+            const container = document.getElementById('pagination');
+            const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+            let html = `<button class="pagination-btn" onclick="window.goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>`;
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="window.goToPage(${i})">${i}</button>`;
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    html += `<span class="pagination-info">...</span>`;
+                }
+            }
+            html += `<button class="pagination-btn" onclick="window.goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>`;
+            html += `<span class="pagination-info">Page ${currentPage} of ${totalPages} &bull; ${totalItems} pet${totalItems !== 1 ? 's' : ''}</span>`;
+            container.innerHTML = html;
+        }
+
+        window.goToPage = (page) => {
+            const totalPages = Math.ceil(filteredPets.length / ITEMS_PER_PAGE);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderSidebar();
+            document.getElementById('petGrid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+
         function renderSidebar() {
+            const grid = document.getElementById('petGrid');
             const sidebar = document.getElementById('sidebar');
             if (filteredPets.length === 0) {
                 const hasKeyword = document.getElementById('searchInput').value.trim();
@@ -2177,25 +2295,33 @@
                 else if (hasKeyword) suggestion = 'Try a broader keyword or remove the search filter.';
                 else if (hasType || hasSpayed || hasAge || hasWeight) suggestion = 'Try removing some filter criteria to see more pets.';
 
-                sidebar.innerHTML = `
-                    <div class="empty">
+                grid.innerHTML = `
+                    <div class="empty" style="grid-column: 1 / -1;">
                         <i class="fas fa-paw" style="font-size:2.2em;color:var(--border-color);margin-bottom:14px;"></i>
                         <h3>No pets match your filters</h3>
                         <p>${suggestion}</p>
                         <button class="btn-sm" onclick="document.getElementById('resetBtn').click();" style="background:var(--primary-color);color:#111;border:none;padding:8px 18px;border-radius:20px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">Clear All Filters</button>
                     </div>
                 `;
+                document.getElementById('pagination').innerHTML = '';
                 return;
             }
             const shelterFilterVal = document.getElementById('shelterFilter').value.trim();
-            const hintHtml = shelterFilterVal ? `
-                <div class="filter-hint">
-                    <span><i class="fas fa-filter" style="margin-right:6px;color:var(--primary-dark);"></i>Showing pets from: <strong>${shelterFilterVal}</strong></span>
-                    <button onclick="document.getElementById('shelterFilter').value='';applyFilters();">Clear</button>
-                </div>
-            ` : '';
+            let hintHtml = '';
+            if (shelterFilterVal) {
+                hintHtml = `
+                    <div class="filter-hint" style="grid-column: 1 / -1;">
+                        <span><i class="fas fa-filter" style="margin-right:6px;color:var(--primary-dark);"></i>Showing pets from: <strong>${shelterFilterVal}</strong></span>
+                        <button onclick="document.getElementById('shelterFilter').value='';applyFilters();">Clear</button>
+                    </div>
+                `;
+            }
 
-            sidebar.innerHTML = hintHtml + filteredPets.map((pet, idx) => {
+            const start = (currentPage - 1) * ITEMS_PER_PAGE;
+            const pagePets = filteredPets.slice(start, start + ITEMS_PER_PAGE);
+
+            grid.innerHTML = hintHtml + pagePets.map((pet, idx) => {
+                const globalIdx = start + idx;
                 const saved = isPetSaved(pet.id);
                 const dist = formatDistance(getPetDistance(pet));
                 const isNew = isNewPet(pet);
@@ -2203,16 +2329,18 @@
                 const photos = getPetPhotoArray(pet);
                 const photosJson = JSON.stringify(photos).replace(/"/g, '&quot;');
                 const imgHtml = photos.length > 1 ? `
-                    <div class="card-carousel" data-photos="${photosJson}" style="cursor:zoom-in;">
-                        <img src="${photos[0]}" alt="${pet.name}" onerror="this.src='/petPadNotebookDarkGreyTan.png'" style="width:82px;height:82px;object-fit:cover;border-radius:12px;display:block;">
-                        <div class="card-carousel-dots">
-                            ${photos.map((_, i) => `<div class="card-carousel-dot ${i === 0 ? 'active' : ''}"></div>`).join('')}
+                    <div class="pet-img-wrap">
+                        <div class="card-carousel" data-photos="${photosJson}" style="cursor:zoom-in;">
+                            <img src="${photos[0]}" alt="${pet.name}" onerror="this.src='/petPadNotebookDarkGreyTan.png'">
+                            <div class="card-carousel-dots">
+                                ${photos.map((_, i) => `<div class="card-carousel-dot ${i === 0 ? 'active' : ''}"></div>`).join('')}
+                            </div>
+                            <div class="card-carousel-count">${photos.length}</div>
                         </div>
-                        <div class="card-carousel-count">${photos.length}</div>
                     </div>
-                ` : `<img class="pet-img" src="${pet.imageUrl || '/petPadNotebookDarkGreyTan.png'}" alt="${pet.name}" onerror="this.src='/petPadNotebookDarkGreyTan.png'">`;
+                ` : `<div class="pet-img-wrap"><img class="pet-img" src="${pet.imageUrl || '/petPadNotebookDarkGreyTan.png'}" alt="${pet.name}" onerror="this.src='/petPadNotebookDarkGreyTan.png'"></div>`;
                 return `
-                <div class="pet-card ${compareMode ? 'compare-mode' : ''} ${inCompare ? 'compare-selected' : ''} animate-in" data-idx="${idx}" data-id="${pet.id}" tabindex="0" style="animation-delay: ${idx * 0.04}s">
+                <div class="pet-card ${compareMode ? 'compare-mode' : ''} ${inCompare ? 'compare-selected' : ''} animate-in" data-idx="${globalIdx}" data-id="${pet.id}" tabindex="0" style="animation-delay: ${idx * 0.04}s">
                     ${compareMode ? `<div class="compare-circle" onclick="event.stopPropagation();window.toggleCompare('${pet.id}');"><i class="fas fa-check"></i></div>` : ''}
                     <button class="fav-btn ${saved ? 'saved' : ''}" onclick="event.stopPropagation();window.toggleCardFav('${pet.id}', this);" title="${saved ? 'Remove from saved' : 'Save pet'}">
                         <i class="${saved ? 'fas' : 'far'} fa-heart"></i>
@@ -2235,7 +2363,9 @@
             `;
             }).join('');
 
-            sidebar.querySelectorAll('.pet-card').forEach(card => {
+            renderPagination(filteredPets.length);
+
+            grid.querySelectorAll('.pet-card').forEach(card => {
                 card.addEventListener('click', (e) => {
                     if (e.target.closest('.detail-btn') || e.target.closest('.fav-btn') || e.target.closest('.compare-circle')) return;
                     if (compareMode) {
@@ -2260,7 +2390,7 @@
             });
 
             /* Card photo tap-to-enlarge */
-            sidebar.querySelectorAll('.card-carousel').forEach(el => {
+            grid.querySelectorAll('.card-carousel').forEach(el => {
                 el.addEventListener('click', e => {
                     e.stopPropagation();
                     const photos = JSON.parse(el.dataset.photos || '[]');
@@ -2329,7 +2459,7 @@
                 bounds.extend([lat, lng]);
             });
 
-            if (filteredPets.length > 0) {
+            if (filteredPets.length > 0 && !document.getElementById('mapWrap').classList.contains('collapsed')) {
                 map.fitBounds(bounds, { padding: [40, 40], maxZoom: 10 });
             }
         }
@@ -2430,6 +2560,7 @@
             });
 
             sortPets();
+            currentPage = 1;
             renderMarkers();
             renderSidebar();
             updateSavedToggleCount();
@@ -2519,7 +2650,7 @@
                 }
             } catch (e) {
                 console.error('Error loading pets:', e);
-                document.getElementById('sidebar').innerHTML = '<div class="empty"><p>Unable to load pets. Please try again later.</p></div>';
+                document.getElementById('petGrid').innerHTML = '<div class="empty" style="grid-column: 1 / -1;"><p>Unable to load pets. Please try again later.</p></div>';
             }
         }
 
@@ -2537,7 +2668,7 @@
             const card = document.querySelector(`.pet-card[data-idx="${idx}"]`);
             if (card) {
                 card.classList.add('active');
-                card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
             keyboardFocusIdx = idx;
         };
@@ -2819,6 +2950,14 @@
         document.getElementById('themeToggle').addEventListener('click', toggleTheme);
 
         /* Map Controls */
+        document.getElementById('mapToggleBtn').addEventListener('click', () => {
+            const wrap = document.getElementById('mapWrap');
+            const btn = document.getElementById('mapToggleBtn');
+            const isCollapsed = wrap.classList.toggle('collapsed');
+            btn.classList.toggle('collapsed', isCollapsed);
+            btn.innerHTML = isCollapsed ? '<i class="fas fa-chevron-down"></i> Show Map' : '<i class="fas fa-chevron-up"></i> Hide Map';
+            if (!isCollapsed) setTimeout(() => map.invalidateSize(), 360);
+        });
         document.getElementById('locateBtn').addEventListener('click', () => {
             if (userLocation) {
                 map.flyTo([userLocation.lat, userLocation.lng], 12, { duration: 1 });
@@ -2839,8 +2978,17 @@
         });
         document.getElementById('fitAllBtn').addEventListener('click', () => {
             if (markers.length === 0) return;
-            const group = new L.featureGroup(markers);
-            map.fitBounds(group.getBounds().pad(0.15), { animate: true, duration: 1 });
+            const wrap = document.getElementById('mapWrap');
+            const btn = document.getElementById('mapToggleBtn');
+            if (wrap.classList.contains('collapsed')) {
+                wrap.classList.remove('collapsed');
+                btn.classList.remove('collapsed');
+                btn.innerHTML = '<i class="fas fa-chevron-up"></i> Hide Map';
+                setTimeout(() => { map.invalidateSize(); const group = new L.featureGroup(markers); map.fitBounds(group.getBounds().pad(0.15), { animate: true, duration: 1 }); }, 360);
+            } else {
+                const group = new L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.15), { animate: true, duration: 1 });
+            }
         });
 
         /* Distance Radius Chips */
