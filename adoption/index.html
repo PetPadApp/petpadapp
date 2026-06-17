@@ -462,6 +462,12 @@
             color: var(--text-muted);
             margin: 0 0 8px;
         }
+        .pet-card .meta-row {
+            font-size: 0.82em;
+            color: var(--text-muted);
+            min-height: 18px;
+            line-height: 1.3;
+        }
         .pet-card .pet-tags {
             display: flex;
             flex-wrap: wrap;
@@ -1164,8 +1170,9 @@
 
         /* Pet Card detail button */
         .pet-card .detail-btn {
-            margin-top: 8px;
-            display: inline-flex;
+            margin: 8px auto 0;
+            display: flex;
+            width: fit-content;
             align-items: center;
             gap: 4px;
             background: rgba(64,224,208,0.10);
@@ -2819,7 +2826,8 @@
                     ${imgHtml}
                     <div class="pet-info">
                         <div class="pet-name">${pet.name}</div>
-                        <div class="pet-meta">${pet.breed || 'Mixed'} &bull; ${pet.sex || ''} &bull; ${getPetAge(pet) || 'Age unknown'}</div>
+                        <div class="meta-row">${pet.breed || 'Mixed'}</div>
+                        <div class="meta-row">${[pet.sex, getPetAge(pet)].filter(Boolean).join(' &bull; ') || '<span style="visibility:hidden;">&nbsp;</span>'}</div>
                         ${dist ? `<div class="distance-tag"><i class="fas fa-location-arrow"></i> ${dist}</div>` : ''}
                         <!-- Row 1: Type + Location -->
                         <div class="badge-row">
@@ -3260,6 +3268,8 @@
                             const lng = parseFloat(place.longitude);
                             if (!isNaN(lat) && !isNaN(lng)) {
                                 map.setView([lat, lng], 11);
+                                userLocation = { lat, lng };
+                                renderSidebar(); // refresh distance tags
                             }
                         }
                     } catch (geoErr) {
@@ -4180,6 +4190,8 @@
                         const cityLng = parseFloat(cityData[0].lon);
                         if (!isNaN(cityLat) && !isNaN(cityLng)) {
                             map.setView([cityLat, cityLng], 11);
+                            userLocation = { lat: cityLat, lng: cityLng };
+                            renderSidebar(); // refresh distance tags
                         }
                     }
                 } catch (geoErr) {
