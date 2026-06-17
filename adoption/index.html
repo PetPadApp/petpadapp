@@ -423,6 +423,10 @@
             flex-wrap: wrap;
             gap: 6px;
         }
+        .pet-card .pet-tags.source-tags {
+            margin-top: 4px;
+            min-height: 24px;
+        }
         .pet-card .tag {
             background: rgba(64, 224, 208, 0.10);
             color: var(--primary-dark);
@@ -861,6 +865,8 @@
         }
         .filter-bar select:focus, .filter-bar input[type="number"]:focus { outline: none; border-color: var(--primary-color); background: #fff; box-shadow: 0 0 0 4px rgba(64,224,208,0.12); }
         .filter-bar .filter-group { display: flex; align-items: center; gap: 6px; font-size: 0.85em; color: var(--text-muted); }
+        .filter-bar .location-search-group { flex: 1 1 240px; min-width: 180px; }
+        .filter-bar .location-search-group .search-input { margin: 0; }
         .filter-bar .filter-label { white-space: nowrap; }
         .filter-bar .btn-sm {
             padding: 10px 18px;
@@ -1841,6 +1847,10 @@
     <div class="container">
         <div class="filter-bar" id="filterBar">
             <input type="text" class="search-input" id="searchInput" placeholder="Search by name, breed, keyword...">
+            <div class="filter-group location-search-group">
+                <input type="text" class="search-input" id="locationInput" placeholder="City, ZIP, or address..." style="flex:1;min-width:140px;">
+                <button class="btn-sm" id="locationFindBtn" title="Find on map"><i class="fas fa-search-location"></i> Find</button>
+            </div>
             <select id="sortSelect">
                 <option value="recent">Recently Listed</option>
                 <option value="distance">Distance (Nearest)</option>
@@ -2150,6 +2160,15 @@
             return photos;
         }
 
+        // Escape pet ID for safe use in HTML attributes (data-id)
+        function attrId(id) {
+            return String(id).replace(/"/g, '&quot;');
+        }
+        // Escape pet ID for safe use in inline JS strings (onclick handlers)
+        function jsId(id) {
+            return String(id).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        }
+
         function showToast(msg) {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -2350,7 +2369,7 @@
                 ${img}
                 <div style="font-weight:600;color:#2D2B28;margin-bottom:4px;font-size:1.05em;">${pet.name}</div>
                 <div style="font-size:0.85em;color:#6E6A64;">${pet.breed || 'Mixed'} &bull; ${pet.sex || ''}</div>
-                <div style="margin-top:8px;text-align:center;"><a href="#" onclick="window.showPetDetail('${pet.id}');return false;" style="color:#1A9E92;font-size:0.85em;font-weight:600;text-decoration:none;">View Details <i class="fas fa-chevron-right" style="font-size:0.7em;margin-left:2px;"></i></a></div>
+                <div style="margin-top:8px;text-align:center;"><a href="#" onclick="window.showPetDetail('${jsId(pet.id)}');return false;" style="color:#1A9E92;font-size:0.85em;font-weight:600;text-decoration:none;">View Details <i class="fas fa-chevron-right" style="font-size:0.7em;margin-left:2px;"></i></a></div>
             `;
         }
 
@@ -2460,10 +2479,12 @@
                         </div>
                     </div>
                 ` : `<div class="pet-img-wrap"><img class="pet-img" src="${pet.imageUrl || '/petPadNotebookDarkGreyTan.png'}" alt="${pet.name}" onerror="this.src='/petPadNotebookDarkGreyTan.png'"></div>`;
+                const aid = attrId(pet.id);
+                const jid = jsId(pet.id);
                 return `
-                <div class="pet-card ${compareMode ? 'compare-mode' : ''} ${inCompare ? 'compare-selected' : ''} animate-in" data-idx="${globalIdx}" data-id="${pet.id}" tabindex="0" style="animation-delay: ${idx * 0.04}s">
-                    ${compareMode ? `<div class="compare-circle" onclick="event.stopPropagation();window.toggleCompare('${pet.id}');"><i class="fas fa-check"></i></div>` : ''}
-                    <button class="fav-btn ${saved ? 'saved' : ''}" onclick="event.stopPropagation();window.toggleCardFav('${pet.id}', this);" title="${saved ? 'Remove from saved' : 'Save pet'}">
+                <div class="pet-card ${compareMode ? 'compare-mode' : ''} ${inCompare ? 'compare-selected' : ''} animate-in" data-idx="${globalIdx}" data-id="${aid}" tabindex="0" style="animation-delay: ${idx * 0.04}s">
+                    ${compareMode ? `<div class="compare-circle" data-action="toggle-compare"><i class="fas fa-check"></i></div>` : ''}
+                    <button class="fav-btn ${saved ? 'saved' : ''}" data-action="toggle-fav" title="${saved ? 'Remove from saved' : 'Save pet'}">
                         <i class="${saved ? 'fas' : 'far'} fa-heart"></i>
                     </button>
                     ${imgHtml}
@@ -2477,9 +2498,12 @@
                             ${pet.isSpecialNeeds ? `<span class="tag" style="background:#C98C1A;color:#fff;">Special Needs</span>` : ''}
                             ${isNew ? `<span class="tag new-badge">New</span>` : ''}
                             ${(pet.shelterCity || pet.shelterLocation) ? `<span class="tag secondary"><i class="fas fa-map-marker-alt" style="font-size:0.75em;"></i> ${pet.shelterCity || (pet.shelterLocation ? pet.shelterLocation.split(',')[0] : '')}</span>` : ''}
-                            ${pet.source === 'rescuegroups' ? `<span class="tag" style="background:#E85A4F;color:#fff;"><i class="fas fa-globe" style="font-size:0.75em;"></i> RescueGroups</span>` : ''}
                         </div>
-                        <button class="detail-btn" onclick="event.stopPropagation();window.showPetDetail('${pet.id}');">
+                        <div class="pet-tags source-tags">
+                            ${pet.source === 'rescuegroups' ? `<span class="tag" style="background:#E85A4F;color:#fff;"><i class="fas fa-globe" style="font-size:0.75em;"></i> RescueGroups</span>` : ''}
+                            ${pet.source === 'petpad' ? `<span class="tag" style="background:#7C3AED;color:#5EEAD4;"><i class="fas fa-paw" style="font-size:0.75em;"></i> Pet Pad</span>` : ''}
+                        </div>
+                        <button class="detail-btn" data-action="show-detail">
                             <i class="fas fa-info-circle"></i> Details
                         </button>
                     </div>
@@ -2489,29 +2513,50 @@
 
             renderPagination(filteredPets.length);
 
-            grid.querySelectorAll('.pet-card').forEach(card => {
-                card.addEventListener('click', (e) => {
-                    if (e.target.closest('.detail-btn') || e.target.closest('.fav-btn') || e.target.closest('.compare-circle')) return;
-                    if (compareMode) {
-                        const id = card.dataset.id;
-                        window.toggleCompare(id);
-                        return;
+            /* Event delegation for card interactions */
+            grid.onclick = (e) => {
+                const card = e.target.closest('.pet-card');
+                if (!card) return;
+                const idx = parseInt(card.dataset.idx);
+                const pet = filteredPets[idx];
+
+                if (e.target.closest('.detail-btn')) {
+                    e.stopPropagation();
+                    if (pet) {
+                        console.log('Detail click:', pet.name, 'id:', pet.id, 'source:', pet.source);
+                        window.showPetDetail(pet.id);
                     }
-                    const idx = parseInt(card.dataset.idx);
-                    window.focusPet(idx);
-                });
-                card.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        if (compareMode) {
-                            const id = card.dataset.id;
-                            window.toggleCompare(id);
-                            return;
-                        }
-                        const idx = parseInt(card.dataset.idx);
-                        window.showPetDetail(filteredPets[idx].id);
-                    }
-                });
-            });
+                    return;
+                }
+                if (e.target.closest('.fav-btn')) {
+                    e.stopPropagation();
+                    const btn = e.target.closest('.fav-btn');
+                    window.toggleCardFav(pet ? pet.id : card.dataset.id, btn);
+                    return;
+                }
+                if (e.target.closest('.compare-circle')) {
+                    e.stopPropagation();
+                    window.toggleCompare(pet ? pet.id : card.dataset.id);
+                    return;
+                }
+                if (compareMode) {
+                    window.toggleCompare(pet ? pet.id : card.dataset.id);
+                    return;
+                }
+                window.focusPet(idx);
+            };
+            grid.onkeydown = (e) => {
+                if (e.key !== 'Enter') return;
+                const card = e.target.closest('.pet-card');
+                if (!card) return;
+                const idx = parseInt(card.dataset.idx);
+                const pet = filteredPets[idx];
+                if (compareMode) {
+                    window.toggleCompare(pet ? pet.id : card.dataset.id);
+                    return;
+                }
+                if (pet) window.showPetDetail(pet.id);
+            };
 
             /* Card photo tap-to-enlarge */
             grid.querySelectorAll('.card-carousel').forEach(el => {
@@ -2845,8 +2890,12 @@
         let modalGalleryIndex = 0;
 
         window.showPetDetail = (id) => {
-            const pet = allPets.find(p => p.id === id);
-            if (!pet) return;
+            const pet = allPets.find(p => p.id == id);
+            if (!pet) {
+                console.warn('Pet not found for ID:', id, 'in allPets length:', allPets.length);
+                showToast('Unable to open pet details. Please try again.');
+                return;
+            }
             currentModalPetId = id;
             history.replaceState(null, '', '#pet=' + encodeURIComponent(id));
 
@@ -2890,8 +2939,12 @@
 
             const dist = formatDistance(getPetDistance(pet));
             const distText = dist ? ` • ${dist}` : '';
-            const sourceBadge = pet.source === 'rescuegroups' ?
-                ` <span class="tag" style="background:#E85A4F;color:#fff;font-size:0.75em;padding:2px 8px;border-radius:12px;vertical-align:middle;"><i class="fas fa-globe" style="font-size:0.7em;"></i> RescueGroups</span>` : '';
+            let sourceBadge = '';
+            if (pet.source === 'rescuegroups') {
+                sourceBadge = ` <span class="tag" style="background:#E85A4F;color:#fff;font-size:0.75em;padding:2px 8px;border-radius:12px;vertical-align:middle;"><i class="fas fa-globe" style="font-size:0.7em;"></i> RescueGroups</span>`;
+            } else if (pet.source === 'petpad') {
+                sourceBadge = ` <span class="tag" style="background:#7C3AED;color:#5EEAD4;font-size:0.75em;padding:2px 8px;border-radius:12px;vertical-align:middle;"><i class="fas fa-paw" style="font-size:0.7em;"></i> Pet Pad</span>`;
+            }
             document.getElementById('modalMeta').innerHTML = `${pet.breed || 'Mixed'} • ${pet.sex || ''} • ${getPetAge(pet) || 'Age unknown'}${distText}${sourceBadge}`;
 
             const favBtn = document.getElementById('modalFavBtn');
@@ -2904,7 +2957,7 @@
                 favBtn.classList.toggle('saved', nowSaved);
                 favBtn.innerHTML = `<i class="${nowSaved ? 'fas' : 'far'} fa-heart"></i>`;
                 favBtn.title = nowSaved ? 'Remove from saved' : 'Save pet';
-                const cardBtn = document.querySelector(`.pet-card[data-id="${id}"] .fav-btn`);
+                const cardBtn = document.querySelector(`.pet-card[data-id="${attrId(id)}"] .fav-btn`);
                 if (cardBtn) {
                     cardBtn.classList.toggle('saved', nowSaved);
                     cardBtn.innerHTML = `<i class="${nowSaved ? 'fas' : 'far'} fa-heart"></i>`;
@@ -2952,7 +3005,6 @@
                 ['Color', pet.color],
                 ['Weight', weightDisplay],
                 ['Size', pet.sizeGroup],
-                ['Microchip', pet.hasMicrochip ? 'Yes' : 'No'],
                 ['Spayed/Neutered', pet.spayedNeuteredStatus],
                 ['House Trained', pet.isHousetrained === true ? 'Yes' : pet.isHousetrained === false ? 'No' : null],
                 ['Vaccinations Current', pet.isCurrentVaccinations === true ? 'Yes' : pet.isCurrentVaccinations === false ? 'No' : null],
@@ -2987,10 +3039,14 @@
             document.getElementById('modalDetails').innerHTML = detailsHtml;
 
             const adoptionInfoEl = document.getElementById('modalAdoptionInfo');
+            let trackerHtml = '';
+            if (pet.source === 'rescuegroups' && pet.rescueGroupsAnimalId && pet.rescueGroupsOrgId) {
+                trackerHtml = `<img src="https://tracker.rescuegroups.org/pet?animalId=${pet.rescueGroupsAnimalId}&organizationId=${pet.rescueGroupsOrgId}" width="1" height="1" alt="" style="display:block;margin-top:8px;">`;
+            }
             if (pet.adoptionListingInfo) {
-                adoptionInfoEl.innerHTML = pet.adoptionListingInfo;
+                adoptionInfoEl.innerHTML = pet.adoptionListingInfo + trackerHtml;
             } else {
-                adoptionInfoEl.innerHTML = '';
+                adoptionInfoEl.innerHTML = trackerHtml;
             }
 
             const addressParts = [pet.shelterAddress, pet.shelterCity, pet.shelterState, pet.shelterZip].filter(Boolean);
@@ -3002,7 +3058,7 @@
             const coordsWarning = !pet._hasRealCoords ? `<span style="color:#C98C1A;font-size:0.8em;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>Location approximate</span><br>` : '';
             const shelterName = pet.shelterName || 'Unknown Shelter';
             document.getElementById('modalShelter').innerHTML = `
-                <strong class="shelter-name-link" onclick="window.openShelterModal('${pet.id}');">${shelterName}</strong>
+                <strong class="shelter-name-link" onclick="window.openShelterModal('${jsId(pet.id)}');">${shelterName}</strong>
                 <span style="font-size:0.8em;color:#9E9A94;margin-left:6px;">(click for shelter info)</span><br>
                 ${displayAddress}<br>
                 ${phoneHtml}
@@ -3118,6 +3174,7 @@
             document.getElementById('vocalLevelFilter').value = '';
             document.getElementById('microchippedFilter').value = '';
             document.getElementById('shelterFilter').value = '';
+            document.getElementById('locationInput').value = '';
             document.getElementById('sortSelect').value = 'recent';
             document.getElementById('savedToggle').classList.remove('active');
             document.querySelectorAll('.radius-chip').forEach(c => c.classList.remove('active'));
@@ -3129,6 +3186,50 @@
                 updateCompareBar();
             }
             applyFilters();
+        });
+
+        /* Location Search (OpenStreetMap Nominatim) */
+        async function geocodeAddress(query) {
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+            const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
+            const data = await response.json();
+            if (data && data.length > 0) {
+                return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), displayName: data[0].display_name };
+            }
+            return null;
+        }
+
+        document.getElementById('locationFindBtn').addEventListener('click', async () => {
+            const query = document.getElementById('locationInput').value.trim();
+            if (!query) { showToast('Enter a city, ZIP, or address to search'); return; }
+            const btn = document.getElementById('locationFindBtn');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            try {
+                const result = await geocodeAddress(query);
+                if (result) {
+                    userLocation = { lat: result.lat, lng: result.lng };
+                    map.flyTo([result.lat, result.lng], 11, { duration: 1.5 });
+                    document.getElementById('radiusChips').style.display = '';
+                    if (!activeRadius) {
+                        document.querySelectorAll('.radius-chip').forEach(c => c.classList.remove('active'));
+                        document.querySelector('.radius-chip[data-miles="25"]')?.classList.add('active');
+                        activeRadius = 25;
+                    }
+                    applyFilters();
+                    showToast(`Found: ${result.displayName.split(',')[0]}`);
+                } else {
+                    showToast('Location not found. Try a different search.');
+                }
+            } catch (err) {
+                showToast('Search failed. Please try again.');
+            } finally {
+                btn.innerHTML = originalHtml;
+            }
+        });
+
+        document.getElementById('locationInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('locationFindBtn').click();
         });
 
         /* Theme Toggle */
@@ -3227,7 +3328,7 @@
         /* Shelter Modal */
         let currentShelterPet = null;
         window.openShelterModal = (petId) => {
-            const pet = allPets.find(p => p.id === petId);
+            const pet = allPets.find(p => p.id == petId);
             if (!pet) return;
             currentShelterPet = pet;
             document.getElementById('smName').textContent = pet.shelterName || 'Shelter / Foster';
@@ -3290,7 +3391,7 @@
                 showToast('Select at least 2 pets to compare.');
                 return;
             }
-            const pets = [...compareList].map(id => allPets.find(p => p.id === id)).filter(Boolean);
+            const pets = [...compareList].map(id => allPets.find(p => p.id == id)).filter(Boolean);
             const body = document.getElementById('cmBody');
             body.innerHTML = `<div class="compare-grid">${pets.map(pet => {
                 const dist = formatDistance(getPetDistance(pet));
@@ -3379,7 +3480,7 @@
             applyFilters();
             if (window.location.hash.startsWith('#pet=')) {
                 const id = decodeURIComponent(window.location.hash.slice(5));
-                const pet = allPets.find(p => p.id === id);
+                const pet = allPets.find(p => p.id == id);
                 if (pet) {
                     setTimeout(() => window.showPetDetail(id), 300);
                 }
