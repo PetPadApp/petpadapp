@@ -3230,9 +3230,31 @@
                     });
                     filteredPets = [...allPets];
                     applyFilters();
-                    document.getElementById('heroDefaultCity').style.display = 'none';
+                    // Update hero to show ZIP code
+                    document.getElementById('defaultCityName').textContent = `ZIP code ${postalcode}`;
+                    document.getElementById('heroDefaultCity').style.display = 'block';
                     document.getElementById('heroLocationPrompt').style.display = 'none';
                     showToast(`Showing pets near ${postalcode}`);
+                    // Zoom map to searched area via ZIP geocoding
+                    try {
+                        const zipRes = await fetch(`https://api.zippopotam.us/us/${postalcode}`);
+                        const zipData = await zipRes.json();
+                        if (zipData.places && zipData.places[0]) {
+                            const place = zipData.places[0];
+                            const lat = parseFloat(place.latitude);
+                            const lng = parseFloat(place.longitude);
+                            if (!isNaN(lat) && !isNaN(lng)) {
+                                map.setView([lat, lng], 11);
+                            }
+                        }
+                    } catch (geoErr) {
+                        // Fallback: fitBounds with tighter zoom
+                        if (filteredPets.length > 0) {
+                            const bounds = L.latLngBounds();
+                            filteredPets.forEach(p => bounds.extend([p._lat, p._lng]));
+                            map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
+                        }
+                    }
                 }
             } catch (e) {
                 console.error('Error loading pets by postalcode:', e);
@@ -3259,7 +3281,10 @@
                         const zip = data?.address?.postcode;
                         if (zip && /^\d{5}(-\d{4})?$/.test(zip)) {
                             const cleanZip = zip.split('-')[0];
-                            loadPetsByPostalcode(cleanZip, 50);
+                            await loadPetsByPostalcode(cleanZip, 50);
+                            // Override hero to show "near you" instead of ZIP
+                            document.getElementById('defaultCityName').textContent = 'you';
+                            document.getElementById('heroDefaultCity').style.display = 'block';
                         } else {
                             document.getElementById('heroDefaultCity').style.display = 'none';
                             document.getElementById('heroLocationPrompt').style.display = 'none';
@@ -3267,6 +3292,8 @@
                             if (document.getElementById('sortSelect').value === 'distance') applyFilters();
                             renderSidebar();
                             showToast('Location found! Sort by distance to see nearby pets.');
+                            // Zoom map to user location
+                            map.setView([pos.coords.latitude, pos.coords.longitude], 11);
                         }
                     } catch (e) {
                         document.getElementById('heroDefaultCity').style.display = 'none';
@@ -3275,6 +3302,8 @@
                         if (document.getElementById('sortSelect').value === 'distance') applyFilters();
                         renderSidebar();
                         showToast('Location found! Sort by distance to see nearby pets.');
+                        // Zoom map to user location
+                        map.setView([pos.coords.latitude, pos.coords.longitude], 11);
                     }
                 },
                 () => {
@@ -3499,10 +3528,14 @@
             }
 
             const adoptionInfoEl = document.getElementById('modalAdoptionInfo');
+            let trackerHtml = '';
+            if (pet.source === 'rescuegroups' && pet.rescueGroupsAnimalId && pet.rescueGroupsOrgId) {
+                trackerHtml = `<img src="https://tracker.rescuegroups.org/pet?animalId=${pet.rescueGroupsAnimalId}&organizationId=${pet.rescueGroupsOrgId}" width="1" height="1" alt="" style="display:block;margin-top:8px;" onerror="this.remove()">`;
+            }
             if (pet.adoptionListingInfo) {
-                adoptionInfoEl.innerHTML = pet.adoptionListingInfo;
+                adoptionInfoEl.innerHTML = pet.adoptionListingInfo + trackerHtml;
             } else {
-                adoptionInfoEl.innerHTML = '';
+                adoptionInfoEl.innerHTML = trackerHtml;
             }
 
             const addressParts = [pet.shelterAddress, pet.shelterCity, pet.shelterState, pet.shelterZip].filter(Boolean);
@@ -4120,6 +4153,24 @@
             populateTypeFilter();
             populateBreedFilter(document.getElementById('typeFilter').value);
             applyFilters();
+            // If a default city was returned, geocode it and zoom the map
+            if (window.currentDefaultCity) {
+                try {
+                    const cityRes = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(window.currentDefaultCity)}&format=json&limit=1`, {
+                        headers: { 'Accept-Language': 'en-US,en' }
+                    });
+                    const cityData = await cityRes.json();
+                    if (cityData && cityData[0]) {
+                        const cityLat = parseFloat(cityData[0].lat);
+                        const cityLng = parseFloat(cityData[0].lon);
+                        if (!isNaN(cityLat) && !isNaN(cityLng)) {
+                            map.setView([cityLat, cityLng], 11);
+                        }
+                    }
+                } catch (geoErr) {
+                    // If geocoding fails, fitBounds will already handle it from renderMarkers
+                }
+            }
             if (window.location.hash.startsWith('#pet=')) {
                 const id = decodeURIComponent(window.location.hash.slice(5));
                 let pet = allPets.find(p => p.id == id);
