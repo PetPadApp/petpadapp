@@ -1818,6 +1818,152 @@
             .footer-inner { grid-template-columns: 1fr; gap: 20px; padding: 28px 20px 20px; }
             .footer-brand { grid-column: auto; }
         }
+
+        /* AI Pet Matching */
+        .ai-search-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            position: relative;
+            z-index: 10;
+        }
+        .ai-search-header {
+            margin-bottom: 16px;
+        }
+        .ai-search-header h3 {
+            margin: 0 0 6px;
+            font-size: 1.15em;
+            font-weight: 700;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .ai-search-header h3 i {
+            color: var(--purple-color);
+        }
+        .ai-search-header p {
+            margin: 0;
+            font-size: 0.9em;
+            color: var(--text-muted);
+        }
+        .ai-search-textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 14px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: #F3F0FF;
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95em;
+            resize: vertical;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+        .ai-search-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(64,224,208,0.12);
+        }
+        .ai-search-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+        .ai-search-examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
+            align-items: center;
+        }
+        .ai-search-examples span {
+            font-size: 0.8em;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .ai-example-chip {
+            background: rgba(124,58,237,0.06);
+            border: 1px solid rgba(124,58,237,0.15);
+            color: var(--purple-color);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+        .ai-example-chip:hover {
+            background: rgba(124,58,237,0.12);
+            border-color: rgba(124,58,237,0.3);
+        }
+        .ai-mode-indicator {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(64,224,208,0.08));
+            border: 1px solid rgba(124,58,237,0.2);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            font-size: 0.9em;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+        .ai-mode-indicator.visible { display: flex; }
+        .ai-mode-indicator i { color: var(--purple-color); }
+        .match-score-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple-color), var(--primary-color));
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85em;
+            box-shadow: 0 2px 8px rgba(124,58,237,0.3);
+            z-index: 3;
+        }
+        .match-score-badge.high { background: linear-gradient(135deg, #10B981, #34D399); }
+        .match-score-badge.medium { background: linear-gradient(135deg, #F59E0B, #FBBF24); }
+        .match-score-badge.low { background: linear-gradient(135deg, #EF4444, #F87171); }
+        .match-explanations {
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: rgba(124,58,237,0.04);
+            border-radius: 10px;
+            font-size: 0.82em;
+        }
+        .match-explanations ul {
+            margin: 0;
+            padding-left: 18px;
+            color: var(--text-muted);
+        }
+        .match-explanations li { margin-bottom: 3px; }
+        .ai-loading {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 0;
+            color: var(--text-muted);
+            font-size: 0.9em;
+        }
+        .ai-loading.visible { display: flex; }
+        .ai-loading i { animation: spin 1s linear infinite; color: var(--primary-color); }
+        body[data-theme="dark"] .ai-search-textarea { background: #1E1E2D; border-color: #333340; }
+        body[data-theme="dark"] .ai-example-chip { background: rgba(124,58,237,0.1); }
     </style>
 </head>
 <body>
@@ -1845,6 +1991,31 @@
     </div>
 
     <div class="container">
+        <div class="ai-search-section" id="aiSearchSection">
+            <div class="ai-search-header">
+                <h3><i class="fas fa-wand-magic-sparkles"></i> Find Your Perfect Pet with AI</h3>
+                <p>Describe your lifestyle, home, and other pets — let AI match you with the best adoptable pets.</p>
+            </div>
+            <textarea class="ai-search-textarea" id="aiSearchInput" placeholder="I live in an apartment, work 8-hour shifts, have two cats, and want a calm small dog..."></textarea>
+            <div class="ai-loading" id="aiLoading">
+                <i class="fas fa-spinner"></i> Matching you with the best pets...
+            </div>
+            <div class="ai-search-actions">
+                <button class="btn" id="aiSearchBtn"><i class="fas fa-wand-magic-sparkles"></i> Find My Match</button>
+                <button class="btn secondary" id="aiClearBtn" style="display:none;"><i class="fas fa-times"></i> Back to All Pets</button>
+            </div>
+            <div class="ai-search-examples" id="aiExamples">
+                <span>Try:</span>
+                <button class="ai-example-chip" data-text="I live in an apartment and want a calm cat that's good with kids">calm cat, apartment, kids</button>
+                <button class="ai-example-chip" data-text="I want an active medium-sized dog for hiking and running">active dog, hiking</button>
+                <button class="ai-example-chip" data-text="I have two cats and work long hours, need a low-energy small dog">low-energy dog, cats</button>
+            </div>
+        </div>
+        <div class="ai-mode-indicator" id="aiModeIndicator">
+            <i class="fas fa-wand-magic-sparkles"></i>
+            <span>Showing AI-matched pets</span>
+            <button class="btn-sm secondary" id="aiModeClearBtn" style="padding:6px 12px;font-size:0.8em;">Clear</button>
+        </div>
         <div class="filter-bar" id="filterBar">
             <input type="text" class="search-input" id="searchInput" placeholder="Search by name, breed, keyword...">
             <div class="filter-group location-search-group">
@@ -2023,6 +2194,10 @@
                 </div>
                 <div class="modal-meta" id="modalMeta"></div>
                 <div id="modalDetails"></div>
+                <div class="match-info-box" id="modalMatchInfo" style="display:none;background:linear-gradient(135deg, rgba(124,58,237,0.06), rgba(64,224,208,0.06));border:1px solid rgba(124,58,237,0.15);border-radius:12px;padding:16px;margin-top:18px;">
+                    <h4 style="margin:0 0 8px;color:var(--purple-color);font-size:0.95em;"><i class="fas fa-wand-magic-sparkles"></i> Match Score: <span id="modalMatchScore"></span>%</h4>
+                    <div id="modalMatchExplanations" class="match-explanations" style="margin-top:0;background:transparent;padding:0;"></div>
+                </div>
                 <div class="shelter-box">
                     <h4><i class="fas fa-home"></i> Shelter / Foster</h4>
                     <p id="modalShelter"></p>
@@ -2487,6 +2662,7 @@
                     <button class="fav-btn ${saved ? 'saved' : ''}" data-action="toggle-fav" title="${saved ? 'Remove from saved' : 'Save pet'}">
                         <i class="${saved ? 'fas' : 'far'} fa-heart"></i>
                     </button>
+                    ${pet.matchScore !== undefined ? `<div class="match-score-badge ${pet.matchScore >= 80 ? 'high' : pet.matchScore >= 50 ? 'medium' : 'low'}">${pet.matchScore}%</div>` : ''}
                     ${imgHtml}
                     <div class="pet-info">
                         <div class="pet-name">${pet.name}</div>
@@ -3038,6 +3214,21 @@
 
             document.getElementById('modalDetails').innerHTML = detailsHtml;
 
+            // Show match info if available
+            const matchInfoEl = document.getElementById('modalMatchInfo');
+            if (pet.matchScore !== undefined) {
+                matchInfoEl.style.display = '';
+                document.getElementById('modalMatchScore').textContent = pet.matchScore;
+                const explanationsEl = document.getElementById('modalMatchExplanations');
+                if (pet.matchExplanations && pet.matchExplanations.length > 0) {
+                    explanationsEl.innerHTML = '<ul>' + pet.matchExplanations.map(ex => `<li>${ex}</li>`).join('') + '</ul>';
+                } else {
+                    explanationsEl.innerHTML = '<p style="margin:0;color:var(--text-muted);">Matched based on your description.</p>';
+                }
+            } else {
+                matchInfoEl.style.display = 'none';
+            }
+
             const adoptionInfoEl = document.getElementById('modalAdoptionInfo');
             let trackerHtml = '';
             if (pet.source === 'rescuegroups' && pet.rescueGroupsAnimalId && pet.rescueGroupsOrgId) {
@@ -3472,6 +3663,131 @@
         window.addEventListener('scroll', () => {
             if (window.scrollY > 500) backToTop.classList.add('visible');
             else backToTop.classList.remove('visible');
+        });
+
+        /* AI Pet Matching */
+        let aiMode = false;
+        let originalFilteredPets = null;
+
+        async function performAIMatch() {
+            const input = document.getElementById('aiSearchInput');
+            const btn = document.getElementById('aiSearchBtn');
+            const loading = document.getElementById('aiLoading');
+            const description = input.value.trim();
+
+            if (!description || description.length < 3) {
+                showToast('Please describe what you are looking for in a pet.');
+                return;
+            }
+
+            btn.disabled = true;
+            loading.classList.add('visible');
+
+            try {
+                const response = await fetch('https://us-central1-mypet-b1143.cloudfunctions.net/matchPetsWithAI', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userDescription: description, maxResults: 24 })
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.message || 'Matching failed');
+                }
+
+                // Save current state if not already in AI mode
+                if (!aiMode) {
+                    originalFilteredPets = [...filteredPets];
+                }
+
+                aiMode = true;
+
+                // Map returned pets to the format expected by the frontend
+                const matchedPets = result.pets.map(pet => {
+                    let lat, lng;
+                    let hasRealCoords = false;
+                    if (typeof pet.shelterLat === 'number' && typeof pet.shelterLng === 'number') {
+                        lat = pet.shelterLat;
+                        lng = pet.shelterLng;
+                        hasRealCoords = true;
+                    } else {
+                        const hash = pet.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+                        lat = 30 + (hash % 1500) / 100;
+                        lng = -120 + (hash % 4000) / 100;
+                    }
+                    pet._lat = lat;
+                    pet._lng = lng;
+                    pet._hasRealCoords = hasRealCoords;
+                    return pet;
+                });
+
+                filteredPets = matchedPets;
+
+                // Update UI
+                document.getElementById('aiClearBtn').style.display = '';
+                document.getElementById('aiModeIndicator').classList.add('visible');
+                document.getElementById('aiExamples').style.display = 'none';
+
+                currentPage = 1;
+                renderMarkers();
+                renderSidebar();
+                document.getElementById('resultCount').textContent = `${matchedPets.length} matched pets`;
+
+                if (matchedPets.length === 0) {
+                    showToast('No pets matched your description. Try a broader search.');
+                } else {
+                    showToast(`Found ${matchedPets.length} pets that match your preferences!`);
+                }
+
+            } catch (err) {
+                console.error('AI match error:', err);
+                showToast('Unable to match pets right now. Please try again.');
+            } finally {
+                btn.disabled = false;
+                loading.classList.remove('visible');
+            }
+        }
+
+        function clearAIMatch() {
+            aiMode = false;
+            if (originalFilteredPets) {
+                filteredPets = originalFilteredPets;
+            } else {
+                applyFilters();
+                return;
+            }
+            originalFilteredPets = null;
+
+            document.getElementById('aiSearchInput').value = '';
+            document.getElementById('aiClearBtn').style.display = 'none';
+            document.getElementById('aiModeIndicator').classList.remove('visible');
+            document.getElementById('aiExamples').style.display = '';
+
+            currentPage = 1;
+            renderMarkers();
+            renderSidebar();
+            updateSavedToggleCount();
+            document.getElementById('resultCount').textContent = `${filteredPets.length} pet${filteredPets.length !== 1 ? 's' : ''}`;
+        }
+
+        document.getElementById('aiSearchBtn').addEventListener('click', performAIMatch);
+        document.getElementById('aiClearBtn').addEventListener('click', clearAIMatch);
+        document.getElementById('aiModeClearBtn').addEventListener('click', clearAIMatch);
+
+        document.getElementById('aiSearchInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                performAIMatch();
+            }
+        });
+
+        // Example chips
+        document.querySelectorAll('.ai-example-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.getElementById('aiSearchInput').value = chip.dataset.text;
+                performAIMatch();
+            });
         });
 
         loadPets().then(() => {
