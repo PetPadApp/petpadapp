@@ -471,6 +471,13 @@
             margin-top: 4px;
             min-height: 24px;
         }
+        .pet-card .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            min-height: 24px;
+            margin-top: 2px;
+        }
         .pet-card .tag {
             background: rgba(64, 224, 208, 0.10);
             color: var(--primary-dark);
@@ -2814,16 +2821,24 @@
                         <div class="pet-name">${pet.name}</div>
                         <div class="pet-meta">${pet.breed || 'Mixed'} &bull; ${pet.sex || ''} &bull; ${getPetAge(pet) || 'Age unknown'}</div>
                         ${dist ? `<div class="distance-tag"><i class="fas fa-location-arrow"></i> ${dist}</div>` : ''}
-                        <div class="pet-tags">
+                        <!-- Row 1: Type + Location -->
+                        <div class="badge-row">
                             ${pet.petType ? `<span class="tag">${pet.petType}</span>` : ''}
+                            ${(pet.shelterCity || pet.shelterLocation) ? `<span class="tag secondary"><i class="fas fa-map-marker-alt" style="font-size:0.75em;"></i> ${pet.shelterCity || (pet.shelterLocation ? pet.shelterLocation.split(',')[0] : '')}</span>` : ''}
+                            ${!pet.petType && !(pet.shelterCity || pet.shelterLocation) ? '<span style="visibility:hidden;">&nbsp;</span>' : ''}
+                        </div>
+                        <!-- Row 2: Size + Special Needs -->
+                        <div class="badge-row">
                             ${pet.sizeGroup ? `<span class="tag">${pet.sizeGroup}</span>` : ''}
                             ${pet.isSpecialNeeds ? `<span class="tag" style="background:#C98C1A;color:#fff;">Special Needs</span>` : ''}
-                            ${isNew ? `<span class="tag new-badge">New</span>` : ''}
-                            ${(pet.shelterCity || pet.shelterLocation) ? `<span class="tag secondary"><i class="fas fa-map-marker-alt" style="font-size:0.75em;"></i> ${pet.shelterCity || (pet.shelterLocation ? pet.shelterLocation.split(',')[0] : '')}</span>` : ''}
+                            ${!pet.sizeGroup && !pet.isSpecialNeeds ? '<span style="visibility:hidden;">&nbsp;</span>' : ''}
                         </div>
-                        <div class="pet-tags source-tags">
+                        <!-- Row 3: Source + New -->
+                        <div class="badge-row">
                             ${pet.source === 'rescuegroups' ? `<span class="tag" style="background:#E85A4F;color:#fff;"><i class="fas fa-globe" style="font-size:0.75em;"></i> RescueGroups</span>` : ''}
                             ${pet.source === 'petpad' ? `<span class="tag" style="background:#7C3AED;color:#5EEAD4;"><i class="fas fa-paw" style="font-size:0.75em;"></i> Pet Pad</span>` : ''}
+                            ${isNew ? `<span class="tag new-badge">New</span>` : ''}
+                            ${!isNew && pet.source !== 'rescuegroups' && pet.source !== 'petpad' ? '<span style="visibility:hidden;">&nbsp;</span>' : ''}
                         </div>
                         <button class="detail-btn" type="button" data-action="show-detail">
                             <i class="fas fa-info-circle"></i> Details
