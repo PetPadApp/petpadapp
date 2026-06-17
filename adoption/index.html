@@ -2109,7 +2109,7 @@
             </button>
             <span class="hero-loc-or">or</span>
             <button class="hero-loc-btn secondary" id="heroSearchCityBtn" onclick="showCitySearch()">
-                <i class="fas fa-search"></i> Search a city
+                <i class="fas fa-search"></i> Search a ZIP code
             </button>
         </div>
     </div>
@@ -2825,7 +2825,7 @@
                             ${pet.source === 'rescuegroups' ? `<span class="tag" style="background:#E85A4F;color:#fff;"><i class="fas fa-globe" style="font-size:0.75em;"></i> RescueGroups</span>` : ''}
                             ${pet.source === 'petpad' ? `<span class="tag" style="background:#7C3AED;color:#5EEAD4;"><i class="fas fa-paw" style="font-size:0.75em;"></i> Pet Pad</span>` : ''}
                         </div>
-                        <button class="detail-btn" data-action="show-detail">
+                        <button class="detail-btn" type="button" data-action="show-detail">
                             <i class="fas fa-info-circle"></i> Details
                         </button>
                     </div>
@@ -2845,7 +2845,6 @@
                 if (e.target.closest('.detail-btn')) {
                     e.stopPropagation();
                     if (pet) {
-                        console.log('Detail click:', pet.name, 'id:', pet.id, 'source:', pet.source);
                         window.showPetDetail(pet.id);
                     }
                     return;
@@ -2935,7 +2934,7 @@
                     lng = pet.shelterLng;
                     hasRealCoords = true;
                 } else {
-                    const hash = pet.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+                    const hash = String(pet.id).split('').reduce((a, b) => a + b.charCodeAt(0), 0);
                     lat = 30 + (hash % 1500) / 100;
                     lng = -120 + (hash % 4000) / 100;
                 }
@@ -3167,7 +3166,7 @@
                         lng = pet.shelterLng;
                         hasRealCoords = true;
                     } else {
-                        const hash = pet.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+                        const hash = String(pet.id).split('').reduce((a, b) => a + b.charCodeAt(0), 0);
                         lat = 30 + (hash % 1500) / 100;
                         lng = -120 + (hash % 4000) / 100;
                     }
@@ -3223,7 +3222,7 @@
                         if (typeof pet.shelterLat === 'number' && typeof pet.shelterLng === 'number') {
                             lat = pet.shelterLat; lng = pet.shelterLng; hasRealCoords = true;
                         } else {
-                            const hash = pet.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+                            const hash = String(pet.id).split('').reduce((a, b) => a + b.charCodeAt(0), 0);
                             lat = 30 + (hash % 1500) / 100;
                             lng = -120 + (hash % 4000) / 100;
                         }
@@ -3241,7 +3240,7 @@
             }
         }
 
-        function promptForLocation() {
+        window.promptForLocation = function() {
             if (!navigator.geolocation) {
                 showToast('Geolocation is not supported in your browser');
                 return;
@@ -3250,39 +3249,49 @@
                 async (pos) => {
                     userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
                     window.userSearchedLocation = true;
-                    // Reverse geocode lat/lng to postalcode (simple fetch to a free API)
+                    showToast('Finding your ZIP code...');
+                    // Reverse geocode lat/lng to postalcode via Nominatim (OpenStreetMap)
                     try {
-                        const res = await fetch(`https://api.zippopotam.us/us/${pos.coords.latitude},${pos.coords.longitude}`);
-                        // Actually zippopotam doesn't support reverse geocoding.
-                        // For now, just use the lat/lng for client-side distance sorting
-                        // and hide the default city prompt.
+                        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json&addressdetails=1`, {
+                            headers: { 'Accept-Language': 'en-US,en' }
+                        });
+                        const data = await res.json();
+                        const zip = data?.address?.postcode;
+                        if (zip && /^\d{5}(-\d{4})?$/.test(zip)) {
+                            const cleanZip = zip.split('-')[0];
+                            loadPetsByPostalcode(cleanZip, 50);
+                        } else {
+                            document.getElementById('heroDefaultCity').style.display = 'none';
+                            document.getElementById('heroLocationPrompt').style.display = 'none';
+                            document.getElementById('radiusChips').style.display = 'flex';
+                            if (document.getElementById('sortSelect').value === 'distance') applyFilters();
+                            renderSidebar();
+                            showToast('Location found! Sort by distance to see nearby pets.');
+                        }
+                    } catch (e) {
                         document.getElementById('heroDefaultCity').style.display = 'none';
                         document.getElementById('heroLocationPrompt').style.display = 'none';
                         document.getElementById('radiusChips').style.display = 'flex';
                         if (document.getElementById('sortSelect').value === 'distance') applyFilters();
                         renderSidebar();
                         showToast('Location found! Sort by distance to see nearby pets.');
-                    } catch (e) {
-                        showToast('Location found! Sort by distance to see nearby pets.');
                     }
                 },
                 () => {
-                    showToast('Location permission denied. Try searching a city instead.');
+                    showToast('Location permission denied. Try searching a ZIP code instead.');
                 }
             );
         }
 
-        function showCitySearch() {
-            const city = prompt('Enter a city name or ZIP code:');
-            if (!city || !city.trim()) return;
-            const trimmed = city.trim();
+        window.showCitySearch = function() {
+            const zip = prompt('Enter a 5-digit ZIP code:');
+            if (!zip || !zip.trim()) return;
+            const trimmed = zip.trim();
             window.userSearchedLocation = true;
-            // If it looks like a ZIP (5 digits), use directly; otherwise we would need geocoding
             if (/^\d{5}$/.test(trimmed)) {
                 loadPetsByPostalcode(trimmed, 50);
             } else {
-                // For city names, we'd need a geocoder. For now, show a message.
-                showToast('Please enter a 5-digit ZIP code for best results');
+                showToast('Please enter a valid 5-digit ZIP code');
             }
         }
 
@@ -3313,8 +3322,10 @@
             // Prefer filteredPets first (preserves AI matchScore/matchExplanations),
             // then fall back to allPets for pets filtered out of current view.
             let pet = filteredPets.find(p => p.id == id);
+            let source = 'filteredPets';
             if (!pet) {
                 pet = allPets.find(p => p.id == id);
+                source = 'allPets';
             }
             if (!pet) {
                 console.warn('Pet not found for ID:', id, 'in allPets length:', allPets.length, 'filteredPets length:', filteredPets.length);
@@ -3458,18 +3469,27 @@
             `).join('') || '<div class="detail-row"><span class="detail-label">Info</span><span class="detail-value">Contact shelter for details</span></div>';
 
             if (pet.qualities) {
-                detailsHtml += `<div class="detail-row" style="flex-direction:column;align-items:flex-start;gap:6px;"><span class="detail-label">Qualities</span><span class="detail-value" style="display:flex;flex-wrap:wrap;gap:6px;">${pet.qualities.split(',').map(q => q.trim()).filter(Boolean).map(q => `<span class="tag" style="font-size:0.8em;">${q}</span>`).join('')}</span></div>`;
+                let qualitiesArr = [];
+                if (Array.isArray(pet.qualities)) {
+                    qualitiesArr = pet.qualities;
+                } else if (typeof pet.qualities === 'string') {
+                    qualitiesArr = pet.qualities.split(',');
+                }
+                const qualityTags = qualitiesArr.map(q => q.trim()).filter(Boolean);
+                if (qualityTags.length > 0) {
+                    detailsHtml += `<div class="detail-row" style="flex-direction:column;align-items:flex-start;gap:6px;"><span class="detail-label">Qualities</span><span class="detail-value" style="display:flex;flex-wrap:wrap;gap:6px;">${qualityTags.map(q => `<span class="tag" style="font-size:0.8em;">${q}</span>`).join('')}</span></div>`;
+                }
             }
 
             document.getElementById('modalDetails').innerHTML = detailsHtml;
 
             // Show match info if available
             const matchInfoEl = document.getElementById('modalMatchInfo');
-            if (pet.matchScore !== undefined) {
+            if (pet.matchScore !== undefined && pet.matchScore !== null) {
                 matchInfoEl.style.display = '';
                 document.getElementById('modalMatchScore').textContent = pet.matchScore;
                 const explanationsEl = document.getElementById('modalMatchExplanations');
-                if (pet.matchExplanations && pet.matchExplanations.length > 0) {
+                if (pet.matchExplanations && Array.isArray(pet.matchExplanations) && pet.matchExplanations.length > 0) {
                     explanationsEl.innerHTML = '<ul>' + pet.matchExplanations.map(ex => `<li>${ex}</li>`).join('') + '</ul>';
                 } else {
                     explanationsEl.innerHTML = '<p style="margin:0;color:var(--text-muted);">Matched based on your description.</p>';
@@ -3479,14 +3499,10 @@
             }
 
             const adoptionInfoEl = document.getElementById('modalAdoptionInfo');
-            let trackerHtml = '';
-            if (pet.source === 'rescuegroups' && pet.rescueGroupsAnimalId && pet.rescueGroupsOrgId) {
-                trackerHtml = `<img src="https://tracker.rescuegroups.org/pet?animalId=${pet.rescueGroupsAnimalId}&organizationId=${pet.rescueGroupsOrgId}" width="1" height="1" alt="" style="display:block;margin-top:8px;">`;
-            }
             if (pet.adoptionListingInfo) {
-                adoptionInfoEl.innerHTML = pet.adoptionListingInfo + trackerHtml;
+                adoptionInfoEl.innerHTML = pet.adoptionListingInfo;
             } else {
-                adoptionInfoEl.innerHTML = trackerHtml;
+                adoptionInfoEl.innerHTML = '';
             }
 
             const addressParts = [pet.shelterAddress, pet.shelterCity, pet.shelterState, pet.shelterZip].filter(Boolean);
@@ -3603,7 +3619,7 @@
                             if (typeof pet.shelterLat === 'number' && typeof pet.shelterLng === 'number') {
                                 lat = pet.shelterLat; lng = pet.shelterLng; hasRealCoords = true;
                             } else {
-                                const hash = pet.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+                                const hash = String(pet.id).split('').reduce((a, b) => a + b.charCodeAt(0), 0);
                                 lat = 30 + (hash % 1500) / 100;
                                 lng = -120 + (hash % 4000) / 100;
                             }
@@ -4011,13 +4027,14 @@
                         lng = pet.shelterLng;
                         hasRealCoords = true;
                     } else {
-                        const hash = pet.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+                        const hash = String(pet.id).split('').reduce((a, b) => a + b.charCodeAt(0), 0);
                         lat = 30 + (hash % 1500) / 100;
                         lng = -120 + (hash % 4000) / 100;
                     }
                     pet._lat = lat;
                     pet._lng = lng;
                     pet._hasRealCoords = hasRealCoords;
+                    if (!pet.source) pet.source = 'rescuegroups';
                     return pet;
                 });
 
