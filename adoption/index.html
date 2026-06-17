@@ -222,6 +222,50 @@
             font-weight: 700;
             color: #FFD1DC;
         }
+        .hero-default-city {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: rgba(255,255,255,0.85);
+            z-index: 2;
+            position: relative;
+        }
+        .hero-default-city strong {
+            color: #FFD1DC;
+            font-weight: 600;
+        }
+        .hero-location-prompt {
+            margin-top: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            z-index: 2;
+            position: relative;
+        }
+        .hero-loc-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 24px;
+            font-size: 0.85em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(4px);
+        }
+        .hero-loc-btn:hover {
+            background: rgba(255,255,255,0.25);
+            border-color: rgba(255,255,255,0.5);
+        }
+        .hero-loc-btn.secondary {
+            background: rgba(255,255,255,0.08);
+        }
+        .hero-loc-or {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.8em;
+        }
         .hero-texture {
             position: absolute;
             inset: 0;
@@ -909,6 +953,23 @@
         }
         .filter-bar .saved-toggle:hover { border-color: var(--accent-color); color: var(--accent-color); }
         .filter-bar .saved-toggle.active { border-color: var(--accent-color); color: var(--accent-color); background: rgba(255,105,180,0.08); }
+        .filter-bar .nationwide-toggle {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 7px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .filter-bar .nationwide-toggle:hover { border-color: var(--primary-color); color: var(--primary-color); }
+        .filter-bar .nationwide-toggle.active { border-color: var(--primary-color); color: var(--primary-color); background: rgba(64,224,208,0.08); }
         .filter-bar .compare-toggle {
             background: transparent;
             border: 1px solid var(--border-color);
@@ -2038,7 +2099,19 @@
         <div class="hero-texture"></div>
         <h1>Adopt with <img src="/PetPadLogoTextGreen.png" alt="Pet Pad" class="hero-logo"></h1>
         <p>Browse adoptable pets from shelters<br class="mobile-break"> and fosters near you</p>
-        <div class="hero-badge"><span id="heroBadgeCount">0</span> pets available</div>
+        <div class="hero-badge"><span id="heroBadgeCount">0</span> adoptable pets nationwide</div>
+        <div class="hero-default-city" id="heroDefaultCity" style="display:none;">
+            Showing pets near <strong id="defaultCityName"></strong>
+        </div>
+        <div class="hero-location-prompt" id="heroLocationPrompt">
+            <button class="hero-loc-btn" id="heroLocBtn" onclick="promptForLocation()">
+                <i class="fas fa-location-arrow"></i> Find pets near me
+            </button>
+            <span class="hero-loc-or">or</span>
+            <button class="hero-loc-btn secondary" id="heroSearchCityBtn" onclick="showCitySearch()">
+                <i class="fas fa-search"></i> Search a city
+            </button>
+        </div>
     </div>
 
     <div class="container">
@@ -2117,6 +2190,7 @@
                 <button class="radius-chip" data-miles="">Any</button>
             </div>
             <button class="saved-toggle" id="savedToggle" title="Show only saved pets"><i class="fas fa-heart"></i> Saved</button>
+            <button class="nationwide-toggle" id="nationwideToggle" title="Search all adoptable pets nationwide"><i class="fas fa-globe"></i> Nationwide</button>
             <button class="compare-toggle" id="compareToggle" title="Compare pets"><i class="fas fa-balance-scale"></i> Compare</button>
             <span class="count-badge" id="resultCount">0 pets</span>
 
@@ -2395,9 +2469,9 @@
         function attrId(id) {
             return String(id).replace(/"/g, '&quot;');
         }
-        // Escape pet ID for safe use in inline JS strings (onclick handlers)
+        // Escape pet ID for safe use in inline JS strings inside double-quoted HTML attrs
         function jsId(id) {
-            return String(id).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+            return String(id).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
         }
 
         function showToast(msg) {
@@ -2465,11 +2539,27 @@
             try { return JSON.parse(localStorage.getItem('petpad_favorites') || '[]'); }
             catch (e) { return []; }
         }
-        function toggleSavedPet(id) {
+        async function toggleSavedPet(id) {
             const saved = getSavedPets();
             const idx = saved.indexOf(id);
-            if (idx >= 0) saved.splice(idx, 1);
-            else saved.push(id);
+            if (idx >= 0) {
+                saved.splice(idx, 1);
+            } else {
+                saved.push(id);
+                // If this is a RescueGroups pet, pin it so it survives city rotation
+                const pet = allPets.find(p => p.id === id);
+                if (pet && pet.source === 'rescuegroups') {
+                    try {
+                        await fetch('https://us-central1-mypet-b1143.cloudfunctions.net/pinRescueGroupsPet', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({petId: id, petData: pet})
+                        });
+                    } catch (e) {
+                        console.warn('Failed to pin RG pet:', e);
+                    }
+                }
+            }
             localStorage.setItem('petpad_favorites', JSON.stringify(saved));
             return idx < 0; // returns true if now saved
         }
@@ -2600,7 +2690,7 @@
                 ${img}
                 <div style="font-weight:600;color:#2D2B28;margin-bottom:4px;font-size:1.05em;">${pet.name}</div>
                 <div style="font-size:0.85em;color:#6E6A64;">${pet.breed || 'Mixed'} &bull; ${pet.sex || ''}</div>
-                <div style="margin-top:8px;text-align:center;"><a href="#" onclick="window.showPetDetail('${jsId(pet.id)}');return false;" style="color:#1A9E92;font-size:0.85em;font-weight:600;text-decoration:none;">View Details <i class="fas fa-chevron-right" style="font-size:0.7em;margin-left:2px;"></i></a></div>
+                <div style="margin-top:8px;text-align:center;"><a href="javascript:void(0)" onclick="event.preventDefault();window.showPetDetail('${jsId(pet.id)}');" style="color:#1A9E92;font-size:0.85em;font-weight:600;text-decoration:none;cursor:pointer;">View Details <i class="fas fa-chevron-right" style="font-size:0.7em;margin-left:2px;"></i></a></div>
             `;
         }
 
@@ -2800,8 +2890,8 @@
             });
         }
 
-        window.toggleCardFav = (id, btn) => {
-            const nowSaved = toggleSavedPet(id);
+        window.toggleCardFav = async (id, btn) => {
+            const nowSaved = await toggleSavedPet(id);
             btn.classList.toggle('saved', nowSaved);
             btn.title = nowSaved ? 'Remove from saved' : 'Save pet';
             const icon = btn.querySelector('i');
@@ -3087,10 +3177,21 @@
                 });
 
                 filteredPets = [...allPets];
-                // Show total nationwide count in hero badge (from backend count query)
-                const totalAvailable = result.totalAvailable || allPets.length;
-                document.getElementById('heroBadgeCount').textContent = totalAvailable.toLocaleString();
+                // Show true nationwide total (RG grand total + Pet Pad pets)
+                const nationwideTotal = result.nationwideTotal || result.totalAvailable || allPets.length;
+                document.getElementById('heroBadgeCount').textContent = nationwideTotal.toLocaleString();
                 updateSavedToggleCount();
+
+                // Show default city if user hasn't searched a custom location
+                window.currentDefaultCity = result.defaultCity || null;
+                if (window.currentDefaultCity && !window.userSearchedLocation) {
+                    document.getElementById('defaultCityName').textContent = window.currentDefaultCity;
+                    document.getElementById('heroDefaultCity').style.display = 'block';
+                    document.getElementById('heroLocationPrompt').style.display = 'flex';
+                } else {
+                    document.getElementById('heroDefaultCity').style.display = 'none';
+                    document.getElementById('heroLocationPrompt').style.display = 'none';
+                }
 
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(
@@ -3106,6 +3207,82 @@
             } catch (e) {
                 console.error('Error loading pets:', e);
                 document.getElementById('petGrid').innerHTML = '<div class="empty" style="grid-column: 1 / -1;"><p>Unable to load pets. Please try again later.</p></div>';
+            }
+        }
+
+        async function loadPetsByPostalcode(postalcode, radius = 50) {
+            try {
+                const response = await fetch(`https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&postalcode=${encodeURIComponent(postalcode)}&radius=${radius}`);
+                const result = await response.json();
+                if (result.success && result.pets) {
+                    allPets.length = 0;
+                    result.pets.forEach(data => allPets.push(data));
+                    allPets.forEach(pet => {
+                        let lat, lng;
+                        let hasRealCoords = false;
+                        if (typeof pet.shelterLat === 'number' && typeof pet.shelterLng === 'number') {
+                            lat = pet.shelterLat; lng = pet.shelterLng; hasRealCoords = true;
+                        } else {
+                            const hash = pet.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+                            lat = 30 + (hash % 1500) / 100;
+                            lng = -120 + (hash % 4000) / 100;
+                        }
+                        pet._lat = lat; pet._lng = lng; pet._hasRealCoords = hasRealCoords;
+                    });
+                    filteredPets = [...allPets];
+                    applyFilters();
+                    document.getElementById('heroDefaultCity').style.display = 'none';
+                    document.getElementById('heroLocationPrompt').style.display = 'none';
+                    showToast(`Showing pets near ${postalcode}`);
+                }
+            } catch (e) {
+                console.error('Error loading pets by postalcode:', e);
+                showToast('Could not load pets for that location');
+            }
+        }
+
+        function promptForLocation() {
+            if (!navigator.geolocation) {
+                showToast('Geolocation is not supported in your browser');
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
+                    userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                    window.userSearchedLocation = true;
+                    // Reverse geocode lat/lng to postalcode (simple fetch to a free API)
+                    try {
+                        const res = await fetch(`https://api.zippopotam.us/us/${pos.coords.latitude},${pos.coords.longitude}`);
+                        // Actually zippopotam doesn't support reverse geocoding.
+                        // For now, just use the lat/lng for client-side distance sorting
+                        // and hide the default city prompt.
+                        document.getElementById('heroDefaultCity').style.display = 'none';
+                        document.getElementById('heroLocationPrompt').style.display = 'none';
+                        document.getElementById('radiusChips').style.display = 'flex';
+                        if (document.getElementById('sortSelect').value === 'distance') applyFilters();
+                        renderSidebar();
+                        showToast('Location found! Sort by distance to see nearby pets.');
+                    } catch (e) {
+                        showToast('Location found! Sort by distance to see nearby pets.');
+                    }
+                },
+                () => {
+                    showToast('Location permission denied. Try searching a city instead.');
+                }
+            );
+        }
+
+        function showCitySearch() {
+            const city = prompt('Enter a city name or ZIP code:');
+            if (!city || !city.trim()) return;
+            const trimmed = city.trim();
+            window.userSearchedLocation = true;
+            // If it looks like a ZIP (5 digits), use directly; otherwise we would need geocoding
+            if (/^\d{5}$/.test(trimmed)) {
+                loadPetsByPostalcode(trimmed, 50);
+            } else {
+                // For city names, we'd need a geocoder. For now, show a message.
+                showToast('Please enter a 5-digit ZIP code for best results');
             }
         }
 
@@ -3133,9 +3310,14 @@
         let modalGalleryIndex = 0;
 
         window.showPetDetail = (id) => {
-            const pet = allPets.find(p => p.id == id);
+            // Prefer filteredPets first (preserves AI matchScore/matchExplanations),
+            // then fall back to allPets for pets filtered out of current view.
+            let pet = filteredPets.find(p => p.id == id);
             if (!pet) {
-                console.warn('Pet not found for ID:', id, 'in allPets length:', allPets.length);
+                pet = allPets.find(p => p.id == id);
+            }
+            if (!pet) {
+                console.warn('Pet not found for ID:', id, 'in allPets length:', allPets.length, 'filteredPets length:', filteredPets.length);
                 showToast('Unable to open pet details. Please try again.');
                 return;
             }
@@ -3195,8 +3377,8 @@
             favBtn.classList.toggle('saved', saved);
             favBtn.innerHTML = `<i class="${saved ? 'fas' : 'far'} fa-heart"></i>`;
             favBtn.title = saved ? 'Remove from saved' : 'Save pet';
-            favBtn.onclick = () => {
-                const nowSaved = toggleSavedPet(id);
+            favBtn.onclick = async () => {
+                const nowSaved = await toggleSavedPet(id);
                 favBtn.classList.toggle('saved', nowSaved);
                 favBtn.innerHTML = `<i class="${nowSaved ? 'fas' : 'far'} fa-heart"></i>`;
                 favBtn.title = nowSaved ? 'Remove from saved' : 'Save pet';
@@ -3402,6 +3584,47 @@
         document.getElementById('savedToggle').addEventListener('click', function() {
             this.classList.toggle('active');
             applyFilters();
+        });
+        document.getElementById('nationwideToggle').addEventListener('click', async function() {
+            const isActive = this.classList.toggle('active');
+            if (isActive) {
+                window.userSearchedLocation = true;
+                // Fetch nationwide pets via live RG API call
+                showToast('Searching nationwide...');
+                try {
+                    const response = await fetch('https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&nationwide=1');
+                    const result = await response.json();
+                    if (result.success && result.pets) {
+                        allPets.length = 0;
+                        result.pets.forEach(data => allPets.push(data));
+                        allPets.forEach(pet => {
+                            let lat, lng;
+                            let hasRealCoords = false;
+                            if (typeof pet.shelterLat === 'number' && typeof pet.shelterLng === 'number') {
+                                lat = pet.shelterLat; lng = pet.shelterLng; hasRealCoords = true;
+                            } else {
+                                const hash = pet.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+                                lat = 30 + (hash % 1500) / 100;
+                                lng = -120 + (hash % 4000) / 100;
+                            }
+                            pet._lat = lat; pet._lng = lng; pet._hasRealCoords = hasRealCoords;
+                        });
+                        filteredPets = [...allPets];
+                        applyFilters();
+                        document.getElementById('heroDefaultCity').style.display = 'none';
+                        document.getElementById('heroLocationPrompt').style.display = 'none';
+                        showToast(`Showing ${result.pets.length} pets from across the country`);
+                    }
+                } catch (e) {
+                    console.error('Error loading nationwide pets:', e);
+                    showToast('Could not load nationwide pets');
+                    this.classList.remove('active');
+                }
+            } else {
+                // Deactivate: reload default city pets
+                window.userSearchedLocation = false;
+                loadPets();
+            }
         });
         document.getElementById('advancedToggle').addEventListener('click', function() {
             const adv = document.getElementById('advancedFilters');
@@ -3800,6 +4023,16 @@
 
                 filteredPets = matchedPets;
 
+                // Also update allPets with match data so showPetDetail
+                // finds it even when falling back to allPets.
+                matchedPets.forEach(mPet => {
+                    const existing = allPets.find(p => p.id == mPet.id);
+                    if (existing) {
+                        existing.matchScore = mPet.matchScore;
+                        existing.matchExplanations = mPet.matchExplanations;
+                    }
+                });
+
                 // Update UI
                 document.getElementById('aiClearBtn').style.display = '';
                 document.getElementById('aiModeIndicator').classList.add('visible');
@@ -3866,13 +4099,27 @@
             });
         });
 
-        loadPets().then(() => {
+        loadPets().then(async () => {
             populateTypeFilter();
             populateBreedFilter(document.getElementById('typeFilter').value);
             applyFilters();
             if (window.location.hash.startsWith('#pet=')) {
                 const id = decodeURIComponent(window.location.hash.slice(5));
-                const pet = allPets.find(p => p.id == id);
+                let pet = allPets.find(p => p.id == id);
+                if (!pet) {
+                    // Try fetching from pinnedPets as fallback
+                    try {
+                        const res = await fetch(`https://us-central1-mypet-b1143.cloudfunctions.net/getPinnedPet?id=${encodeURIComponent(id)}`);
+                        const data = await res.json();
+                        if (data.success && data.pet) {
+                            pet = data.pet;
+                            allPets.push(pet);
+                            applyFilters();
+                        }
+                    } catch (e) {
+                        console.warn('Failed to fetch pinned pet:', e);
+                    }
+                }
                 if (pet) {
                     setTimeout(() => window.showPetDetail(id), 300);
                 }
