@@ -880,6 +880,24 @@
             position: relative;
             z-index: 10;
         }
+        /* Desktop row ordering */
+        .filter-bar #searchInput { order: 1; }
+        .filter-bar #typeFilter { order: 2; }
+        .filter-bar #breedFilter { order: 3; }
+        .filter-bar #sexFilter { order: 4; }
+        .filter-bar #sizeFilter { order: 5; }
+        .filter-bar #goodWithFilter { order: 6; }
+        .filter-bar .filter-break { order: 7; flex-basis: 100%; height: 0; overflow: hidden; }
+        .filter-bar .location-search-group { order: 8; }
+        .filter-bar #sortSelect { order: 9; }
+        .filter-bar #radiusChips { order: 10; }
+        .filter-bar #nationwideToggle { order: 11; }
+        .filter-bar #compareToggle { order: 12; }
+        .filter-bar #savedToggle { order: 13; }
+        .filter-bar #advancedToggle { order: 14; }
+        .filter-bar #resetBtn { order: 15; }
+        .filter-bar #resultCount { order: 16; }
+        .filter-bar .advanced-filters { order: 17; }
         .filter-bar .search-input {
             flex: 1 1 200px;
             min-width: 160px;
@@ -1881,6 +1899,8 @@
                 background-color: #F5F2ED;
                 border-left: 3px solid var(--secondary-color);
             }
+            .filter-bar > * { order: initial !important; }
+            .filter-bar .filter-break { display: none; }
             .filter-bar .filter-group { justify-content: flex-start; }
             .filter-bar .filter-group input[type="number"] { flex: 1; max-width: 80px; }
             .modal { border-radius: 16px; }
@@ -2193,21 +2213,8 @@
                 <option value="dogs">Dogs</option>
                 <option value="kids">Kids</option>
             </select>
+            <div class="filter-break"></div>
             <button class="advanced-toggle" id="advancedToggle" title="More filters"><i class="fas fa-sliders-h"></i> Advanced</button>
-            <button class="btn-sm secondary" id="resetBtn">Reset</button>
-            <div class="radius-chips" id="radiusChips" style="display:none;">
-                <span class="chip-label">Within:</span>
-                <button class="radius-chip" data-miles="10">10 mi</button>
-                <button class="radius-chip" data-miles="25">25 mi</button>
-                <button class="radius-chip" data-miles="50">50 mi</button>
-                <button class="radius-chip" data-miles="100">100 mi</button>
-                <button class="radius-chip" data-miles="">Any</button>
-            </div>
-            <button class="saved-toggle" id="savedToggle" title="Show only saved pets"><i class="fas fa-heart"></i> Saved</button>
-            <button class="nationwide-toggle" id="nationwideToggle" title="Search all adoptable pets nationwide"><i class="fas fa-globe"></i> Nationwide</button>
-            <button class="compare-toggle" id="compareToggle" title="Compare pets"><i class="fas fa-balance-scale"></i> Compare</button>
-            <span class="count-badge" id="resultCount">0 pets</span>
-
             <div class="advanced-filters" id="advancedFilters">
                 <div class="filter-group">
                     <span class="filter-label">Age (yrs):</span>
@@ -2285,6 +2292,19 @@
                 </select>
                 <input type="text" class="search-input" id="shelterFilter" placeholder="Shelter / Location..." style="flex:1 1 160px;min-width:140px;">
             </div>
+            <button class="btn-sm secondary" id="resetBtn">Reset</button>
+            <div class="radius-chips" id="radiusChips" style="display:none;">
+                <span class="chip-label">Within:</span>
+                <button class="radius-chip" data-miles="10">10 mi</button>
+                <button class="radius-chip" data-miles="25">25 mi</button>
+                <button class="radius-chip" data-miles="50">50 mi</button>
+                <button class="radius-chip" data-miles="100">100 mi</button>
+                <button class="radius-chip" data-miles="">Any</button>
+            </div>
+            <button class="saved-toggle" id="savedToggle" title="Show only saved pets"><i class="fas fa-heart"></i> Saved</button>
+            <button class="nationwide-toggle" id="nationwideToggle" title="Search all adoptable pets nationwide"><i class="fas fa-globe"></i> Nationwide</button>
+            <button class="compare-toggle" id="compareToggle" title="Compare pets"><i class="fas fa-balance-scale"></i> Compare</button>
+            <span class="count-badge" id="resultCount">0 pets</span>
         </div>
         <div class="radius-status-banner" id="radiusStatusBanner" style="display:none;">
             <i class="fas fa-map-marker-alt"></i>
