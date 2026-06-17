@@ -1843,6 +1843,24 @@
                 <option value="Yes">Yes</option>
                 <option value="No">No</option>
             </select>
+            <select id="sizeFilter">
+                <option value="">All Sizes</option>
+                <option value="Small">Small</option>
+                <option value="Medium">Medium</option>
+                <option value="Large">Large</option>
+                <option value="X-Large">X-Large</option>
+            </select>
+            <select id="goodWithFilter">
+                <option value="">Good With</option>
+                <option value="cats">Cats</option>
+                <option value="dogs">Dogs</option>
+                <option value="kids">Kids</option>
+            </select>
+            <select id="specialNeedsFilter">
+                <option value="">Special Needs</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
             <input type="text" class="search-input" id="shelterFilter" placeholder="Shelter / Location..." style="flex:1 1 160px;min-width:140px;">
             <button class="btn-sm secondary" id="resetBtn">Reset</button>
             <div class="radius-chips" id="radiusChips" style="display:none;">
@@ -1916,6 +1934,7 @@
                     <button class="share-btn" id="modalShareBtn"><i class="fas fa-share-alt"></i> Share</button>
                     <button class="qr-btn" id="modalQRBtn" title="QR Code"><i class="fas fa-qrcode"></i> QR</button>
                     <button class="print-btn" id="modalPrintBtn" title="Print Profile"><i class="fas fa-print"></i></button>
+                    <a id="modalRgLink" href="#" class="btn" target="_blank" rel="noopener" style="background:#E85A4F;display:none;"><i class="fas fa-globe"></i> View on RescueGroups</a>
                     <a id="modalAppLink" href="https://apps.apple.com/app/id6749177166" class="btn" target="_blank">
                         <i class="fab fa-apple"></i> Open in Pet Pad
                     </a>
@@ -2006,7 +2025,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>Data provided by shelters using <a href="/">Pet Pad</a>. Adopt responsibly.</p>
+            <p>Data provided by shelters using <a href="/">Pet Pad</a> and <a href="https://rescuegroups.org" target="_blank" rel="noopener">RescueGroups.org</a>. Adopt responsibly.</p>
             <p style="margin-top:6px;">&copy; <span id="year"></span> Pet Pad. All rights reserved.</p>
         </div>
     </footer>
@@ -2284,6 +2303,9 @@
                 const hasShelter = document.getElementById('shelterFilter').value.trim();
                 const hasType = document.getElementById('typeFilter').value;
                 const hasSpayed = document.getElementById('spayedFilter').value;
+                const hasSize = document.getElementById('sizeFilter').value;
+                const hasGoodWith = document.getElementById('goodWithFilter').value;
+                const hasSpecialNeeds = document.getElementById('specialNeedsFilter').value;
                 const hasAge = document.getElementById('minAge').value || document.getElementById('maxAge').value;
                 const hasWeight = document.getElementById('minWeight').value || document.getElementById('maxWeight').value;
                 const hasRadius = activeRadius !== null;
@@ -2293,7 +2315,7 @@
                 else if (hasRadius) suggestion = 'Try increasing the distance radius or clearing location filters.';
                 else if (hasShelter) suggestion = 'Try searching for a different shelter or location.';
                 else if (hasKeyword) suggestion = 'Try a broader keyword or remove the search filter.';
-                else if (hasType || hasSpayed || hasAge || hasWeight) suggestion = 'Try removing some filter criteria to see more pets.';
+                else if (hasType || hasSpayed || hasSize || hasGoodWith || hasSpecialNeeds || hasAge || hasWeight) suggestion = 'Try removing some filter criteria to see more pets.';
 
                 grid.innerHTML = `
                     <div class="empty" style="grid-column: 1 / -1;">
@@ -2352,8 +2374,11 @@
                         ${dist ? `<div class="distance-tag"><i class="fas fa-location-arrow"></i> ${dist}</div>` : ''}
                         <div class="pet-tags">
                             ${pet.petType ? `<span class="tag">${pet.petType}</span>` : ''}
+                            ${pet.sizeGroup ? `<span class="tag">${pet.sizeGroup}</span>` : ''}
+                            ${pet.isSpecialNeeds ? `<span class="tag" style="background:#C98C1A;color:#fff;">Special Needs</span>` : ''}
                             ${isNew ? `<span class="tag new-badge">New</span>` : ''}
                             ${(pet.shelterCity || pet.shelterLocation) ? `<span class="tag secondary"><i class="fas fa-map-marker-alt" style="font-size:0.75em;"></i> ${pet.shelterCity || (pet.shelterLocation ? pet.shelterLocation.split(',')[0] : '')}</span>` : ''}
+                            ${pet.source === 'rescuegroups' ? `<span class="tag" style="background:#E85A4F;color:#fff;"><i class="fas fa-globe" style="font-size:0.75em;"></i> RescueGroups</span>` : ''}
                         </div>
                         <button class="detail-btn" onclick="event.stopPropagation();window.showPetDetail('${pet.id}');">
                             <i class="fas fa-info-circle"></i> Details
@@ -2516,6 +2541,9 @@
             const minWeight = parseFloat(document.getElementById('minWeight').value);
             const maxWeight = parseFloat(document.getElementById('maxWeight').value);
             const spayed = document.getElementById('spayedFilter').value;
+            const size = document.getElementById('sizeFilter').value;
+            const goodWith = document.getElementById('goodWithFilter').value;
+            const specialNeeds = document.getElementById('specialNeedsFilter').value;
             const shelter = document.getElementById('shelterFilter').value.toLowerCase().trim();
             const showSavedOnly = document.getElementById('savedToggle').classList.contains('active');
             const savedIds = showSavedOnly ? getSavedPets() : [];
@@ -2544,6 +2572,19 @@
                     const status = (pet.spayedNeuteredStatus || '').toLowerCase();
                     if (spayed === 'Yes' && !status.includes('yes')) return false;
                     if (spayed === 'No' && !status.includes('no')) return false;
+                }
+
+                if (size && pet.sizeGroup !== size) return false;
+
+                if (goodWith) {
+                    if (goodWith === 'cats' && pet.goodWithCats !== true) return false;
+                    if (goodWith === 'dogs' && pet.goodWithDogs !== true) return false;
+                    if (goodWith === 'kids' && pet.goodWithKids !== true) return false;
+                }
+
+                if (specialNeeds) {
+                    if (specialNeeds === 'Yes' && !pet.isSpecialNeeds) return false;
+                    if (specialNeeds === 'No' && pet.isSpecialNeeds) return false;
                 }
 
                 if (shelter) {
@@ -2723,7 +2764,9 @@
 
             const dist = formatDistance(getPetDistance(pet));
             const distText = dist ? ` • ${dist}` : '';
-            document.getElementById('modalMeta').textContent = `${pet.breed || 'Mixed'} • ${pet.sex || ''} • ${getPetAge(pet) || 'Age unknown'}${distText}`;
+            const sourceBadge = pet.source === 'rescuegroups' ?
+                ` <span class="tag" style="background:#E85A4F;color:#fff;font-size:0.75em;padding:2px 8px;border-radius:12px;vertical-align:middle;"><i class="fas fa-globe" style="font-size:0.7em;"></i> RescueGroups</span>` : '';
+            document.getElementById('modalMeta').innerHTML = `${pet.breed || 'Mixed'} • ${pet.sex || ''} • ${getPetAge(pet) || 'Age unknown'}${distText}${sourceBadge}`;
 
             const favBtn = document.getElementById('modalFavBtn');
             const saved = isPetSaved(id);
@@ -2768,18 +2811,36 @@
                 window.print();
             };
 
+            const rgLink = document.getElementById('modalRgLink');
+            if (pet.source === 'rescuegroups' && pet.rescueGroupsUrl) {
+                rgLink.href = pet.rescueGroupsUrl;
+                rgLink.style.display = '';
+            } else {
+                rgLink.style.display = 'none';
+            }
+
             const weightLbs = parseWeight(pet.weight);
             const weightDisplay = weightLbs !== null ? `${Math.round(weightLbs)} lbs` : (pet.weight || null);
 
             const details = [
                 ['Color', pet.color],
                 ['Weight', weightDisplay],
+                ['Size', pet.sizeGroup],
                 ['Microchip', pet.hasMicrochip ? 'Yes' : 'No'],
                 ['Spayed/Neutered', pet.spayedNeuteredStatus],
+                ['House Trained', pet.isHousetrained === true ? 'Yes' : pet.isHousetrained === false ? 'No' : null],
+                ['Vaccinations Current', pet.isCurrentVaccinations === true ? 'Yes' : pet.isCurrentVaccinations === false ? 'No' : null],
+                ['Good With Cats', pet.goodWithCats === true ? 'Yes' : pet.goodWithCats === false ? 'No' : null],
+                ['Good With Dogs', pet.goodWithDogs === true ? 'Yes' : pet.goodWithDogs === false ? 'No' : null],
+                ['Good With Kids', pet.goodWithKids === true ? 'Yes' : pet.goodWithKids === false ? 'No' : null],
+                ['Special Needs', pet.isSpecialNeeds ? (pet.specialNeedsDetails || 'Yes') : null],
+                ['Energy Level', pet.energyLevel],
+                ['Exercise Needs', pet.exerciseNeeds],
+                ['Adoption Fee', pet.adoptionFee],
                 ['Allergies', pet.allergies],
                 ['Medications', pet.medications],
                 ['Medical Info', pet.medicalInfo],
-            ].filter(([_, v]) => v);
+            ].filter(([_, v]) => v !== null && v !== undefined && v !== '');
 
             document.getElementById('modalDetails').innerHTML = details.map(([label, value]) => `
                 <div class="detail-row"><span class="detail-label">${label}</span><span class="detail-value">${value}</span></div>
@@ -2875,7 +2936,7 @@
             }
         });
 
-        ['searchInput','breedFilter','sexFilter','minAge','maxAge','minWeight','maxWeight','spayedFilter','shelterFilter'].forEach(id => {
+        ['searchInput','breedFilter','sexFilter','minAge','maxAge','minWeight','maxWeight','spayedFilter','sizeFilter','goodWithFilter','specialNeedsFilter','shelterFilter'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.addEventListener('input', applyFilters);
         });
@@ -2899,6 +2960,9 @@
             document.getElementById('minWeight').value = '';
             document.getElementById('maxWeight').value = '';
             document.getElementById('spayedFilter').value = '';
+            document.getElementById('sizeFilter').value = '';
+            document.getElementById('goodWithFilter').value = '';
+            document.getElementById('specialNeedsFilter').value = '';
             document.getElementById('shelterFilter').value = '';
             document.getElementById('sortSelect').value = 'recent';
             document.getElementById('savedToggle').classList.remove('active');
@@ -3019,8 +3083,10 @@
             body.innerHTML = `
                 ${pet.shelterPhone ? `<div class="sm-row"><i class="fas fa-phone"></i><div><a href="tel:${pet.shelterPhone}">${pet.shelterPhone}</a></div></div>` : ''}
                 ${pet.shelterWebsite ? `<div class="sm-row"><i class="fas fa-globe"></i><div><a href="${pet.shelterWebsite}" target="_blank" rel="noopener">Shelter Website</a></div></div>` : ''}
+                ${pet.orgFacebookUrl ? `<div class="sm-row"><i class="fab fa-facebook"></i><div><a href="${pet.orgFacebookUrl}" target="_blank" rel="noopener">Facebook Page</a></div></div>` : ''}
                 <div class="sm-row"><i class="fas fa-map-marker-alt"></i><div>${displayAddress}</div></div>
                 ${pet.shelterEmail ? `<div class="sm-row"><i class="fas fa-envelope"></i><div><a href="mailto:${pet.shelterEmail}">${pet.shelterEmail}</a></div></div>` : ''}
+                ${pet.orgAdoptionProcess ? `<div class="sm-row" style="align-items:flex-start;"><i class="fas fa-clipboard-list"></i><div style="white-space:pre-wrap;">${pet.orgAdoptionProcess}</div></div>` : ''}
                 <button class="sm-btn" onclick="window.filterByShelter('${(pet.shelterName || '').replace(/'/g, "\\'")}');window.closeShelterModal();">View All Pets From This Shelter</button>
             `;
             document.getElementById('shelterModalOverlay').classList.add('open');
@@ -3084,6 +3150,12 @@
                     <div class="cm-detail"><span class="cm-detail-label">Type</span><span class="cm-detail-value">${pet.petType || 'Unknown'}</span></div>
                     <div class="cm-detail"><span class="cm-detail-label">Color</span><span class="cm-detail-value">${pet.color || 'Unknown'}</span></div>
                     <div class="cm-detail"><span class="cm-detail-label">Spayed/Neutered</span><span class="cm-detail-value">${pet.spayedNeuteredStatus || 'Unknown'}</span></div>
+                    <div class="cm-detail"><span class="cm-detail-label">Size</span><span class="cm-detail-value">${pet.sizeGroup || 'Unknown'}</span></div>
+                    <div class="cm-detail"><span class="cm-detail-label">Good With Cats</span><span class="cm-detail-value">${pet.goodWithCats === true ? 'Yes' : pet.goodWithCats === false ? 'No' : 'Unknown'}</span></div>
+                    <div class="cm-detail"><span class="cm-detail-label">Good With Dogs</span><span class="cm-detail-value">${pet.goodWithDogs === true ? 'Yes' : pet.goodWithDogs === false ? 'No' : 'Unknown'}</span></div>
+                    <div class="cm-detail"><span class="cm-detail-label">Good With Kids</span><span class="cm-detail-value">${pet.goodWithKids === true ? 'Yes' : pet.goodWithKids === false ? 'No' : 'Unknown'}</span></div>
+                    <div class="cm-detail"><span class="cm-detail-label">Special Needs</span><span class="cm-detail-value">${pet.isSpecialNeeds ? (pet.specialNeedsDetails || 'Yes') : 'No'}</span></div>
+                    <div class="cm-detail"><span class="cm-detail-label">Energy Level</span><span class="cm-detail-value">${pet.energyLevel || 'Unknown'}</span></div>
                     ${dist ? `<div class="cm-detail"><span class="cm-detail-label">Distance</span><span class="cm-detail-value">${dist}</span></div>` : ''}
                     <div class="cm-detail"><span class="cm-detail-label">Location</span><span class="cm-detail-value">${pet.shelterCity || (pet.shelterLocation ? pet.shelterLocation.split(',')[0] : 'Unknown')}</span></div>
                 </div>
