@@ -921,6 +921,41 @@
         .filter-bar .compare-toggle:hover { border-color: var(--primary-color); color: var(--primary-dark); }
         .filter-bar .compare-toggle.active { border-color: var(--primary-color); color: var(--primary-dark); background: rgba(64,224,208,0.12); }
 
+        /* Advanced Search */
+        .advanced-toggle {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 7px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .advanced-toggle:hover { border-color: var(--secondary-color); color: var(--secondary-color); }
+        .advanced-toggle.active { border-color: var(--secondary-color); color: var(--secondary-color); background: rgba(158,154,148,0.1); }
+        .advanced-toggle i { transition: transform 0.2s; }
+        .advanced-toggle.active i { transform: rotate(180deg); }
+        .advanced-filters {
+            display: none;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            width: 100%;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border-color);
+            margin-top: 6px;
+            animation: fadeIn 0.2s ease;
+        }
+        .advanced-filters.open { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+        body[data-theme="dark"] .advanced-filters { border-top-color: #333340; }
+
         /* Compare mode card selection */
         .pet-card.compare-mode { position: relative; }
         .pet-card .compare-circle {
@@ -1826,23 +1861,6 @@
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
             </select>
-            <div class="filter-group">
-                <span class="filter-label">Age (yrs):</span>
-                <input type="number" id="minAge" placeholder="Min" min="0" step="0.1" style="width:60px;">
-                <span>-</span>
-                <input type="number" id="maxAge" placeholder="Max" min="0" step="0.1" style="width:60px;">
-            </div>
-            <div class="filter-group">
-                <span class="filter-label">Weight (lbs):</span>
-                <input type="number" id="minWeight" placeholder="Min" min="0" step="0.1" style="width:60px;">
-                <span>-</span>
-                <input type="number" id="maxWeight" placeholder="Max" min="0" step="0.1" style="width:60px;">
-            </div>
-            <select id="spayedFilter">
-                <option value="">Spayed/Neutered</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-            </select>
             <select id="sizeFilter">
                 <option value="">All Sizes</option>
                 <option value="Small">Small</option>
@@ -1856,12 +1874,7 @@
                 <option value="dogs">Dogs</option>
                 <option value="kids">Kids</option>
             </select>
-            <select id="specialNeedsFilter">
-                <option value="">Special Needs</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-            </select>
-            <input type="text" class="search-input" id="shelterFilter" placeholder="Shelter / Location..." style="flex:1 1 160px;min-width:140px;">
+            <button class="advanced-toggle" id="advancedToggle" title="More filters"><i class="fas fa-sliders-h"></i> Advanced</button>
             <button class="btn-sm secondary" id="resetBtn">Reset</button>
             <div class="radius-chips" id="radiusChips" style="display:none;">
                 <span class="chip-label">Within:</span>
@@ -1874,6 +1887,84 @@
             <button class="saved-toggle" id="savedToggle" title="Show only saved pets"><i class="fas fa-heart"></i> Saved</button>
             <button class="compare-toggle" id="compareToggle" title="Compare pets"><i class="fas fa-balance-scale"></i> Compare</button>
             <span class="count-badge" id="resultCount">0 pets</span>
+
+            <div class="advanced-filters" id="advancedFilters">
+                <div class="filter-group">
+                    <span class="filter-label">Age (yrs):</span>
+                    <input type="number" id="minAge" placeholder="Min" min="0" step="0.1" style="width:60px;">
+                    <span>-</span>
+                    <input type="number" id="maxAge" placeholder="Max" min="0" step="0.1" style="width:60px;">
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label">Weight (lbs):</span>
+                    <input type="number" id="minWeight" placeholder="Min" min="0" step="0.1" style="width:60px;">
+                    <span>-</span>
+                    <input type="number" id="maxWeight" placeholder="Max" min="0" step="0.1" style="width:60px;">
+                </div>
+                <select id="spayedFilter">
+                    <option value="">Spayed/Neutered</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+                <select id="specialNeedsFilter">
+                    <option value="">Special Needs</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+                <select id="energyLevelFilter">
+                    <option value="">Energy Level</option>
+                    <option value="Low">Low</option>
+                    <option value="Moderate">Moderate</option>
+                    <option value="High">High</option>
+                    <option value="Very High">Very High</option>
+                </select>
+                <select id="exerciseNeedsFilter">
+                    <option value="">Exercise Needs</option>
+                    <option value="Low">Low</option>
+                    <option value="Moderate">Moderate</option>
+                    <option value="High">High</option>
+                </select>
+                <select id="activityLevelFilter">
+                    <option value="">Activity Level</option>
+                    <option value="Low">Low</option>
+                    <option value="Moderate">Moderate</option>
+                    <option value="High">High</option>
+                    <option value="Very High">Very High</option>
+                </select>
+                <select id="coatLengthFilter">
+                    <option value="">Coat Length</option>
+                    <option value="Short">Short</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Long">Long</option>
+                    <option value="Hairless">Hairless</option>
+                </select>
+                <select id="groomingNeedsFilter">
+                    <option value="">Grooming Needs</option>
+                    <option value="Low">Low</option>
+                    <option value="Moderate">Moderate</option>
+                    <option value="High">High</option>
+                </select>
+                <select id="sheddingLevelFilter">
+                    <option value="">Shedding Level</option>
+                    <option value="None">None</option>
+                    <option value="Low">Low</option>
+                    <option value="Moderate">Moderate</option>
+                    <option value="High">High</option>
+                </select>
+                <select id="vocalLevelFilter">
+                    <option value="">Vocal Level</option>
+                    <option value="Quiet">Quiet</option>
+                    <option value="Some">Some</option>
+                    <option value="Vocal">Vocal</option>
+                    <option value="Very Vocal">Very Vocal</option>
+                </select>
+                <select id="microchippedFilter">
+                    <option value="">Microchipped</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+                <input type="text" class="search-input" id="shelterFilter" placeholder="Shelter / Location..." style="flex:1 1 160px;min-width:140px;">
+            </div>
         </div>
         <div class="layout">
             <div class="map-section">
@@ -2309,13 +2400,21 @@
                 const hasAge = document.getElementById('minAge').value || document.getElementById('maxAge').value;
                 const hasWeight = document.getElementById('minWeight').value || document.getElementById('maxWeight').value;
                 const hasRadius = activeRadius !== null;
+                const hasAdv = document.getElementById('energyLevelFilter').value ||
+                    document.getElementById('exerciseNeedsFilter').value ||
+                    document.getElementById('activityLevelFilter').value ||
+                    document.getElementById('coatLengthFilter').value ||
+                    document.getElementById('groomingNeedsFilter').value ||
+                    document.getElementById('sheddingLevelFilter').value ||
+                    document.getElementById('vocalLevelFilter').value ||
+                    document.getElementById('microchippedFilter').value;
 
                 let suggestion = 'Try adjusting your search!';
                 if (hasBreed) suggestion = 'Try removing the breed filter or broadening your search terms.';
                 else if (hasRadius) suggestion = 'Try increasing the distance radius or clearing location filters.';
                 else if (hasShelter) suggestion = 'Try searching for a different shelter or location.';
                 else if (hasKeyword) suggestion = 'Try a broader keyword or remove the search filter.';
-                else if (hasType || hasSpayed || hasSize || hasGoodWith || hasSpecialNeeds || hasAge || hasWeight) suggestion = 'Try removing some filter criteria to see more pets.';
+                else if (hasType || hasSpayed || hasSize || hasGoodWith || hasSpecialNeeds || hasAge || hasWeight || hasAdv) suggestion = 'Try removing some filter criteria to see more pets.';
 
                 grid.innerHTML = `
                     <div class="empty" style="grid-column: 1 / -1;">
@@ -2587,6 +2686,33 @@
                     if (specialNeeds === 'No' && pet.isSpecialNeeds) return false;
                 }
 
+                const energy = document.getElementById('energyLevelFilter').value;
+                if (energy && pet.energyLevel !== energy) return false;
+
+                const exercise = document.getElementById('exerciseNeedsFilter').value;
+                if (exercise && pet.exerciseNeeds !== exercise) return false;
+
+                const activity = document.getElementById('activityLevelFilter').value;
+                if (activity && pet.activityLevel !== activity) return false;
+
+                const coat = document.getElementById('coatLengthFilter').value;
+                if (coat && pet.coatLength !== coat) return false;
+
+                const grooming = document.getElementById('groomingNeedsFilter').value;
+                if (grooming && pet.groomingNeeds !== grooming) return false;
+
+                const shedding = document.getElementById('sheddingLevelFilter').value;
+                if (shedding && pet.sheddingLevel !== shedding) return false;
+
+                const vocal = document.getElementById('vocalLevelFilter').value;
+                if (vocal && pet.vocalLevel !== vocal) return false;
+
+                const microchip = document.getElementById('microchippedFilter').value;
+                if (microchip) {
+                    if (microchip === 'Yes' && !pet.hasMicrochip) return false;
+                    if (microchip === 'No' && pet.hasMicrochip) return false;
+                }
+
                 if (shelter) {
                     const shelterText = [pet.shelterName, pet.shelterAddress, pet.shelterCity, pet.shelterState, pet.shelterZip, pet.shelterLocation].join(' ').toLowerCase();
                     if (!shelterText.includes(shelter)) return false;
@@ -2836,15 +2962,29 @@
                 ['Special Needs', pet.isSpecialNeeds ? (pet.specialNeedsDetails || 'Yes') : null],
                 ['Energy Level', pet.energyLevel],
                 ['Exercise Needs', pet.exerciseNeeds],
+                ['Activity Level', pet.activityLevel],
+                ['Coat Length', pet.coatLength],
+                ['Grooming Needs', pet.groomingNeeds],
+                ['Shedding Level', pet.sheddingLevel],
+                ['Vocal Level', pet.vocalLevel],
+                ['Microchipped', pet.hasMicrochip === true ? 'Yes' : pet.hasMicrochip === false ? 'No' : null],
+                ['Declawed', pet.isDeclawed === true ? 'Yes' : pet.isDeclawed === false ? 'No' : null],
+                ['Adoption Pending', pet.isAdoptionPending ? 'Yes' : null],
                 ['Adoption Fee', pet.adoptionFee],
                 ['Allergies', pet.allergies],
                 ['Medications', pet.medications],
                 ['Medical Info', pet.medicalInfo],
             ].filter(([_, v]) => v !== null && v !== undefined && v !== '');
 
-            document.getElementById('modalDetails').innerHTML = details.map(([label, value]) => `
+            let detailsHtml = details.map(([label, value]) => `
                 <div class="detail-row"><span class="detail-label">${label}</span><span class="detail-value">${value}</span></div>
             `).join('') || '<div class="detail-row"><span class="detail-label">Info</span><span class="detail-value">Contact shelter for details</span></div>';
+
+            if (pet.qualities) {
+                detailsHtml += `<div class="detail-row" style="flex-direction:column;align-items:flex-start;gap:6px;"><span class="detail-label">Qualities</span><span class="detail-value" style="display:flex;flex-wrap:wrap;gap:6px;">${pet.qualities.split(',').map(q => q.trim()).filter(Boolean).map(q => `<span class="tag" style="font-size:0.8em;">${q}</span>`).join('')}</span></div>`;
+            }
+
+            document.getElementById('modalDetails').innerHTML = detailsHtml;
 
             const adoptionInfoEl = document.getElementById('modalAdoptionInfo');
             if (pet.adoptionListingInfo) {
@@ -2936,7 +3076,7 @@
             }
         });
 
-        ['searchInput','breedFilter','sexFilter','minAge','maxAge','minWeight','maxWeight','spayedFilter','sizeFilter','goodWithFilter','specialNeedsFilter','shelterFilter'].forEach(id => {
+        ['searchInput','breedFilter','sexFilter','minAge','maxAge','minWeight','maxWeight','spayedFilter','sizeFilter','goodWithFilter','specialNeedsFilter','shelterFilter','energyLevelFilter','exerciseNeedsFilter','activityLevelFilter','coatLengthFilter','groomingNeedsFilter','sheddingLevelFilter','vocalLevelFilter','microchippedFilter'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.addEventListener('input', applyFilters);
         });
@@ -2949,6 +3089,12 @@
             this.classList.toggle('active');
             applyFilters();
         });
+        document.getElementById('advancedToggle').addEventListener('click', function() {
+            const adv = document.getElementById('advancedFilters');
+            adv.classList.toggle('open');
+            this.classList.toggle('active');
+        });
+
         document.getElementById('resetBtn').addEventListener('click', () => {
             document.getElementById('searchInput').value = '';
             document.getElementById('typeFilter').value = '';
@@ -2963,6 +3109,14 @@
             document.getElementById('sizeFilter').value = '';
             document.getElementById('goodWithFilter').value = '';
             document.getElementById('specialNeedsFilter').value = '';
+            document.getElementById('energyLevelFilter').value = '';
+            document.getElementById('exerciseNeedsFilter').value = '';
+            document.getElementById('activityLevelFilter').value = '';
+            document.getElementById('coatLengthFilter').value = '';
+            document.getElementById('groomingNeedsFilter').value = '';
+            document.getElementById('sheddingLevelFilter').value = '';
+            document.getElementById('vocalLevelFilter').value = '';
+            document.getElementById('microchippedFilter').value = '';
             document.getElementById('shelterFilter').value = '';
             document.getElementById('sortSelect').value = 'recent';
             document.getElementById('savedToggle').classList.remove('active');
