@@ -67,6 +67,7 @@
         body[data-theme="dark"] .modal .fav-btn-modal,
         body[data-theme="dark"] .modal .share-btn { background: #2A2A2A; border-color: #444; }
         body[data-theme="dark"] .pet-card .pet-img { background: #2A2A2A; }
+        body[data-theme="dark"] .source-tag-petpad { color: rgb(128, 243, 229) !important; border-color: rgb(128, 243, 229) !important; }
         body[data-theme="dark"] .pet-card .fav-btn { background: rgba(40,40,40,0.85); border-color: #444; }
         body[data-theme="dark"] .lightbox .lightbox-close { background: rgba(40,40,40,0.9); color: #ccc; }
         body[data-theme="dark"] .footer { background: #18181F; }
@@ -2911,7 +2912,7 @@
                         <!-- Row 3: Source only, centered -->
                         <div class="badge-row source-row">
                             ${pet.source === 'rescuegroups' ? `<span class="tag" style="background:transparent;color:var(--accent-color);border:1px solid var(--accent-color);"><i class="fas fa-globe" style="font-size:0.75em;"></i> RescueGroups</span>` : ''}
-                            ${pet.source === 'petpad' ? `<span class="tag" style="background:#7C3AED;color:#5EEAD4;"><i class="fas fa-paw" style="font-size:0.75em;"></i> Pet Pad App</span>` : ''}
+                            ${pet.source === 'petpad' ? `<span class="tag source-tag-petpad" style="background:transparent;color:var(--purple-color);border:1px solid var(--purple-color);"><i class="fas fa-paw" style="font-size:0.75em;"></i> Pet Pad App</span>` : ''}
                             ${pet.source !== 'rescuegroups' && pet.source !== 'petpad' ? '<span style="visibility:hidden;">&nbsp;</span>' : ''}
                         </div>
                         <button class="detail-btn" type="button" data-action="show-detail">
