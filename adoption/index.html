@@ -918,24 +918,7 @@
             position: relative;
             z-index: 10;
         }
-        /* Desktop row ordering */
-        .filter-bar #searchInput { order: 1; }
-        .filter-bar #typeFilter { order: 2; }
-        .filter-bar #breedFilter { order: 3; }
-        .filter-bar #sexFilter { order: 4; }
-        .filter-bar #sizeFilter { order: 5; }
-        .filter-bar #goodWithFilter { order: 6; }
-        .filter-bar .filter-break { order: 7; flex-basis: 100%; height: 0; overflow: hidden; }
-        .filter-bar .location-search-group { order: 8; }
-        .filter-bar #sortSelect { order: 9; }
-        .filter-bar #radiusChips { order: 10; }
-        .filter-bar #nationwideToggle { order: 11; }
-        .filter-bar #compareToggle { order: 12; }
-        .filter-bar #savedToggle { order: 13; }
-        .filter-bar #advancedToggle { order: 14; }
-        .filter-bar #resetBtn { order: 15; }
-        .filter-bar #resultCount { order: 16; }
-        .filter-bar .advanced-filters { order: 17; }
+        .filter-bar .filter-break { flex-basis: 100%; height: 0; overflow: hidden; }
         .filter-bar .search-input {
             flex: 1 1 200px;
             min-width: 160px;
@@ -978,8 +961,6 @@
         }
         .filter-bar select:focus, .filter-bar input[type="number"]:focus { outline: none; border-color: var(--primary-color); background: #fff; box-shadow: 0 0 0 4px rgba(64,224,208,0.12); }
         .filter-bar .filter-group { display: flex; align-items: center; gap: 6px; font-size: 0.85em; color: var(--text-muted); }
-        .filter-bar .location-search-group { flex: 1 1 240px; min-width: 180px; }
-        .filter-bar .location-search-group .search-input { margin: 0; }
         .filter-bar .filter-label { white-space: nowrap; }
         .filter-bar .btn-sm {
             padding: 10px 18px;
@@ -1038,7 +1019,34 @@
             font-weight: 500;
         }
         .filter-bar .nationwide-toggle:hover { border-color: var(--primary-color); color: var(--primary-color); }
-        .filter-bar .nationwide-toggle.active { border-color: var(--primary-color); color: var(--primary-color); background: rgba(64,224,208,0.08); }
+        .filter-bar .nationwide-toggle.active { border-color: var(--purple-color); color: var(--purple-color); background: rgba(124,58,237,0.08); }
+        .filter-bar .search-action-btn {
+            background: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            color: #fff;
+            padding: 7px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            font-weight: 500;
+            margin-left: 4px;
+        }
+        .filter-bar .search-action-btn:hover { background: #36c9b8; border-color: #36c9b8; }
+        .filter-bar .search-action-btn.nationwide-mode {
+            background: var(--purple-color);
+            border-color: var(--purple-color);
+            animation: pulsePurple 2s infinite;
+        }
+        .filter-bar .search-action-btn.nationwide-mode:hover { background: #6b21c0; border-color: #6b21c0; }
+        @keyframes pulsePurple {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(124,58,237,0.4); }
+            50% { box-shadow: 0 0 0 6px rgba(124,58,237,0); }
+        }
         .filter-bar .compare-toggle {
             background: transparent;
             border: 1px solid var(--border-color);
@@ -2244,18 +2252,6 @@
             .ai-search-actions .btn { width: 100%; justify-content: center; }
             .ai-search-examples { gap: 6px; }
             .ai-example-chip { font-size: 0.75em; padding: 4px 10px; }
-            .filter-bar .location-search-group {
-                flex: 1 1 auto !important;
-                min-width: auto !important;
-                width: 100%;
-                display: flex;
-                gap: 6px;
-            }
-            .filter-bar .location-search-group .search-input {
-                width: auto !important;
-                flex: 1 1 auto !important;
-                min-width: 0 !important;
-            }
             .filter-bar .btn-sm {
                 padding: 10px 14px;
                 white-space: nowrap;
@@ -2328,19 +2324,6 @@
         </div>
         <div class="filter-bar" id="filterBar">
             <input type="text" class="search-input" id="searchInput" placeholder="Search by name, breed, keyword...">
-            <div class="filter-group location-search-group">
-                <input type="text" class="search-input" id="locationInput" placeholder="City, ZIP, or address..." style="flex:1;min-width:140px;">
-                <button class="btn-sm" id="locationFindBtn" title="Find on map"><i class="fas fa-search-location"></i> Find</button>
-            </div>
-            <select id="sortSelect">
-                <option value="recent">Recently Listed</option>
-                <option value="distance">Distance (Nearest)</option>
-                <option value="age_asc">Age (Youngest)</option>
-                <option value="age_desc">Age (Oldest)</option>
-                <option value="type">Type (A-Z)</option>
-                <option value="breed">Breed (A-Z)</option>
-                <option value="name">Name (A-Z)</option>
-            </select>
             <select id="typeFilter">
                 <option value="">All Types</option>
             </select>
@@ -2365,6 +2348,28 @@
                 <option value="dogs">Dogs</option>
                 <option value="kids">Kids</option>
             </select>
+            <div class="filter-break"></div>
+            <input type="text" class="search-input" id="locationInput" placeholder="City, ZIP, or address..." style="flex:1;min-width:140px;max-width:220px;">
+            <select id="sortSelect">
+                <option value="recent">Recently Listed</option>
+                <option value="distance">Distance (Nearest)</option>
+                <option value="age_asc">Age (Youngest)</option>
+                <option value="age_desc">Age (Oldest)</option>
+                <option value="type">Type (A-Z)</option>
+                <option value="breed">Breed (A-Z)</option>
+                <option value="name">Name (A-Z)</option>
+            </select>
+            <div class="radius-chips" id="radiusChips" style="display:none;">
+                <span class="chip-label">Within:</span>
+                <button class="radius-chip" data-miles="10">10 mi</button>
+                <button class="radius-chip" data-miles="25">25 mi</button>
+                <button class="radius-chip" data-miles="50">50 mi</button>
+                <button class="radius-chip" data-miles="100">100 mi</button>
+                <button class="radius-chip" data-miles="">Any</button>
+            </div>
+            <button class="nationwide-toggle" id="nationwideToggle" title="Search all adoptable pets nationwide"><i class="fas fa-globe"></i> Nationwide</button>
+            <button class="compare-toggle" id="compareToggle" title="Compare pets"><i class="fas fa-balance-scale"></i> Compare</button>
+            <button class="saved-toggle" id="savedToggle" title="Show only saved pets"><i class="fas fa-heart"></i> Saved</button>
             <div class="filter-break"></div>
             <button class="advanced-toggle" id="advancedToggle" title="More filters"><i class="fas fa-sliders-h"></i> Advanced</button>
             <div class="advanced-filters" id="advancedFilters">
@@ -2445,23 +2450,14 @@
                 <input type="text" class="search-input" id="shelterFilter" placeholder="Shelter / Location..." style="flex:1 1 160px;min-width:140px;">
             </div>
             <button class="btn-sm secondary" id="resetBtn">Reset</button>
-            <div class="radius-chips" id="radiusChips" style="display:none;">
-                <span class="chip-label">Within:</span>
-                <button class="radius-chip" data-miles="10">10 mi</button>
-                <button class="radius-chip" data-miles="25">25 mi</button>
-                <button class="radius-chip" data-miles="50">50 mi</button>
-                <button class="radius-chip" data-miles="100">100 mi</button>
-                <button class="radius-chip" data-miles="">Any</button>
-            </div>
-            <button class="saved-toggle" id="savedToggle" title="Show only saved pets"><i class="fas fa-heart"></i> Saved</button>
-            <button class="nationwide-toggle" id="nationwideToggle" title="Search all adoptable pets nationwide"><i class="fas fa-globe"></i> Nationwide</button>
-            <button class="compare-toggle" id="compareToggle" title="Compare pets"><i class="fas fa-balance-scale"></i> Compare</button>
             <span class="count-badge" id="resultCount">0 pets</span>
+            <span style="flex:1 1 auto; min-width:10px;"></span>
+            <button class="search-action-btn" id="searchActionBtn"><i class="fas fa-search"></i> Search</button>
         </div>
         <div class="radius-status-banner" id="radiusStatusBanner" style="display:none;">
             <i class="fas fa-map-marker-alt" id="radiusStatusIcon"></i>
             <span id="radiusStatusText">Showing pets within 25 miles</span>
-            <button class="btn-sm secondary" id="clearRadiusBtn" style="padding:4px 10px;font-size:0.8em;">Execute Nationwide Search</button>
+            <button class="btn-sm secondary" id="clearRadiusBtn" style="padding:4px 10px;font-size:0.8em; display:none;">Clear</button>
         </div>
         <div class="layout">
             <div class="map-section">
@@ -3641,9 +3637,8 @@
                 banner.style.display = 'flex';
                 bannerIcon.className = 'fas fa-globe-americas';
                 const locLabel = window.nationwideLocation?.label || 'your location';
-                bannerText.textContent = `Nationwide search ready • Location: ${locLabel} • Set at least 1 filter, then tap Search`;
-                bannerBtn.textContent = 'Execute Nationwide Search';
-                bannerBtn.style.display = '';
+                bannerText.textContent = `Nationwide search ready • Location: ${locLabel}`;
+                bannerBtn.style.display = 'none';
             } else if (window.nationwidePhase === 'searched') {
                 // Nationwide results showing
                 banner.style.display = 'flex';
@@ -3652,11 +3647,11 @@
                 bannerText.textContent = `Nationwide results from ${locLabel} • ${filteredPets.length} matching pets shown`;
                 bannerBtn.style.display = 'none';
             } else if (activeRadius && userLocation) {
+                // Normal mode: show radius info, no button
                 banner.style.display = 'flex';
                 bannerIcon.className = 'fas fa-map-marker-alt';
                 bannerText.textContent = `Showing ${filteredPets.length} pets within ${activeRadius} miles`;
-                bannerBtn.textContent = 'Search Nationwide';
-                bannerBtn.style.display = '';
+                bannerBtn.style.display = 'none';
             } else {
                 banner.style.display = 'none';
             }
@@ -4530,6 +4525,7 @@
         };
 
         document.getElementById('nationwideToggle').addEventListener('click', async function() {
+            const searchBtn = document.getElementById('searchActionBtn');
             if (window.nationwidePhase === 'inactive') {
                 // Activate nationwide mode and open modal to set location
                 this.classList.add('active');
@@ -4538,6 +4534,11 @@
                 showRadiusChips(true);
                 selectRadiusChip('');
                 clearRadiusCircle();
+                // Update Search button to nationwide style
+                if (searchBtn) {
+                    searchBtn.classList.add('nationwide-mode');
+                    searchBtn.innerHTML = '<i class="fas fa-search"></i> Execute Nationwide Search';
+                }
                 window.openNationwideModal();
             } else if (window.nationwidePhase === 'setting') {
                 // Still setting location (modal is open) — do nothing
@@ -4552,6 +4553,11 @@
                 selectRadiusChip('100');
                 if (userLocation) {
                     setRadiusCircle(userLocation.lat, userLocation.lng, 100);
+                }
+                // Reset Search button to normal style
+                if (searchBtn) {
+                    searchBtn.classList.remove('nationwide-mode');
+                    searchBtn.innerHTML = '<i class="fas fa-search"></i> Search';
                 }
                 loadPets();
             }
@@ -4631,51 +4637,8 @@
             return null;
         }
 
-        document.getElementById('locationFindBtn').addEventListener('click', async () => {
-            const query = document.getElementById('locationInput').value.trim();
-            if (!query) { showToast('Enter a city, ZIP, or address to search'); return; }
-            const btn = document.getElementById('locationFindBtn');
-            const originalHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            try {
-                // If 5-digit ZIP, fetch fresh pets from the backend for that area
-                if (/^\d{5}$/.test(query)) {
-                    window.userSearchedLocation = true;
-                    showRadiusChips(false);
-                    selectRadiusChip('100');
-                    await loadPetsByPostalcode(query, 100);
-                    return;
-                }
-                // Otherwise geocode city/address
-                const result = await geocodeAddress(query);
-                if (!result) {
-                    showToast('Location not found. Try a different search.');
-                    return;
-                }
-                window.userSearchedLocation = true;
-                userLocation = { lat: result.lat, lng: result.lng };
-                lastSearchCenter = { ...userLocation };
-                map.flyTo([result.lat, result.lng], 11, { duration: 1.5 });
-                showRadiusChips(false);
-                selectRadiusChip('100');
-                setRadiusCircle(userLocation.lat, userLocation.lng, 100);
-                // If geocode returned a postcode, use ZIP-based backend search for best results
-                if (result.postcode) {
-                    await loadPetsByPostalcode(result.postcode, activeRadius);
-                } else {
-                    // Fallback: fetch Pet Pad pets by lat/lng radius
-                    await loadPetsByLocation(result.lat, result.lng, activeRadius);
-                }
-                showToast(`Found: ${result.displayName.split(',')[0]}`);
-            } catch (err) {
-                showToast('Search failed. Please try again.');
-            } finally {
-                btn.innerHTML = originalHtml;
-            }
-        });
-
         document.getElementById('locationInput').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') document.getElementById('locationFindBtn').click();
+            if (e.key === 'Enter') document.getElementById('searchActionBtn').click();
         });
 
         /* Theme Toggle */
@@ -4795,10 +4758,13 @@
             });
         });
 
-        /* Banner button: executes nationwide search when ready, or clears radius otherwise */
-        document.getElementById('clearRadiusBtn').addEventListener('click', async () => {
+        /* Unified Search button: location search in normal mode, execute nationwide when active */
+        document.getElementById('searchActionBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('searchActionBtn');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
             if (window.nationwidePhase === 'ready') {
-                // Validate at least one filter is set
                 const keyword = document.getElementById('searchInput').value.trim();
                 const type = document.getElementById('typeFilter').value;
                 const breed = document.getElementById('breedFilter').value.trim();
@@ -4822,18 +4788,54 @@
                 const maxWeight = document.getElementById('maxWeight').value;
                 const hasFilter = keyword || type || breed || sex || size || goodWith || specialNeeds || spayed || energy || exercise || activity || coat || grooming || shedding || vocal || microchip || shelter || minAge || maxAge || minWeight || maxWeight;
                 if (!hasFilter) {
+                    btn.innerHTML = originalHtml;
                     showToast('Please set at least one filter before searching nationwide.');
                     return;
                 }
                 await executeNationwideSearch();
-            } else {
-                // Normal mode: clear radius and show all
-                activeRadius = null;
-                document.querySelectorAll('.radius-chip').forEach(c => c.classList.remove('active'));
-                document.querySelector('.radius-chip[data-miles=""]')?.classList.add('active');
-                clearRadiusCircle();
-                applyFilters();
-                showToast('Showing all adoptable pets nationwide');
+                btn.innerHTML = originalHtml;
+                return;
+            }
+
+            // Normal mode: perform location search
+            const query = document.getElementById('locationInput').value.trim();
+            if (!query) {
+                btn.innerHTML = originalHtml;
+                showToast('Enter a city, ZIP, or address to search');
+                return;
+            }
+            try {
+                if (/^\d{5}$/.test(query)) {
+                    window.userSearchedLocation = true;
+                    showRadiusChips(false);
+                    selectRadiusChip('100');
+                    await loadPetsByPostalcode(query, 100);
+                    btn.innerHTML = originalHtml;
+                    return;
+                }
+                const result = await geocodeAddress(query);
+                if (!result) {
+                    btn.innerHTML = originalHtml;
+                    showToast('Location not found. Try a different search.');
+                    return;
+                }
+                window.userSearchedLocation = true;
+                userLocation = { lat: result.lat, lng: result.lng };
+                lastSearchCenter = { ...userLocation };
+                map.flyTo([result.lat, result.lng], 11, { duration: 1.5 });
+                showRadiusChips(false);
+                selectRadiusChip('100');
+                setRadiusCircle(userLocation.lat, userLocation.lng, 100);
+                if (result.postcode) {
+                    await loadPetsByPostalcode(result.postcode, activeRadius);
+                } else {
+                    await loadPetsByLocation(result.lat, result.lng, activeRadius);
+                }
+                showToast(`Found: ${result.displayName.split(',')[0]}`);
+            } catch (err) {
+                showToast('Search failed. Please try again.');
+            } finally {
+                btn.innerHTML = originalHtml;
             }
         });
 
