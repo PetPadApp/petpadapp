@@ -3394,9 +3394,26 @@
             }
         }
 
-        async function loadPetsByPostalcode(postalcode, radius = 50) {
+        async function loadPetsByPostalcode(postalcode, radius = 100) {
             try {
-                const response = await fetch(`https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&postalcode=${encodeURIComponent(postalcode)}&radius=${radius}`);
+                window.userSearchedLocation = true;
+                window.currentDefaultCity = null;
+
+                // Geocode ZIP first so userLocation is correct before applyFilters runs
+                let zipLat = null, zipLng = null;
+                try {
+                    const zipRes = await fetch(`https://api.zippopotam.us/us/${postalcode}`);
+                    const zipData = await zipRes.json();
+                    if (zipData.places && zipData.places[0]) {
+                        zipLat = parseFloat(zipData.places[0].latitude);
+                        zipLng = parseFloat(zipData.places[0].longitude);
+                    }
+                } catch (e) { /* ignore */ }
+                if (zipLat !== null && zipLng !== null) {
+                    userLocation = { lat: zipLat, lng: zipLng };
+                }
+
+                const response = await fetch(`https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&postalcode=${encodeURIComponent(postalcode)}&distance=${radius}`);
                 const result = await response.json();
                 if (result.success && result.pets) {
                     allPets.length = 0;
@@ -3421,27 +3438,14 @@
                     document.getElementById('heroDefaultCity').style.display = 'block';
                     document.getElementById('heroLocationPrompt').style.display = 'none';
                     showToast(`Showing pets near ${postalcode}`);
-                    // Zoom map to searched area via ZIP geocoding
-                    try {
-                        const zipRes = await fetch(`https://api.zippopotam.us/us/${postalcode}`);
-                        const zipData = await zipRes.json();
-                        if (zipData.places && zipData.places[0]) {
-                            const place = zipData.places[0];
-                            const lat = parseFloat(place.latitude);
-                            const lng = parseFloat(place.longitude);
-                            if (!isNaN(lat) && !isNaN(lng)) {
-                                map.setView([lat, lng], 11);
-                                userLocation = { lat, lng };
-                                renderSidebar(); // refresh distance tags
-                            }
-                        }
-                    } catch (geoErr) {
-                        // Fallback: fitBounds with tighter zoom
-                        if (filteredPets.length > 0) {
-                            const bounds = L.latLngBounds();
-                            filteredPets.forEach(p => bounds.extend([p._lat, p._lng]));
-                            map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
-                        }
+                    // Zoom map to searched area
+                    if (zipLat !== null && zipLng !== null) {
+                        map.setView([zipLat, zipLng], 11);
+                        renderSidebar(); // refresh distance tags
+                    } else if (filteredPets.length > 0) {
+                        const bounds = L.latLngBounds();
+                        filteredPets.forEach(p => bounds.extend([p._lat, p._lng]));
+                        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
                     }
                 }
             } catch (e) {
@@ -3452,6 +3456,9 @@
 
         async function loadPetsByLocation(lat, lng, radius = 100) {
             try {
+                window.userSearchedLocation = true;
+                window.currentDefaultCity = null;
+                userLocation = { lat, lng };
                 const response = await fetch(`https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}&distance=${radius}`);
                 const result = await response.json();
                 if (result.success && result.pets) {
@@ -3510,29 +3517,17 @@
                         const zip = data?.address?.postcode;
                         if (zip && /^\d{5}(-\d{4})?$/.test(zip)) {
                             const cleanZip = zip.split('-')[0];
-                            await loadPetsByPostalcode(cleanZip, 50);
+                            await loadPetsByPostalcode(cleanZip, 100);
                             // Override hero to show "near you" instead of ZIP
                             document.getElementById('defaultCityName').textContent = 'you';
                             document.getElementById('heroDefaultCity').style.display = 'block';
                         } else {
-                            document.getElementById('heroDefaultCity').style.display = 'none';
-                            document.getElementById('heroLocationPrompt').style.display = 'none';
-                            document.getElementById('radiusChips').style.display = 'flex';
-                            if (document.getElementById('sortSelect').value === 'distance') applyFilters();
-                            renderSidebar();
-                            showToast('Location found! Sort by distance to see nearby pets.');
-                            // Zoom map to user location
-                            map.setView([pos.coords.latitude, pos.coords.longitude], 11);
+                            // No ZIP from reverse geocode — fetch fresh pets by lat/lng
+                            await loadPetsByLocation(pos.coords.latitude, pos.coords.longitude, 100);
                         }
                     } catch (e) {
-                        document.getElementById('heroDefaultCity').style.display = 'none';
-                        document.getElementById('heroLocationPrompt').style.display = 'none';
-                        document.getElementById('radiusChips').style.display = 'flex';
-                        if (document.getElementById('sortSelect').value === 'distance') applyFilters();
-                        renderSidebar();
-                        showToast('Location found! Sort by distance to see nearby pets.');
-                        // Zoom map to user location
-                        map.setView([pos.coords.latitude, pos.coords.longitude], 11);
+                        // Reverse geocode failed — fetch fresh pets by lat/lng
+                        await loadPetsByLocation(pos.coords.latitude, pos.coords.longitude, 100);
                     }
                 },
                 () => {
@@ -3547,7 +3542,7 @@
             const trimmed = query.trim();
             window.userSearchedLocation = true;
             if (/^\d{5}$/.test(trimmed)) {
-                loadPetsByPostalcode(trimmed, 50);
+                loadPetsByPostalcode(trimmed, 100);
                 return;
             }
             // Geocode city/address input
