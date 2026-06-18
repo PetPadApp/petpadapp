@@ -484,6 +484,7 @@
             min-height: 24px;
             margin-top: 2px;
         }
+        .pet-card .badge-row.source-row { justify-content: center; }
         .pet-card .tag {
             background: rgba(64, 224, 208, 0.10);
             color: var(--primary-dark);
@@ -2035,6 +2036,23 @@
         .match-score-badge.high { background: linear-gradient(135deg, #10B981, #34D399); }
         .match-score-badge.medium { background: linear-gradient(135deg, #F59E0B, #FBBF24); }
         .match-score-badge.low { background: linear-gradient(135deg, #EF4444, #F87171); }
+        .match-score-badge { cursor: pointer; user-select: none; }
+        .match-tooltip {
+            position: fixed;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-width: 280px;
+            font-size: 0.85em;
+            color: var(--text-color);
+            pointer-events: none;
+        }
+        .match-tooltip ul { margin: 0; padding-left: 18px; }
+        .match-tooltip li { margin-bottom: 4px; line-height: 1.4; }
+        body[data-theme="dark"] .match-tooltip { background: var(--card-bg); border-color: #333340; color: var(--text-color); }
         .match-explanations {
             margin-top: 10px;
             padding: 10px 14px;
@@ -2521,6 +2539,31 @@
             }, 3000);
         }
 
+        function showMatchTooltip(el, explanations) {
+            document.querySelectorAll('.match-tooltip').forEach(t => t.remove());
+            if (!explanations || !explanations.length) return;
+            const tooltip = document.createElement('div');
+            tooltip.className = 'match-tooltip';
+            tooltip.innerHTML = '<ul>' + explanations.map(ex => `<li>${ex}</li>`).join('') + '</ul>';
+            document.body.appendChild(tooltip);
+            const rect = el.getBoundingClientRect();
+            const ttRect = tooltip.getBoundingClientRect();
+            let left = rect.left + rect.width / 2 - ttRect.width / 2;
+            let top = rect.bottom + 8;
+            if (left < 8) left = 8;
+            if (left + ttRect.width > window.innerWidth - 8) left = window.innerWidth - ttRect.width - 8;
+            if (top + ttRect.height > window.innerHeight - 8) top = rect.top - ttRect.height - 8;
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+            const close = (e) => {
+                if (!tooltip.contains(e.target) && e.target !== el && !el.contains(e.target)) {
+                    tooltip.remove();
+                    document.removeEventListener('click', close);
+                }
+            };
+            setTimeout(() => document.addEventListener('click', close), 10);
+        }
+
         function getAge(dob) {
             if (!dob) return null;
             const birth = new Date(dob);
@@ -2842,13 +2885,17 @@
                     <button class="fav-btn ${saved ? 'saved' : ''}" data-action="toggle-fav" title="${saved ? 'Remove from saved' : 'Save pet'}">
                         <i class="${saved ? 'fas' : 'far'} fa-heart"></i>
                     </button>
-                    ${pet.matchScore !== undefined ? `<div class="match-score-badge ${pet.matchScore >= 80 ? 'high' : pet.matchScore >= 50 ? 'medium' : 'low'}">${pet.matchScore}%</div>` : ''}
+                    ${pet.matchScore !== undefined ? `<div class="match-score-badge ${pet.matchScore >= 80 ? 'high' : pet.matchScore >= 50 ? 'medium' : 'low'}" data-action="show-match" tabindex="0" title="Click to see why this pet matches">${pet.matchScore}%</div>` : ''}
                     ${imgHtml}
                     <div class="pet-info">
                         <div class="pet-name">${pet.name}</div>
                         <div class="meta-row">${pet.breed || 'Mixed'}</div>
                         <div class="meta-row">${[pet.sex, getPetAge(pet)].filter(Boolean).join(' &bull; ') || '<span style="visibility:hidden;">&nbsp;</span>'}</div>
-                        ${dist ? `<div class="distance-tag"><i class="fas fa-location-arrow"></i> ${dist}</div>` : ''}
+                        <div style="display:flex;align-items:center;gap:6px;min-height:20px;margin-top:2px;">
+                            ${dist ? `<div class="distance-tag" style="margin-top:0;"><i class="fas fa-location-arrow"></i> ${dist}</div>` : ''}
+                            ${isNew ? `<span class="tag new-badge">New</span>` : ''}
+                            ${!dist && !isNew ? '<span style="visibility:hidden;">&nbsp;</span>' : ''}
+                        </div>
                         <!-- Row 1: Type + Location -->
                         <div class="badge-row">
                             ${pet.petType ? `<span class="tag">${pet.petType}</span>` : ''}
@@ -2861,12 +2908,11 @@
                             ${pet.isSpecialNeeds ? `<span class="tag" style="background:#C98C1A;color:#fff;">Special Needs</span>` : ''}
                             ${!pet.sizeGroup && !pet.isSpecialNeeds ? '<span style="visibility:hidden;">&nbsp;</span>' : ''}
                         </div>
-                        <!-- Row 3: Source + New -->
-                        <div class="badge-row">
-                            ${pet.source === 'rescuegroups' ? `<span class="tag" style="background:#E85A4F;color:#fff;"><i class="fas fa-globe" style="font-size:0.75em;"></i> RescueGroups</span>` : ''}
-                            ${pet.source === 'petpad' ? `<span class="tag" style="background:#7C3AED;color:#5EEAD4;"><i class="fas fa-paw" style="font-size:0.75em;"></i> Pet Pad</span>` : ''}
-                            ${isNew ? `<span class="tag new-badge">New</span>` : ''}
-                            ${!isNew && pet.source !== 'rescuegroups' && pet.source !== 'petpad' ? '<span style="visibility:hidden;">&nbsp;</span>' : ''}
+                        <!-- Row 3: Source only, centered -->
+                        <div class="badge-row source-row">
+                            ${pet.source === 'rescuegroups' ? `<span class="tag" style="background:transparent;color:var(--accent-color);border:1px solid var(--accent-color);"><i class="fas fa-globe" style="font-size:0.75em;"></i> RescueGroups</span>` : ''}
+                            ${pet.source === 'petpad' ? `<span class="tag" style="background:#7C3AED;color:#5EEAD4;"><i class="fas fa-paw" style="font-size:0.75em;"></i> Pet Pad App</span>` : ''}
+                            ${pet.source !== 'rescuegroups' && pet.source !== 'petpad' ? '<span style="visibility:hidden;">&nbsp;</span>' : ''}
                         </div>
                         <button class="detail-btn" type="button" data-action="show-detail">
                             <i class="fas fa-info-circle"></i> Details
@@ -2901,6 +2947,13 @@
                 if (e.target.closest('.compare-circle')) {
                     e.stopPropagation();
                     window.toggleCompare(pet ? pet.id : card.dataset.id);
+                    return;
+                }
+                if (e.target.closest('.match-score-badge')) {
+                    e.stopPropagation();
+                    if (pet && pet.matchExplanations) {
+                        showMatchTooltip(e.target.closest('.match-score-badge'), pet.matchExplanations);
+                    }
                     return;
                 }
                 if (compareMode) {
