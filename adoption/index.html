@@ -3373,8 +3373,8 @@
                     document.getElementById('heroDefaultCity').style.display = 'block';
                     document.getElementById('heroLocationPrompt').style.display = 'flex';
                 } else {
-                    document.getElementById('heroDefaultCity').style.display = 'none';
-                    document.getElementById('heroLocationPrompt').style.display = 'none';
+                    document.getElementById('heroDefaultCity').style.display = 'block';
+                    document.getElementById('heroLocationPrompt').style.display = 'flex';
                 }
 
                 if (navigator.geolocation) {
@@ -3436,7 +3436,7 @@
                     // Update hero to show ZIP code
                     document.getElementById('defaultCityName').textContent = `ZIP code ${postalcode}`;
                     document.getElementById('heroDefaultCity').style.display = 'block';
-                    document.getElementById('heroLocationPrompt').style.display = 'none';
+                    document.getElementById('heroLocationPrompt').style.display = 'flex';
                     showToast(`Showing pets near ${postalcode}`);
                     // Fit map to all markers (same as "Show all pets" button)
                     if (markers.length > 0) {
@@ -3480,7 +3480,7 @@
                     updateFilterCounts();
                     document.getElementById('defaultCityName').textContent = `Location search`;
                     document.getElementById('heroDefaultCity').style.display = 'block';
-                    document.getElementById('heroLocationPrompt').style.display = 'none';
+                    document.getElementById('heroLocationPrompt').style.display = 'flex';
                     showToast(`Showing pets near this location`);
                     // Fit map to all markers (same as "Show all pets" button)
                     if (markers.length > 0) {
@@ -3905,8 +3905,9 @@
                         });
                         filteredPets = [...allPets];
                         applyFilters();
-                        document.getElementById('heroDefaultCity').style.display = 'none';
-                        document.getElementById('heroLocationPrompt').style.display = 'none';
+                        document.getElementById('defaultCityName').textContent = 'nationwide';
+                        document.getElementById('heroDefaultCity').style.display = 'block';
+                        document.getElementById('heroLocationPrompt').style.display = 'flex';
                         showToast(`Showing ${result.pets.length} pets from across the country`);
                     }
                 } catch (e) {
