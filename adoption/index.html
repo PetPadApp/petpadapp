@@ -3053,15 +3053,18 @@
 
         function populateTypeFilter() {
             const sel = document.getElementById('typeFilter');
+            const currentVal = sel.value;
             const first = sel.options[0];
             sel.innerHTML = '';
             sel.appendChild(first);
             window.petSpeciesData.allSpecies.forEach(t => {
+                const count = allPets.filter(p => p.petType === t).length;
                 const opt = document.createElement('option');
                 opt.value = t;
-                opt.textContent = t;
+                opt.textContent = count > 0 ? `${t} (${count})` : t;
                 sel.appendChild(opt);
             });
+            if (currentVal) sel.value = currentVal;
         }
 
         function populateBreedFilter(species) {
@@ -3082,15 +3085,96 @@
             const breeds = window.petSpeciesData.breedsBySpecies[species];
             breeds.forEach(b => {
                 if (b === 'Enter Manually') return;
+                const count = allPets.filter(p => p.petType === species && p.breed === b).length;
                 const opt = document.createElement('option');
                 opt.value = b;
-                opt.textContent = b;
+                opt.textContent = count > 0 ? `${b} (${count})` : b;
                 sel.appendChild(opt);
             });
 
             if (currentVal && Array.from(sel.options).some(o => o.value === currentVal)) {
                 sel.value = currentVal;
             }
+        }
+
+        function updateFilterCounts() {
+            if (!allPets.length) return;
+            const updateOpts = (selId, counts) => {
+                const sel = document.getElementById(selId);
+                if (!sel) return;
+                Array.from(sel.options).forEach(opt => {
+                    if (!opt.value) return;
+                    const label = opt.textContent.replace(/ \(\d+\)$/, '');
+                    const count = counts[opt.value] || 0;
+                    opt.textContent = count > 0 ? `${label} (${count})` : label;
+                });
+            };
+            // Sex
+            const sexCounts = {};
+            allPets.forEach(p => { if (p.sex) sexCounts[p.sex] = (sexCounts[p.sex] || 0) + 1; });
+            updateOpts('sexFilter', sexCounts);
+            // Size
+            const sizeCounts = {};
+            allPets.forEach(p => { if (p.sizeGroup) sizeCounts[p.sizeGroup] = (sizeCounts[p.sizeGroup] || 0) + 1; });
+            updateOpts('sizeFilter', sizeCounts);
+            // Good With
+            const goodWithCounts = {};
+            allPets.forEach(p => {
+                if (p.goodWithCats === true) goodWithCounts['cats'] = (goodWithCounts['cats'] || 0) + 1;
+                if (p.goodWithDogs === true) goodWithCounts['dogs'] = (goodWithCounts['dogs'] || 0) + 1;
+                if (p.goodWithKids === true) goodWithCounts['kids'] = (goodWithCounts['kids'] || 0) + 1;
+            });
+            updateOpts('goodWithFilter', goodWithCounts);
+            // Spayed/Neutered
+            const spayedCounts = {};
+            allPets.forEach(p => {
+                const status = (p.spayedNeuteredStatus || '').toLowerCase();
+                if (status.includes('yes')) spayedCounts['Yes'] = (spayedCounts['Yes'] || 0) + 1;
+                if (status.includes('no')) spayedCounts['No'] = (spayedCounts['No'] || 0) + 1;
+            });
+            updateOpts('spayedFilter', spayedCounts);
+            // Special Needs
+            const specialCounts = {};
+            allPets.forEach(p => {
+                if (p.isSpecialNeeds === true) specialCounts['Yes'] = (specialCounts['Yes'] || 0) + 1;
+                if (p.isSpecialNeeds !== true) specialCounts['No'] = (specialCounts['No'] || 0) + 1;
+            });
+            updateOpts('specialNeedsFilter', specialCounts);
+            // Energy Level
+            const energyCounts = {};
+            allPets.forEach(p => { if (p.energyLevel) energyCounts[p.energyLevel] = (energyCounts[p.energyLevel] || 0) + 1; });
+            updateOpts('energyLevelFilter', energyCounts);
+            // Exercise Needs
+            const exerciseCounts = {};
+            allPets.forEach(p => { if (p.exerciseNeeds) exerciseCounts[p.exerciseNeeds] = (exerciseCounts[p.exerciseNeeds] || 0) + 1; });
+            updateOpts('exerciseNeedsFilter', exerciseCounts);
+            // Activity Level
+            const activityCounts = {};
+            allPets.forEach(p => { if (p.activityLevel) activityCounts[p.activityLevel] = (activityCounts[p.activityLevel] || 0) + 1; });
+            updateOpts('activityLevelFilter', activityCounts);
+            // Coat Length
+            const coatCounts = {};
+            allPets.forEach(p => { if (p.coatLength) coatCounts[p.coatLength] = (coatCounts[p.coatLength] || 0) + 1; });
+            updateOpts('coatLengthFilter', coatCounts);
+            // Grooming Needs
+            const groomingCounts = {};
+            allPets.forEach(p => { if (p.groomingNeeds) groomingCounts[p.groomingNeeds] = (groomingCounts[p.groomingNeeds] || 0) + 1; });
+            updateOpts('groomingNeedsFilter', groomingCounts);
+            // Shedding Level
+            const sheddingCounts = {};
+            allPets.forEach(p => { if (p.sheddingLevel) sheddingCounts[p.sheddingLevel] = (sheddingCounts[p.sheddingLevel] || 0) + 1; });
+            updateOpts('sheddingLevelFilter', sheddingCounts);
+            // Vocal Level
+            const vocalCounts = {};
+            allPets.forEach(p => { if (p.vocalLevel) vocalCounts[p.vocalLevel] = (vocalCounts[p.vocalLevel] || 0) + 1; });
+            updateOpts('vocalLevelFilter', vocalCounts);
+            // Microchipped
+            const microCounts = {};
+            allPets.forEach(p => {
+                if (p.hasMicrochip === true) microCounts['Yes'] = (microCounts['Yes'] || 0) + 1;
+                if (p.hasMicrochip !== true) microCounts['No'] = (microCounts['No'] || 0) + 1;
+            });
+            updateOpts('microchippedFilter', microCounts);
         }
 
         function applyFilters() {
@@ -3327,6 +3411,7 @@
                     });
                     filteredPets = [...allPets];
                     applyFilters();
+                    updateFilterCounts();
                     // Update hero to show ZIP code
                     document.getElementById('defaultCityName').textContent = `ZIP code ${postalcode}`;
                     document.getElementById('heroDefaultCity').style.display = 'block';
@@ -3784,6 +3869,7 @@
             document.getElementById('searchInput').value = '';
             document.getElementById('typeFilter').value = '';
             populateBreedFilter('');
+            updateFilterCounts();
             document.getElementById('breedFilter').value = '';
             document.getElementById('sexFilter').value = '';
             document.getElementById('minAge').value = '';
@@ -4251,6 +4337,7 @@
         loadPets().then(async () => {
             populateTypeFilter();
             populateBreedFilter(document.getElementById('typeFilter').value);
+            updateFilterCounts();
             applyFilters();
             // If a default city was returned, geocode it and zoom the map
             if (window.currentDefaultCity) {
