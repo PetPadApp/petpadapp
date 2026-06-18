@@ -2162,7 +2162,7 @@
             </button>
             <span class="hero-loc-or">or</span>
             <button class="hero-loc-btn secondary" id="heroSearchCityBtn" onclick="showCitySearch()">
-                <i class="fas fa-search"></i> Search a ZIP code
+                <i class="fas fa-search"></i> Search by ZIP or City
             </button>
         </div>
     </div>
@@ -2513,7 +2513,9 @@
             const photos = [];
             if (pet.imageUrl) photos.push(pet.imageUrl);
             if (Array.isArray(pet.adoptionPhotoUrls)) {
-                pet.adoptionPhotoUrls.forEach(url => { if (url) photos.push(url); });
+                pet.adoptionPhotoUrls.forEach(url => {
+                    if (url && !photos.includes(url)) photos.push(url);
+                });
             }
             return photos;
         }
@@ -3446,6 +3448,47 @@
             }
         }
 
+        async function loadPetsByLocation(lat, lng, radius = 100) {
+            try {
+                const response = await fetch(`https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}&distance=${radius}`);
+                const result = await response.json();
+                if (result.success && result.pets) {
+                    allPets.length = 0;
+                    result.pets.forEach(data => allPets.push(data));
+                    allPets.forEach(pet => {
+                        let latVal, lngVal;
+                        let hasRealCoords = false;
+                        if (typeof pet.shelterLat === 'number' && typeof pet.shelterLng === 'number') {
+                            latVal = pet.shelterLat; lngVal = pet.shelterLng; hasRealCoords = true;
+                        } else {
+                            const hash = String(pet.id).split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+                            latVal = 30 + (hash % 1500) / 100;
+                            lngVal = -120 + (hash % 4000) / 100;
+                        }
+                        pet._lat = latVal; pet._lng = lngVal; pet._hasRealCoords = hasRealCoords;
+                    });
+                    filteredPets = [...allPets];
+                    applyFilters();
+                    updateFilterCounts();
+                    document.getElementById('defaultCityName').textContent = `Location search`;
+                    document.getElementById('heroDefaultCity').style.display = 'block';
+                    document.getElementById('heroLocationPrompt').style.display = 'none';
+                    showToast(`Showing pets near this location`);
+                    // Fit map to results
+                    if (filteredPets.length > 0) {
+                        const bounds = L.latLngBounds();
+                        filteredPets.forEach(p => bounds.extend([p._lat, p._lng]));
+                        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
+                    }
+                } else {
+                    showToast('No pets found near this location');
+                }
+            } catch (e) {
+                console.error('Error loading pets by location:', e);
+                showToast('Could not load pets for that location');
+            }
+        }
+
         window.promptForLocation = function() {
             if (!navigator.geolocation) {
                 showToast('Geolocation is not supported in your browser');
@@ -3496,15 +3539,38 @@
             );
         }
 
-        window.showCitySearch = function() {
-            const zip = prompt('Enter a 5-digit ZIP code:');
-            if (!zip || !zip.trim()) return;
-            const trimmed = zip.trim();
+        window.showCitySearch = async function() {
+            const query = prompt('Enter a city, ZIP code, or address:');
+            if (!query || !query.trim()) return;
+            const trimmed = query.trim();
             window.userSearchedLocation = true;
             if (/^\d{5}$/.test(trimmed)) {
                 loadPetsByPostalcode(trimmed, 50);
-            } else {
-                showToast('Please enter a valid 5-digit ZIP code');
+                return;
+            }
+            // Geocode city/address input
+            try {
+                const result = await geocodeAddress(trimmed);
+                if (!result) {
+                    showToast('Location not found. Try a different search.');
+                    return;
+                }
+                userLocation = { lat: result.lat, lng: result.lng };
+                map.flyTo([result.lat, result.lng], 11, { duration: 1.5 });
+                document.getElementById('radiusChips').style.display = '';
+                if (!activeRadius) {
+                    document.querySelectorAll('.radius-chip').forEach(c => c.classList.remove('active'));
+                    document.querySelector('.radius-chip[data-miles="100"]')?.classList.add('active');
+                    activeRadius = 100;
+                }
+                if (result.postcode) {
+                    await loadPetsByPostalcode(result.postcode, activeRadius);
+                } else {
+                    await loadPetsByLocation(result.lat, result.lng, activeRadius);
+                }
+                showToast(`Found: ${result.displayName.split(',')[0]}`);
+            } catch (err) {
+                showToast('Search failed. Please try again.');
             }
         }
 
@@ -3903,13 +3969,32 @@
             applyFilters();
         });
 
-        /* Location Search (OpenStreetMap Nominatim) */
+        /* Location Search (OpenStreetMap Nominatim + zippopotam.us) */
         async function geocodeAddress(query) {
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+            const trimmed = query.trim();
+            // Use zippopotam.us for 5-digit US ZIP codes (reliable, no ambiguity)
+            if (/^\d{5}$/.test(trimmed)) {
+                const zipRes = await fetch(`https://api.zippopotam.us/us/${trimmed}`);
+                const zipData = await zipRes.json();
+                if (zipData.places && zipData.places[0]) {
+                    const place = zipData.places[0];
+                    return {
+                        lat: parseFloat(place.latitude),
+                        lng: parseFloat(place.longitude),
+                        displayName: `${place['place name']}, ${place['state abbreviation']} ${trimmed}`,
+                        postcode: trimmed
+                    };
+                }
+                return null;
+            }
+            // For city/address queries, use Nominatim with US bias and address details
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(trimmed)}&limit=1&countrycodes=us&addressdetails=1`;
             const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
             const data = await response.json();
             if (data && data.length > 0) {
-                return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), displayName: data[0].display_name };
+                const addr = data[0].address || {};
+                const postcode = addr.postcode || null;
+                return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), displayName: data[0].display_name, postcode };
             }
             return null;
         }
@@ -3921,21 +4006,41 @@
             const originalHtml = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             try {
-                const result = await geocodeAddress(query);
-                if (result) {
-                    userLocation = { lat: result.lat, lng: result.lng };
-                    map.flyTo([result.lat, result.lng], 11, { duration: 1.5 });
+                // If 5-digit ZIP, fetch fresh pets from the backend for that area
+                if (/^\d{5}$/.test(query)) {
+                    window.userSearchedLocation = true;
                     document.getElementById('radiusChips').style.display = '';
                     if (!activeRadius) {
                         document.querySelectorAll('.radius-chip').forEach(c => c.classList.remove('active'));
-                        document.querySelector('.radius-chip[data-miles="25"]')?.classList.add('active');
-                        activeRadius = 25;
+                        document.querySelector('.radius-chip[data-miles="100"]')?.classList.add('active');
+                        activeRadius = 100;
                     }
-                    applyFilters();
-                    showToast(`Found: ${result.displayName.split(',')[0]}`);
-                } else {
-                    showToast('Location not found. Try a different search.');
+                    await loadPetsByPostalcode(query, activeRadius);
+                    return;
                 }
+                // Otherwise geocode city/address
+                const result = await geocodeAddress(query);
+                if (!result) {
+                    showToast('Location not found. Try a different search.');
+                    return;
+                }
+                window.userSearchedLocation = true;
+                userLocation = { lat: result.lat, lng: result.lng };
+                map.flyTo([result.lat, result.lng], 11, { duration: 1.5 });
+                document.getElementById('radiusChips').style.display = '';
+                if (!activeRadius) {
+                    document.querySelectorAll('.radius-chip').forEach(c => c.classList.remove('active'));
+                    document.querySelector('.radius-chip[data-miles="100"]')?.classList.add('active');
+                    activeRadius = 100;
+                }
+                // If geocode returned a postcode, use ZIP-based backend search for best results
+                if (result.postcode) {
+                    await loadPetsByPostalcode(result.postcode, activeRadius);
+                } else {
+                    // Fallback: fetch Pet Pad pets by lat/lng radius
+                    await loadPetsByLocation(result.lat, result.lng, activeRadius);
+                }
+                showToast(`Found: ${result.displayName.split(',')[0]}`);
             } catch (err) {
                 showToast('Search failed. Please try again.');
             } finally {
