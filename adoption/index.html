@@ -3366,6 +3366,8 @@
 
                 // Show default city if user hasn't searched a custom location
                 window.currentDefaultCity = result.defaultCity || null;
+                window.currentDefaultCityLat = result.defaultCityLat || null;
+                window.currentDefaultCityLng = result.defaultCityLng || null;
                 if (window.currentDefaultCity && !window.userSearchedLocation) {
                     document.getElementById('defaultCityName').textContent = window.currentDefaultCity;
                     document.getElementById('heroDefaultCity').style.display = 'block';
@@ -4444,25 +4446,19 @@
             populateBreedFilter(document.getElementById('typeFilter').value);
             updateFilterCounts();
             applyFilters();
-            // If a default city was returned, geocode it and zoom the map
-            if (window.currentDefaultCity) {
-                try {
-                    const cityRes = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(window.currentDefaultCity)}&format=json&limit=1`, {
-                        headers: { 'Accept-Language': 'en-US,en' }
-                    });
-                    const cityData = await cityRes.json();
-                    if (cityData && cityData[0]) {
-                        const cityLat = parseFloat(cityData[0].lat);
-                        const cityLng = parseFloat(cityData[0].lon);
-                        if (!isNaN(cityLat) && !isNaN(cityLng)) {
-                            map.setView([cityLat, cityLng], 11);
-                            userLocation = { lat: cityLat, lng: cityLng };
-                            renderSidebar(); // refresh distance tags
-                        }
-                    }
-                } catch (geoErr) {
-                    // If geocoding fails, fitBounds will already handle it from renderMarkers
-                }
+            // If a default city was returned, zoom map to show 100-mile radius
+            if (window.currentDefaultCity && window.currentDefaultCityLat && window.currentDefaultCityLng) {
+                const lat = window.currentDefaultCityLat;
+                const lng = window.currentDefaultCityLng;
+                // 100-mile radius bounds: ~1.45° lat, ~1.45°/cos(lat) lng
+                const latDelta = 100 / 69;
+                const lngDelta = latDelta / Math.cos(lat * Math.PI / 180);
+                map.fitBounds(
+                    [[lat - latDelta, lng - lngDelta], [lat + latDelta, lng + lngDelta]],
+                    { padding: [40, 40], animate: true, duration: 1.5 }
+                );
+                userLocation = { lat, lng };
+                renderSidebar(); // refresh distance tags
             }
             if (window.location.hash.startsWith('#pet=')) {
                 const id = decodeURIComponent(window.location.hash.slice(5));
