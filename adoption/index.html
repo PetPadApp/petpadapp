@@ -3438,15 +3438,14 @@
                     document.getElementById('heroDefaultCity').style.display = 'block';
                     document.getElementById('heroLocationPrompt').style.display = 'none';
                     showToast(`Showing pets near ${postalcode}`);
-                    // Zoom map to searched area
-                    if (zipLat !== null && zipLng !== null) {
+                    // Fit map to all markers (same as "Show all pets" button)
+                    if (markers.length > 0) {
+                        const group = new L.featureGroup(markers);
+                        map.fitBounds(group.getBounds().pad(0.15), { animate: true, duration: 1 });
+                    } else if (zipLat !== null && zipLng !== null) {
                         map.setView([zipLat, zipLng], 11);
-                        renderSidebar(); // refresh distance tags
-                    } else if (filteredPets.length > 0) {
-                        const bounds = L.latLngBounds();
-                        filteredPets.forEach(p => bounds.extend([p._lat, p._lng]));
-                        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
                     }
+                    renderSidebar(); // refresh distance tags
                 }
             } catch (e) {
                 console.error('Error loading pets by postalcode:', e);
@@ -3483,11 +3482,10 @@
                     document.getElementById('heroDefaultCity').style.display = 'block';
                     document.getElementById('heroLocationPrompt').style.display = 'none';
                     showToast(`Showing pets near this location`);
-                    // Fit map to results
-                    if (filteredPets.length > 0) {
-                        const bounds = L.latLngBounds();
-                        filteredPets.forEach(p => bounds.extend([p._lat, p._lng]));
-                        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
+                    // Fit map to all markers (same as "Show all pets" button)
+                    if (markers.length > 0) {
+                        const group = new L.featureGroup(markers);
+                        map.fitBounds(group.getBounds().pad(0.15), { animate: true, duration: 1 });
                     }
                 } else {
                     showToast('No pets found near this location');
