@@ -1676,6 +1676,103 @@
         .qr-modal img { border-radius: 12px; border: 1px solid var(--border-color); }
         .qr-modal .qr-link { margin-top: 12px; word-break: break-all; font-size: 0.8em; color: var(--text-muted); }
 
+        /* Nationwide Search Modal */
+        .nationwide-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .nationwide-modal-overlay.open { display: flex; }
+        .nationwide-modal {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            max-width: 440px;
+            width: 100%;
+            box-shadow: var(--shadow-hover);
+            position: relative;
+            overflow: hidden;
+        }
+        .nationwide-modal .nw-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nationwide-modal .nw-header h3 { margin: 0; font-size: 1.2em; color: var(--text-color); }
+        .nationwide-modal .nw-header .nw-close {
+            background: none;
+            border: none;
+            font-size: 1.4em;
+            color: var(--text-muted);
+            cursor: pointer;
+            line-height: 1;
+        }
+        .nationwide-modal .nw-body { padding: 20px 24px; }
+        .nationwide-modal .nw-body p { margin: 0 0 14px; color: var(--text-muted); font-size: 0.92em; line-height: 1.6; }
+        .nationwide-modal .nw-body .nw-tip {
+            background: rgba(64,224,208,0.08);
+            border: 1px solid rgba(64,224,208,0.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 0.85em;
+            color: var(--primary-dark);
+            margin-bottom: 16px;
+        }
+        .nationwide-modal .nw-body .nw-tip i { margin-right: 6px; }
+        .nationwide-modal .nw-actions { padding: 0 24px 24px; display: flex; flex-direction: column; gap: 10px; }
+        .nationwide-modal .nw-actions .nw-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--primary-color);
+            color: #111;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.92em;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        .nationwide-modal .nw-actions .nw-btn:hover { background: #35CFC0; transform: translateY(-1px); }
+        .nationwide-modal .nw-actions .nw-btn.secondary {
+            background: transparent;
+            color: var(--primary-dark);
+            border: 1px solid var(--primary-color);
+        }
+        .nationwide-modal .nw-actions .nw-btn.secondary:hover { background: rgba(64,224,208,0.08); }
+        .nationwide-modal .nw-actions .nw-btn.cancel {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+        .nationwide-modal .nw-actions .nw-btn.cancel:hover { background: var(--light-bg); }
+        .nationwide-modal .nw-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.92em;
+            margin-bottom: 12px;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+        .nationwide-modal .nw-input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(64,224,208,0.12); }
+        body[data-theme="dark"] .nationwide-modal .nw-input { background: #1E1E2D; border-color: #333340; }
+        body[data-theme="dark"] .nationwide-modal .nw-input:focus { background: #242436; }
+
         /* Modal QR & Print buttons */
         .modal .qr-btn, .modal .print-btn {
             background: #fff;
@@ -2362,9 +2459,9 @@
             <span class="count-badge" id="resultCount">0 pets</span>
         </div>
         <div class="radius-status-banner" id="radiusStatusBanner" style="display:none;">
-            <i class="fas fa-map-marker-alt"></i>
+            <i class="fas fa-map-marker-alt" id="radiusStatusIcon"></i>
             <span id="radiusStatusText">Showing pets within 25 miles</span>
-            <button class="btn-sm secondary" id="clearRadiusBtn" style="padding:4px 10px;font-size:0.8em;">Search Nationwide</button>
+            <button class="btn-sm secondary" id="clearRadiusBtn" style="padding:4px 10px;font-size:0.8em;">Execute Nationwide Search</button>
         </div>
         <div class="layout">
             <div class="map-section">
@@ -2487,6 +2584,35 @@
                 <button class="cm-close" onclick="closeCompareModal()">&times;</button>
             </div>
             <div class="cm-body" id="cmBody"></div>
+        </div>
+    </div>
+
+    <!-- Nationwide Search Modal -->
+    <div class="nationwide-modal-overlay" id="nationwideModalOverlay" onclick="closeNationwideModal(event)">
+        <div class="nationwide-modal" onclick="event.stopPropagation()">
+            <div class="nw-header">
+                <h3><i class="fas fa-globe-americas" style="color:var(--primary-color);margin-right:8px;"></i>Nationwide Search</h3>
+                <button class="nw-close" onclick="closeNationwideModal()">&times;</button>
+            </div>
+            <div class="nw-body" id="nwBody">
+                <p>Nationwide search finds adoptable pets across the entire country that match your filters.</p>
+                <div class="nw-tip">
+                    <i class="fas fa-lightbulb"></i>
+                    <strong>Tip:</strong> Enter your search criteria (type, breed, size, good with, etc.) first &mdash; the more specific, the better your matches. Then click Nationwide.
+                </div>
+                <p style="font-size:0.85em;margin-bottom:0;">We'll show the <strong>200 closest matching pets</strong> sorted by distance from your location. Without a location, results will be unsorted.</p>
+            </div>
+            <div class="nw-actions" id="nwActions">
+                <button class="nw-btn" id="nwUseLocationBtn" onclick="nationwideUseLocation()">
+                    <i class="fas fa-location-arrow"></i> Use My Location
+                </button>
+                <button class="nw-btn secondary" id="nwEnterLocationBtn" onclick="nationwideEnterLocation()">
+                    <i class="fas fa-city"></i> Enter a City or ZIP
+                </button>
+                <button class="nw-btn cancel" onclick="closeNationwideModal(); document.getElementById('nationwideToggle').classList.remove('active');">
+                    Cancel
+                </button>
+            </div>
         </div>
     </div>
 
@@ -3216,6 +3342,81 @@
             }
         }
 
+        // Helper: check if pet matches all currently selected filters EXCEPT the named one
+        function petMatchesOtherFilters(pet, excludeFilter) {
+            const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+            const type = document.getElementById('typeFilter').value;
+            const breed = document.getElementById('breedFilter').value.toLowerCase().trim();
+            const sex = document.getElementById('sexFilter').value;
+            const minAge = parseFloat(document.getElementById('minAge').value);
+            const maxAge = parseFloat(document.getElementById('maxAge').value);
+            const minWeight = parseFloat(document.getElementById('minWeight').value);
+            const maxWeight = parseFloat(document.getElementById('maxWeight').value);
+            const spayed = document.getElementById('spayedFilter').value;
+            const size = document.getElementById('sizeFilter').value;
+            const goodWith = document.getElementById('goodWithFilter').value;
+            const specialNeeds = document.getElementById('specialNeedsFilter').value;
+            const shelter = document.getElementById('shelterFilter').value.toLowerCase().trim();
+            const energy = document.getElementById('energyLevelFilter').value;
+            const exercise = document.getElementById('exerciseNeedsFilter').value;
+            const activity = document.getElementById('activityLevelFilter').value;
+            const coat = document.getElementById('coatLengthFilter').value;
+            const grooming = document.getElementById('groomingNeedsFilter').value;
+            const shedding = document.getElementById('sheddingLevelFilter').value;
+            const vocal = document.getElementById('vocalLevelFilter').value;
+            const microchip = document.getElementById('microchippedFilter').value;
+
+            if (excludeFilter !== 'keyword' && keyword) {
+                const text = [pet.name, pet.breed, pet.color, pet.petType, pet.customPetType, pet.additionalNotes, pet.medicalInfo, pet.allergies, pet.medications].join(' ').toLowerCase();
+                if (!text.includes(keyword)) return false;
+            }
+            if (excludeFilter !== 'type' && type && pet.petType !== type) return false;
+            if (excludeFilter !== 'breed' && breed && !(pet.breed || '').toLowerCase().includes(breed)) return false;
+            if (excludeFilter !== 'sex' && sex && pet.sex !== sex) return false;
+
+            const ageMonths = getAgeInMonths(pet.dateOfBirth);
+            const minAgeMonths = !isNaN(minAge) ? minAge * 12 : null;
+            const maxAgeMonths = !isNaN(maxAge) ? maxAge * 12 : null;
+            if (excludeFilter !== 'age' && minAgeMonths !== null && ageMonths !== null && ageMonths < minAgeMonths) return false;
+            if (excludeFilter !== 'age' && maxAgeMonths !== null && ageMonths !== null && ageMonths > maxAgeMonths) return false;
+
+            const w = parseWeight(pet.weight);
+            if (excludeFilter !== 'weight' && !isNaN(minWeight) && w !== null && w < minWeight) return false;
+            if (excludeFilter !== 'weight' && !isNaN(maxWeight) && w !== null && w > maxWeight) return false;
+
+            if (excludeFilter !== 'spayed' && spayed) {
+                const status = (pet.spayedNeuteredStatus || '').toLowerCase();
+                if (spayed === 'Yes' && !status.includes('yes')) return false;
+                if (spayed === 'No' && !status.includes('no')) return false;
+            }
+            if (excludeFilter !== 'size' && size && pet.sizeGroup !== size) return false;
+            if (excludeFilter !== 'goodWith' && goodWith) {
+                if (goodWith === 'cats' && pet.goodWithCats !== true) return false;
+                if (goodWith === 'dogs' && pet.goodWithDogs !== true) return false;
+                if (goodWith === 'kids' && pet.goodWithKids !== true) return false;
+            }
+            if (excludeFilter !== 'specialNeeds' && specialNeeds) {
+                if (specialNeeds === 'Yes' && !pet.isSpecialNeeds) return false;
+                if (specialNeeds === 'No' && pet.isSpecialNeeds) return false;
+            }
+            if (excludeFilter !== 'energy' && energy && pet.energyLevel !== energy) return false;
+            if (excludeFilter !== 'exercise' && exercise && pet.exerciseNeeds !== exercise) return false;
+            if (excludeFilter !== 'activity' && activity && pet.activityLevel !== activity) return false;
+            if (excludeFilter !== 'coat' && coat && pet.coatLength !== coat) return false;
+            if (excludeFilter !== 'grooming' && grooming && pet.groomingNeeds !== grooming) return false;
+            if (excludeFilter !== 'shedding' && shedding && pet.sheddingLevel !== shedding) return false;
+            if (excludeFilter !== 'vocal' && vocal && pet.vocalLevel !== vocal) return false;
+            if (excludeFilter !== 'microchip' && microchip) {
+                if (microchip === 'Yes' && !pet.hasMicrochip) return false;
+                if (microchip === 'No' && pet.hasMicrochip) return false;
+            }
+            if (excludeFilter !== 'shelter' && shelter) {
+                const shelterText = [pet.shelterName, pet.shelterAddress, pet.shelterCity, pet.shelterState, pet.shelterZip, pet.shelterLocation].join(' ').toLowerCase();
+                if (!shelterText.includes(shelter)) return false;
+            }
+            return true;
+        }
+
         function updateFilterCounts() {
             if (!allPets.length) return;
             const updateOpts = (selId, counts) => {
@@ -3228,68 +3429,99 @@
                     opt.textContent = count > 0 ? `${label} (${count})` : label;
                 });
             };
-            // Sex
+            // Sex counts from pets matching all OTHER filters
             const sexCounts = {};
-            allPets.forEach(p => { if (p.sex) sexCounts[p.sex] = (sexCounts[p.sex] || 0) + 1; });
+            allPets.forEach(p => {
+                if (!petMatchesOtherFilters(p, 'sex')) return;
+                if (p.sex) sexCounts[p.sex] = (sexCounts[p.sex] || 0) + 1;
+            });
             updateOpts('sexFilter', sexCounts);
-            // Size
+            // Size counts
             const sizeCounts = {};
-            allPets.forEach(p => { if (p.sizeGroup) sizeCounts[p.sizeGroup] = (sizeCounts[p.sizeGroup] || 0) + 1; });
+            allPets.forEach(p => {
+                if (!petMatchesOtherFilters(p, 'size')) return;
+                if (p.sizeGroup) sizeCounts[p.sizeGroup] = (sizeCounts[p.sizeGroup] || 0) + 1;
+            });
             updateOpts('sizeFilter', sizeCounts);
-            // Good With
+            // Good With counts
             const goodWithCounts = {};
             allPets.forEach(p => {
+                if (!petMatchesOtherFilters(p, 'goodWith')) return;
                 if (p.goodWithCats === true) goodWithCounts['cats'] = (goodWithCounts['cats'] || 0) + 1;
                 if (p.goodWithDogs === true) goodWithCounts['dogs'] = (goodWithCounts['dogs'] || 0) + 1;
                 if (p.goodWithKids === true) goodWithCounts['kids'] = (goodWithCounts['kids'] || 0) + 1;
             });
             updateOpts('goodWithFilter', goodWithCounts);
-            // Spayed/Neutered
+            // Spayed/Neutered counts
             const spayedCounts = {};
             allPets.forEach(p => {
+                if (!petMatchesOtherFilters(p, 'spayed')) return;
                 const status = (p.spayedNeuteredStatus || '').toLowerCase();
                 if (status.includes('yes')) spayedCounts['Yes'] = (spayedCounts['Yes'] || 0) + 1;
                 if (status.includes('no')) spayedCounts['No'] = (spayedCounts['No'] || 0) + 1;
             });
             updateOpts('spayedFilter', spayedCounts);
-            // Special Needs
+            // Special Needs counts
             const specialCounts = {};
             allPets.forEach(p => {
+                if (!petMatchesOtherFilters(p, 'specialNeeds')) return;
                 if (p.isSpecialNeeds === true) specialCounts['Yes'] = (specialCounts['Yes'] || 0) + 1;
                 if (p.isSpecialNeeds !== true) specialCounts['No'] = (specialCounts['No'] || 0) + 1;
             });
             updateOpts('specialNeedsFilter', specialCounts);
-            // Energy Level
+            // Energy Level counts
             const energyCounts = {};
-            allPets.forEach(p => { if (p.energyLevel) energyCounts[p.energyLevel] = (energyCounts[p.energyLevel] || 0) + 1; });
+            allPets.forEach(p => {
+                if (!petMatchesOtherFilters(p, 'energy')) return;
+                if (p.energyLevel) energyCounts[p.energyLevel] = (energyCounts[p.energyLevel] || 0) + 1;
+            });
             updateOpts('energyLevelFilter', energyCounts);
-            // Exercise Needs
+            // Exercise Needs counts
             const exerciseCounts = {};
-            allPets.forEach(p => { if (p.exerciseNeeds) exerciseCounts[p.exerciseNeeds] = (exerciseCounts[p.exerciseNeeds] || 0) + 1; });
+            allPets.forEach(p => {
+                if (!petMatchesOtherFilters(p, 'exercise')) return;
+                if (p.exerciseNeeds) exerciseCounts[p.exerciseNeeds] = (exerciseCounts[p.exerciseNeeds] || 0) + 1;
+            });
             updateOpts('exerciseNeedsFilter', exerciseCounts);
-            // Activity Level
+            // Activity Level counts
             const activityCounts = {};
-            allPets.forEach(p => { if (p.activityLevel) activityCounts[p.activityLevel] = (activityCounts[p.activityLevel] || 0) + 1; });
+            allPets.forEach(p => {
+                if (!petMatchesOtherFilters(p, 'activity')) return;
+                if (p.activityLevel) activityCounts[p.activityLevel] = (activityCounts[p.activityLevel] || 0) + 1;
+            });
             updateOpts('activityLevelFilter', activityCounts);
-            // Coat Length
+            // Coat Length counts
             const coatCounts = {};
-            allPets.forEach(p => { if (p.coatLength) coatCounts[p.coatLength] = (coatCounts[p.coatLength] || 0) + 1; });
+            allPets.forEach(p => {
+                if (!petMatchesOtherFilters(p, 'coat')) return;
+                if (p.coatLength) coatCounts[p.coatLength] = (coatCounts[p.coatLength] || 0) + 1;
+            });
             updateOpts('coatLengthFilter', coatCounts);
-            // Grooming Needs
+            // Grooming Needs counts
             const groomingCounts = {};
-            allPets.forEach(p => { if (p.groomingNeeds) groomingCounts[p.groomingNeeds] = (groomingCounts[p.groomingNeeds] || 0) + 1; });
+            allPets.forEach(p => {
+                if (!petMatchesOtherFilters(p, 'grooming')) return;
+                if (p.groomingNeeds) groomingCounts[p.groomingNeeds] = (groomingCounts[p.groomingNeeds] || 0) + 1;
+            });
             updateOpts('groomingNeedsFilter', groomingCounts);
-            // Shedding Level
+            // Shedding Level counts
             const sheddingCounts = {};
-            allPets.forEach(p => { if (p.sheddingLevel) sheddingCounts[p.sheddingLevel] = (sheddingCounts[p.sheddingLevel] || 0) + 1; });
+            allPets.forEach(p => {
+                if (!petMatchesOtherFilters(p, 'shedding')) return;
+                if (p.sheddingLevel) sheddingCounts[p.sheddingLevel] = (sheddingCounts[p.sheddingLevel] || 0) + 1;
+            });
             updateOpts('sheddingLevelFilter', sheddingCounts);
-            // Vocal Level
+            // Vocal Level counts
             const vocalCounts = {};
-            allPets.forEach(p => { if (p.vocalLevel) vocalCounts[p.vocalLevel] = (vocalCounts[p.vocalLevel] || 0) + 1; });
+            allPets.forEach(p => {
+                if (!petMatchesOtherFilters(p, 'vocal')) return;
+                if (p.vocalLevel) vocalCounts[p.vocalLevel] = (vocalCounts[p.vocalLevel] || 0) + 1;
+            });
             updateOpts('vocalLevelFilter', vocalCounts);
-            // Microchipped
+            // Microchipped counts
             const microCounts = {};
             allPets.forEach(p => {
+                if (!petMatchesOtherFilters(p, 'microchip')) return;
                 if (p.hasMicrochip === true) microCounts['Yes'] = (microCounts['Yes'] || 0) + 1;
                 if (p.hasMicrochip !== true) microCounts['No'] = (microCounts['No'] || 0) + 1;
             });
@@ -3401,9 +3633,30 @@
 
             // Update radius status banner
             const banner = document.getElementById('radiusStatusBanner');
-            if (activeRadius && userLocation) {
+            const bannerIcon = document.getElementById('radiusStatusIcon');
+            const bannerText = document.getElementById('radiusStatusText');
+            const bannerBtn = document.getElementById('clearRadiusBtn');
+            if (window.nationwidePhase === 'ready') {
+                // Nationwide mode: location set, waiting for user to execute
                 banner.style.display = 'flex';
-                document.getElementById('radiusStatusText').textContent = `Showing ${filteredPets.length} pets within ${activeRadius} miles`;
+                bannerIcon.className = 'fas fa-globe-americas';
+                const locLabel = window.nationwideLocation?.label || 'your location';
+                bannerText.textContent = `Nationwide search ready • Location: ${locLabel} • Set at least 1 filter, then tap Search`;
+                bannerBtn.textContent = 'Execute Nationwide Search';
+                bannerBtn.style.display = '';
+            } else if (window.nationwidePhase === 'searched') {
+                // Nationwide results showing
+                banner.style.display = 'flex';
+                bannerIcon.className = 'fas fa-globe-americas';
+                const locLabel = window.nationwideLocation?.label || 'your location';
+                bannerText.textContent = `Nationwide results from ${locLabel} • ${filteredPets.length} matching pets shown`;
+                bannerBtn.style.display = 'none';
+            } else if (activeRadius && userLocation) {
+                banner.style.display = 'flex';
+                bannerIcon.className = 'fas fa-map-marker-alt';
+                bannerText.textContent = `Showing ${filteredPets.length} pets within ${activeRadius} miles`;
+                bannerBtn.textContent = 'Search Nationwide';
+                bannerBtn.style.display = '';
             } else {
                 banner.style.display = 'none';
             }
@@ -3665,9 +3918,17 @@
                         await loadPetsByLocation(pos.coords.latitude, pos.coords.longitude, 100);
                     }
                 },
-                () => {
-                    showToast('Location permission denied. Try searching a ZIP code instead.');
-                }
+                async (err) => {
+                    const html = await getGeolocationTroubleshootingHTML();
+                    // Strip HTML tags for toast display
+                    const text = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+                    // Show truncated toast; full instructions in console
+                    showToast('Location blocked. Check browser settings or enter a ZIP code below.');
+                    console.warn('Geolocation error:', err.code, err.message, text);
+                    // Auto-prompt for city/ZIP as fallback
+                    setTimeout(() => showCitySearch(), 800);
+                },
+                { timeout: 10000, maximumAge: 60000 }
             );
         }
 
@@ -4014,48 +4275,284 @@
             this.classList.toggle('active');
             applyFilters();
         });
-        document.getElementById('nationwideToggle').addEventListener('click', async function() {
-            const isActive = this.classList.toggle('active');
-            if (isActive) {
-                window.userSearchedLocation = true;
-                // Fetch nationwide pets via live RG API call
-                showToast('Searching nationwide...');
-                try {
-                    const response = await fetch('https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&nationwide=1');
-                    const result = await response.json();
-                    if (result.success && result.pets) {
-                        allPets.length = 0;
-                        result.pets.forEach(data => allPets.push(data));
-                        allPets.forEach(pet => {
-                            let lat, lng;
-                            let hasRealCoords = false;
-                            if (typeof pet.shelterLat === 'number' && typeof pet.shelterLng === 'number') {
-                                lat = pet.shelterLat; lng = pet.shelterLng; hasRealCoords = true;
-                            } else {
-                                const hash = String(pet.id).split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-                                lat = 30 + (hash % 1500) / 100;
-                                lng = -120 + (hash % 4000) / 100;
-                            }
-                            pet._lat = lat; pet._lng = lng; pet._hasRealCoords = hasRealCoords;
-                        });
-                        filteredPets = [...allPets];
-                        applyFilters();
-                        showRadiusChips(true);
-                        selectRadiusChip('');
-                        clearRadiusCircle();
-                        document.getElementById('defaultCityName').textContent = 'nationwide';
-                        document.getElementById('heroDefaultCity').style.display = 'block';
-                        document.getElementById('heroLocationPrompt').style.display = 'flex';
-                        showToast(`Showing ${result.pets.length} pets from across the country`);
-                    }
-                } catch (e) {
-                    console.error('Error loading nationwide pets:', e);
-                    showToast('Could not load nationwide pets');
-                    this.classList.remove('active');
-                }
+        // Nationwide state: 'inactive' | 'setting' | 'ready' | 'searched'
+        window.nationwidePhase = 'inactive';
+        window.nationwideLocation = null; // {lat, lng, label}
+
+        // Geolocation troubleshooting helper
+        async function getGeolocationTroubleshootingHTML() {
+            let msg = '<p><strong>Location access was blocked.</strong></p>';
+            let instructions = '';
+            const ua = navigator.userAgent.toLowerCase();
+            const isSafari = ua.includes('safari') && !ua.includes('chrome') && !ua.includes('edg');
+            const isChrome = ua.includes('chrome') && !ua.includes('edg');
+            const isFirefox = ua.includes('firefox');
+            const isMac = navigator.platform.toLowerCase().includes('mac');
+            const isIOS = /iphone|ipad|ipod/.test(ua);
+
+            if (isIOS || (isSafari && isMac)) {
+                instructions = 'On this device, go to <strong>Settings → Privacy & Security → Location Services</strong> and make sure Safari is allowed. Then return here and try again.';
+            } else if (isChrome) {
+                instructions = 'In Chrome, click the <strong>🔒 lock icon</strong> (or <strong>ⓘ info icon</strong>) in the address bar → <strong>Site settings</strong> → set <strong>Location</strong> to <em>Allow</em>. Then refresh the page.';
+            } else if (isFirefox) {
+                instructions = 'In Firefox, click the <strong>🔒 lock icon</strong> in the address bar → <strong>Permissions</strong> → set <strong>Access Your Location</strong> to <em>Allow</em>. Then refresh the page.';
+            } else if (isSafari) {
+                instructions = 'In Safari, go to <strong>Preferences → Websites → Location</strong> and set this site to <em>Allow</em>. Then refresh the page.';
             } else {
-                // Deactivate: reload default city pets
+                instructions = 'Check your browser settings for Location permissions and allow this site. Then refresh the page.';
+            }
+
+            // Try Permissions API for more precise state
+            if (navigator.permissions && navigator.permissions.query) {
+                try {
+                    const status = await navigator.permissions.query({name: 'geolocation'});
+                    if (status.state === 'denied') {
+                        msg = '<p><strong>Location permission is denied in your browser.</strong></p>';
+                    } else if (status.state === 'prompt') {
+                        msg = '<p><strong>Location permission was not granted.</strong></p>';
+                        instructions = 'When your browser asks for location access, tap <strong>Allow</strong>. If no prompt appeared, ' + instructions;
+                    }
+                } catch (e) { /* ignore */ }
+            }
+
+            return msg + '<p style="font-size:0.85em;margin-top:10px;">' + instructions + '</p>';
+        }
+
+        // Nationwide modal helpers
+        window.openNationwideModal = function() {
+            document.getElementById('nationwideModalOverlay').classList.add('open');
+            // If location already set, show confirmation state
+            if (window.nationwideLocation) {
+                const locLabel = window.nationwideLocation.label || 'your location';
+                document.getElementById('nwBody').innerHTML = `
+                    <p><i class="fas fa-check-circle" style="color:var(--primary-color);"></i> Location is set to <strong>${locLabel}</strong>.</p>
+                    <p style="font-size:0.85em;">Adjust your search filters, then tap <strong>Execute Nationwide Search</strong> to find the 200 closest matching pets.</p>
+                `;
+                document.getElementById('nwActions').innerHTML = `
+                    <button class="nw-btn" onclick="closeNationwideModal()">
+                        <i class="fas fa-filter"></i> Got it — I'll set filters
+                    </button>
+                    <button class="nw-btn secondary" onclick="nationwideChangeLocation()">
+                        <i class="fas fa-map-marker-alt"></i> Change Location
+                    </button>
+                    <button class="nw-btn cancel" onclick="closeNationwideModal(); document.getElementById('nationwideToggle').classList.remove('active'); window.nationwidePhase='inactive'; window.nationwideLocation=null;">
+                        Cancel
+                    </button>
+                `;
+                return;
+            }
+            // Default: choose location
+            document.getElementById('nwBody').innerHTML = `
+                <p>Nationwide search finds adoptable pets across the entire country that match your filters.</p>
+                <div class="nw-tip">
+                    <i class="fas fa-lightbulb"></i>
+                    <strong>Tip:</strong> First, set your location here. Then enter your search criteria (type, breed, size, good with, etc.) &mdash; the more specific, the better your matches. Finally, tap <strong>Nationwide</strong> again to search.
+                </div>
+                <p style="font-size:0.85em;margin-bottom:0;">We'll show the <strong>200 closest matching pets</strong> sorted by distance from your location.</p>
+            `;
+            document.getElementById('nwActions').innerHTML = `
+                <button class="nw-btn" onclick="nationwideUseLocation()">
+                    <i class="fas fa-location-arrow"></i> Use My Location
+                </button>
+                <button class="nw-btn secondary" onclick="nationwideEnterLocation()">
+                    <i class="fas fa-city"></i> Enter a City or ZIP
+                </button>
+                <button class="nw-btn cancel" onclick="closeNationwideModal(); document.getElementById('nationwideToggle').classList.remove('active'); window.nationwidePhase='inactive';">
+                    Cancel
+                </button>
+            `;
+        };
+        window.closeNationwideModal = function(e) {
+            if (e && e.target !== document.getElementById('nationwideModalOverlay')) return;
+            document.getElementById('nationwideModalOverlay').classList.remove('open');
+        };
+        window.nationwideChangeLocation = function() {
+            window.nationwideLocation = null;
+            openNationwideModal();
+        };
+
+        async function executeNationwideSearch() {
+            const loc = window.nationwideLocation;
+            if (!loc) return;
+            showToast('Searching nationwide...');
+            try {
+                const type = document.getElementById('typeFilter').value;
+                const sex = document.getElementById('sexFilter').value;
+                const sizeGroup = document.getElementById('sizeFilter').value;
+                const goodWith = document.getElementById('goodWithFilter').value;
+                const specialNeeds = document.getElementById('specialNeedsFilter').value;
+                const search = document.getElementById('searchInput').value;
+
+                let url = 'https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&nationwide=1';
+                if (type) url += `&petType=${encodeURIComponent(type)}`;
+                if (sex) url += `&sex=${encodeURIComponent(sex)}`;
+                if (sizeGroup) url += `&sizeGroup=${encodeURIComponent(sizeGroup)}`;
+                if (goodWith) url += `&goodWith=${encodeURIComponent(goodWith)}`;
+                if (specialNeeds) url += `&specialNeeds=${encodeURIComponent(specialNeeds)}`;
+                if (search) url += `&search=${encodeURIComponent(search)}`;
+                if (loc.lat != null && loc.lng != null) {
+                    url += `&userLat=${encodeURIComponent(loc.lat)}&userLng=${encodeURIComponent(loc.lng)}`;
+                }
+
+                const response = await fetch(url);
+                const result = await response.json();
+                if (result.success && result.pets) {
+                    allPets.length = 0;
+                    result.pets.forEach(data => allPets.push(data));
+                    allPets.forEach(pet => {
+                        let lat, lng;
+                        let hasRealCoords = false;
+                        if (typeof pet.shelterLat === 'number' && typeof pet.shelterLng === 'number') {
+                            lat = pet.shelterLat; lng = pet.shelterLng; hasRealCoords = true;
+                        } else {
+                            const hash = String(pet.id).split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+                            lat = 30 + (hash % 1500) / 100;
+                            lng = -120 + (hash % 4000) / 100;
+                        }
+                        pet._lat = lat; pet._lng = lng; pet._hasRealCoords = hasRealCoords;
+                    });
+                    filteredPets = [...allPets];
+                    applyFilters();
+                    showRadiusChips(true);
+                    selectRadiusChip('');
+                    clearRadiusCircle();
+                    document.getElementById('defaultCityName').textContent = loc.label || 'nationwide';
+                    document.getElementById('heroDefaultCity').style.display = 'block';
+                    document.getElementById('heroLocationPrompt').style.display = 'flex';
+                    const totalMsg = result.totalMatchingCount ? ` (${result.pets.length} of ${result.totalMatchingCount} matching)` : '';
+                    showToast(`Showing ${result.pets.length} pets from across the country${totalMsg}`);
+                    if (markers.length > 0) {
+                        const group = new L.featureGroup(markers);
+                        map.fitBounds(group.getBounds().pad(0.15), { animate: true, duration: 1 });
+                    }
+                } else {
+                    showToast('No pets found nationwide with those filters.');
+                }
+            } catch (e) {
+                console.error('Error loading nationwide pets:', e);
+                showToast('Could not load nationwide pets');
+                document.getElementById('nationwideToggle').classList.remove('active');
+                window.nationwidePhase = 'inactive';
+                window.nationwideLocation = null;
+            }
+        }
+
+        window.nationwideUseLocation = function() {
+            if (!navigator.geolocation) {
+                showToast('Geolocation is not supported in your browser');
+                return;
+            }
+            document.getElementById('nwBody').innerHTML = '<p style="text-align:center;margin-bottom:0;"><i class="fas fa-spinner fa-spin" style="color:var(--primary-color);font-size:1.5em;"></i><br><br>Getting your location...</p>';
+            document.getElementById('nwActions').innerHTML = `
+                <button class="nw-btn cancel" onclick="closeNationwideModal(); document.getElementById('nationwideToggle').classList.remove('active'); window.nationwidePhase='inactive';">Cancel</button>
+            `;
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    window.nationwideLocation = { lat, lng, label: 'near you' };
+                    userLocation = { lat, lng };
+                    lastSearchCenter = { lat, lng };
+                    window.nationwidePhase = 'ready';
+                    closeNationwideModal();
+                    showToast('Location set! Now adjust your filters, then tap Execute Nationwide Search.');
+                },
+                async (err) => {
+                    // Detailed troubleshooting based on error code
+                    const html = await getGeolocationTroubleshootingHTML();
+                    document.getElementById('nwBody').innerHTML = html + `
+                        <p style="font-size:0.85em;margin-top:10px;">Alternatively, enter a city or ZIP code below:</p>
+                    `;
+                    document.getElementById('nwActions').innerHTML = `
+                        <input type="text" class="nw-input" id="nwLocationInput" placeholder="Enter city or ZIP code" onkeydown="if(event.key==='Enter') nationwideSubmitLocation()">
+                        <button class="nw-btn" onclick="nationwideSubmitLocation()">
+                            <i class="fas fa-search"></i> Set Location
+                        </button>
+                        <button class="nw-btn secondary" onclick="nationwideSkipLocation()">
+                            <i class="fas fa-random"></i> Skip (unsorted)
+                        </button>
+                        <button class="nw-btn cancel" onclick="closeNationwideModal(); document.getElementById('nationwideToggle').classList.remove('active'); window.nationwidePhase='inactive';">Cancel</button>
+                    `;
+                    setTimeout(() => document.getElementById('nwLocationInput')?.focus(), 50);
+                },
+                { timeout: 10000, maximumAge: 60000 }
+            );
+        };
+
+        window.nationwideEnterLocation = function() {
+            document.getElementById('nwBody').innerHTML = `
+                <p>Enter a city or ZIP code so we can sort pets by distance from that location.</p>
+            `;
+            document.getElementById('nwActions').innerHTML = `
+                <input type="text" class="nw-input" id="nwLocationInput" placeholder="Enter city or ZIP code" onkeydown="if(event.key==='Enter') nationwideSubmitLocation()">
+                <button class="nw-btn" onclick="nationwideSubmitLocation()">
+                    <i class="fas fa-search"></i> Set Location
+                </button>
+                <button class="nw-btn secondary" onclick="nationwideSkipLocation()">
+                    <i class="fas fa-random"></i> Skip (unsorted)
+                </button>
+                <button class="nw-btn cancel" onclick="closeNationwideModal(); document.getElementById('nationwideToggle').classList.remove('active'); window.nationwidePhase='inactive';">Cancel</button>
+            `;
+            setTimeout(() => document.getElementById('nwLocationInput')?.focus(), 50);
+        };
+
+        window.nationwideSubmitLocation = async function() {
+            const query = document.getElementById('nwLocationInput').value.trim();
+            if (!query) { showToast('Enter a city or ZIP code'); return; }
+            document.getElementById('nwBody').innerHTML = '<p style="text-align:center;margin-bottom:0;"><i class="fas fa-spinner fa-spin" style="color:var(--primary-color);font-size:1.5em;"></i><br><br>Finding location...</p>';
+            document.getElementById('nwActions').innerHTML = `
+                <button class="nw-btn cancel" onclick="closeNationwideModal(); document.getElementById('nationwideToggle').classList.remove('active'); window.nationwidePhase='inactive';">Cancel</button>
+            `;
+            try {
+                const result = await geocodeAddress(query);
+                if (!result) {
+                    showToast('Location not found. Try a different search.');
+                    nationwideEnterLocation();
+                    return;
+                }
+                window.nationwideLocation = { lat: result.lat, lng: result.lng, label: result.displayName.split(',')[0] };
+                userLocation = { lat: result.lat, lng: result.lng };
+                lastSearchCenter = { lat: result.lat, lng: result.lng };
+                window.nationwidePhase = 'ready';
+                closeNationwideModal();
+                showToast(`Location set to ${result.displayName.split(',')[0]}! Now adjust your filters, then tap Execute Nationwide Search.`);
+            } catch (err) {
+                showToast('Search failed. Please try again.');
+                nationwideEnterLocation();
+            }
+        };
+
+        window.nationwideSkipLocation = function() {
+            window.nationwideLocation = { lat: null, lng: null, label: 'nationwide (unsorted)' };
+            window.nationwidePhase = 'ready';
+            closeNationwideModal();
+            showToast('No location set. Results will be unsorted. Adjust your filters, then tap Execute Nationwide Search.');
+        };
+
+        document.getElementById('nationwideToggle').addEventListener('click', async function() {
+            if (window.nationwidePhase === 'inactive') {
+                // Activate nationwide mode and open modal to set location
+                this.classList.add('active');
+                window.nationwidePhase = 'setting';
+                // Switch radius to "Any" immediately so user knows radius is off
+                showRadiusChips(true);
+                selectRadiusChip('');
+                clearRadiusCircle();
+                window.openNationwideModal();
+            } else if (window.nationwidePhase === 'setting') {
+                // Still setting location (modal is open) — do nothing
+            } else if (window.nationwidePhase === 'ready' || window.nationwidePhase === 'searched') {
+                // Deactivate: return to normal mode
+                this.classList.remove('active');
+                window.nationwidePhase = 'inactive';
+                window.nationwideLocation = null;
                 window.userSearchedLocation = false;
+                // Restore radius chips to 100 mi
+                showRadiusChips(false);
+                selectRadiusChip('100');
+                if (userLocation) {
+                    setRadiusCircle(userLocation.lat, userLocation.lng, 100);
+                }
                 loadPets();
             }
         });
@@ -4252,7 +4749,13 @@
                         selectRadiusChip('100');
                         setRadiusCircle(userLocation.lat, userLocation.lng, 100);
                     },
-                    () => showToast('Unable to retrieve your location.')
+                    async (err) => {
+                        const html = await getGeolocationTroubleshootingHTML();
+                        const text = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+                        showToast('Location blocked. Check browser settings or enter a city/ZIP.');
+                        console.warn('Geolocation error (locateBtn):', err.code, err.message, text);
+                    },
+                    { timeout: 10000, maximumAge: 60000 }
                 );
             } else {
                 showToast('Geolocation is not supported by your browser.');
@@ -4292,14 +4795,46 @@
             });
         });
 
-        /* Search Nationwide button */
-        document.getElementById('clearRadiusBtn').addEventListener('click', () => {
-            activeRadius = null;
-            document.querySelectorAll('.radius-chip').forEach(c => c.classList.remove('active'));
-            document.querySelector('.radius-chip[data-miles=""]')?.classList.add('active');
-            clearRadiusCircle();
-            applyFilters();
-            showToast('Showing all adoptable pets nationwide');
+        /* Banner button: executes nationwide search when ready, or clears radius otherwise */
+        document.getElementById('clearRadiusBtn').addEventListener('click', async () => {
+            if (window.nationwidePhase === 'ready') {
+                // Validate at least one filter is set
+                const keyword = document.getElementById('searchInput').value.trim();
+                const type = document.getElementById('typeFilter').value;
+                const breed = document.getElementById('breedFilter').value.trim();
+                const sex = document.getElementById('sexFilter').value;
+                const size = document.getElementById('sizeFilter').value;
+                const goodWith = document.getElementById('goodWithFilter').value;
+                const specialNeeds = document.getElementById('specialNeedsFilter').value;
+                const spayed = document.getElementById('spayedFilter').value;
+                const energy = document.getElementById('energyLevelFilter').value;
+                const exercise = document.getElementById('exerciseNeedsFilter').value;
+                const activity = document.getElementById('activityLevelFilter').value;
+                const coat = document.getElementById('coatLengthFilter').value;
+                const grooming = document.getElementById('groomingNeedsFilter').value;
+                const shedding = document.getElementById('sheddingLevelFilter').value;
+                const vocal = document.getElementById('vocalLevelFilter').value;
+                const microchip = document.getElementById('microchippedFilter').value;
+                const shelter = document.getElementById('shelterFilter').value.trim();
+                const minAge = document.getElementById('minAge').value;
+                const maxAge = document.getElementById('maxAge').value;
+                const minWeight = document.getElementById('minWeight').value;
+                const maxWeight = document.getElementById('maxWeight').value;
+                const hasFilter = keyword || type || breed || sex || size || goodWith || specialNeeds || spayed || energy || exercise || activity || coat || grooming || shedding || vocal || microchip || shelter || minAge || maxAge || minWeight || maxWeight;
+                if (!hasFilter) {
+                    showToast('Please set at least one filter before searching nationwide.');
+                    return;
+                }
+                await executeNationwideSearch();
+            } else {
+                // Normal mode: clear radius and show all
+                activeRadius = null;
+                document.querySelectorAll('.radius-chip').forEach(c => c.classList.remove('active'));
+                document.querySelector('.radius-chip[data-miles=""]')?.classList.add('active');
+                clearRadiusCircle();
+                applyFilters();
+                showToast('Showing all adoptable pets nationwide');
+            }
         });
 
         /* Shelter Modal */
