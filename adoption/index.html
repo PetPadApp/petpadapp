@@ -2683,6 +2683,10 @@
         }
         function selectRadiusChip(miles) {
             document.querySelectorAll('.radius-chip').forEach(c => c.classList.remove('active'));
+            if (miles === null || miles === undefined) {
+                activeRadius = null;
+                return;
+            }
             const chip = document.querySelector(`.radius-chip[data-miles="${miles}"]`);
             if (chip) chip.classList.add('active');
             activeRadius = miles ? parseInt(miles) : null;
@@ -3750,20 +3754,9 @@
                     document.getElementById('heroLocationPrompt').style.display = 'flex';
                 }
 
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        pos => {
-                            userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-                            lastSearchCenter = { ...userLocation };
-                            showRadiusChips(false);
-                            selectRadiusChip('100');
-                            setRadiusCircle(userLocation.lat, userLocation.lng, 100);
-                            if (document.getElementById('sortSelect').value === 'distance') applyFilters();
-                            renderSidebar(); // refresh distances
-                        },
-                        () => console.log('Location permission denied or unavailable')
-                    );
-                }
+                // Note: automatic geolocation on initial load is intentionally skipped
+                // so the default city rotation (Phoenix, etc.) is preserved.
+                // Users can click the "My location" map button to use their GPS.
             } catch (e) {
                 console.error('Error loading pets:', e);
                 document.getElementById('petGrid').innerHTML = '<div class="empty" style="grid-column: 1 / -1;"><p>Unable to load pets. Please try again later.</p></div>';
@@ -4408,8 +4401,8 @@
                     });
                     filteredPets = [...allPets];
                     applyFilters();
-                    showRadiusChips(true);
-                    selectRadiusChip('');
+                    showRadiusChips(false);
+                    selectRadiusChip(null);
                     clearRadiusCircle();
                     document.getElementById('defaultCityName').textContent = loc.label || 'nationwide';
                     document.getElementById('heroDefaultCity').style.display = 'block';
@@ -4530,9 +4523,9 @@
                 // Activate nationwide mode and open modal to set location
                 this.classList.add('active');
                 window.nationwidePhase = 'setting';
-                // Switch radius to "Any" immediately so user knows radius is off
-                showRadiusChips(true);
-                selectRadiusChip('');
+                // Radius is off in nationwide mode: show chips (without Any) and unselect all
+                showRadiusChips(false);
+                selectRadiusChip(null);
                 clearRadiusCircle();
                 // Update Search button to nationwide style
                 if (searchBtn) {
@@ -5007,10 +5000,63 @@
             loading.classList.add('visible');
 
             try {
+                // Build lightweight pet summaries for AI matching scoped to loaded pets
+                const petSummaries = allPets.map(pet => ({
+                    id: pet.id,
+                    name: pet.name,
+                    type: pet.petType || pet.type,
+                    breed: pet.breed,
+                    sex: pet.sex,
+                    sizeGroup: pet.sizeGroup,
+                    ageText: pet.ageText,
+                    description: pet.adoptionListingInfo || pet.description || '',
+                    isSpecialNeeds: pet.isSpecialNeeds,
+                    isSpayedNeutered: pet.isSpayedNeutered || pet.spayedNeuteredStatus,
+                    goodWithCats: pet.goodWithCats,
+                    goodWithDogs: pet.goodWithDogs,
+                    goodWithKids: pet.goodWithKids,
+                    energyLevel: pet.energyLevel,
+                    exerciseNeeds: pet.exerciseNeeds,
+                    activityLevel: pet.activityLevel,
+                    coatLength: pet.coatLength,
+                    groomingNeeds: pet.groomingNeeds,
+                    sheddingLevel: pet.sheddingLevel,
+                    vocalLevel: pet.vocalLevel,
+                    shelterCity: pet.shelterCity,
+                    shelterState: pet.shelterState,
+                    shelterLat: pet.shelterLat,
+                    shelterLng: pet.shelterLng,
+                    imageUrl: pet.imageUrl,
+                    adoptionPhotoUrls: pet.adoptionPhotoUrls,
+                    source: pet.source,
+                    shelterName: pet.shelterName,
+                    shelterPhone: pet.shelterPhone,
+                    shelterWebsite: pet.shelterWebsite,
+                    petWebpageUrl: pet.petWebpageUrl,
+                    shelterAddress: pet.shelterAddress,
+                    shelterZip: pet.shelterZip,
+                    orgFacebookUrl: pet.orgFacebookUrl,
+                    orgAdoptionProcess: pet.orgAdoptionProcess,
+                    isAdoptionPending: pet.isAdoptionPending,
+                    isNeedingFoster: pet.isNeedingFoster,
+                    isHousetrained: pet.isHousetrained,
+                    isCurrentVaccinations: pet.isCurrentVaccinations,
+                    isDeclawed: pet.isDeclawed,
+                    specialNeedsDetails: pet.specialNeedsDetails,
+                    color: pet.color,
+                    weight: pet.weight,
+                    adoptionFee: pet.adoptionFee,
+                    qualities: pet.qualities,
+                    dateOfBirth: pet.dateOfBirth,
+                    slug: pet.slug,
+                    rescueGroupsAnimalId: pet.rescueGroupsAnimalId,
+                    rescueGroupsOrgId: pet.rescueGroupsOrgId
+                }));
+
                 const response = await fetch('https://us-central1-mypet-b1143.cloudfunctions.net/matchPetsWithAI', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userDescription: description, maxResults: 24 })
+                    body: JSON.stringify({ userDescription: description, maxResults: 24, pets: petSummaries })
                 });
 
                 const result = await response.json();
@@ -5026,8 +5072,23 @@
 
                 aiMode = true;
 
+                // Build a lookup of currently loaded pet IDs
+                const loadedIds = new Set(allPets.map(p => String(p.id)));
+
+                // Filter AI results to only pets currently loaded on the page
+                const scopedPets = (result.pets || []).filter(pet => loadedIds.has(String(pet.id)));
+
+                if (scopedPets.length < (result.pets || []).length) {
+                    const diff = (result.pets || []).length - scopedPets.length;
+                    console.log(`AI matching: filtered out ${diff} pets not in current loaded set.`);
+                }
+
+                if (scopedPets.length === 0) {
+                    throw new Error('No loaded pets matched your description. Try broadening your search or loading more pets.');
+                }
+
                 // Map returned pets to the format expected by the frontend
-                const matchedPets = result.pets.map(pet => {
+                const matchedPets = scopedPets.map(pet => {
                     let lat, lng;
                     let hasRealCoords = false;
                     if (typeof pet.shelterLat === 'number' && typeof pet.shelterLng === 'number') {
