@@ -4704,7 +4704,7 @@
                     <p style="font-size:0.85em;">Adjust your search filters, then tap <strong>Execute Nationwide Search</strong> to find the 200 closest matching pets.</p>
                 `;
                 document.getElementById('nwActions').innerHTML = isAI ? `
-                    <button class="nw-btn" onclick="closeNationwideModal(); if (window.aiSearchPending) { window.aiSearchPending = false; performAIMatch(); }">
+                    <button class="nw-btn" onclick="closeNationwideModal(); performAIMatch();">
                         <i class="fas fa-wand-magic-sparkles"></i> Run AI Matching
                     </button>
                     <button class="nw-btn secondary" onclick="nationwideChangeLocation()">
@@ -4762,13 +4762,6 @@
             window.nationwideLocation = null;
             openNationwideModal();
         };
-
-        function maybeRunAIAfterLocation() {
-            if (window.aiSearchPending) {
-                window.aiSearchPending = false;
-                performAIMatch();
-            }
-        }
 
         async function executeNationwideSearch() {
             const loc = window.nationwideLocation;
@@ -4856,7 +4849,7 @@
                     window.nationwidePhase = 'ready';
                     closeNationwideModal();
                     showToast('Location set! Now adjust your filters, then tap Execute Nationwide Search.');
-                    maybeRunAIAfterLocation();
+                    if (window.aiSearchPending) performAIMatch();
                 },
                 async (err) => {
                     // Detailed troubleshooting based on error code
@@ -4924,7 +4917,7 @@
                 window.nationwidePhase = 'ready';
                 closeNationwideModal();
                 showToast(`Location set to ${result.displayName.split(',')[0]}! Now adjust your filters, then tap Execute Nationwide Search.`);
-                maybeRunAIAfterLocation();
+                if (window.aiSearchPending) performAIMatch();
             } catch (err) {
                 showToast('Search failed. Please try again.');
                 nationwideEnterLocation();
@@ -5489,9 +5482,8 @@
                 return;
             }
 
-            // Ensure a location is set so AI matching can sort the 100 nearest pets
-            const hasLocation = userLocation && typeof userLocation.lat === 'number' && typeof userLocation.lng === 'number';
-            if (!hasLocation) {
+            // Always confirm/set a location before running AI matching (like nationwide search)
+            if (!window.aiSearchPending) {
                 window.aiSearchPending = true;
                 openNationwideModal();
                 return;
@@ -5634,6 +5626,7 @@
                 console.error('AI match error:', err);
                 showToast('Unable to match pets right now. Please try again.');
             } finally {
+                window.aiSearchPending = false;
                 btn.disabled = false;
                 loading.classList.remove('visible');
             }
