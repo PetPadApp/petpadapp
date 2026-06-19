@@ -4852,7 +4852,20 @@
                         showToast('Location set! Now adjust your filters, then tap Execute Nationwide Search.');
                     }
                     if (window.aiSearchPending) {
-                        loadPetsByLocation(lat, lng, 100).then(() => performAIMatch());
+                        loadPetsByLocation(lat, lng, 100)
+                            .then(() => {
+                                if (allPets.length === 0) {
+                                    showToast('No pets found near this location. Try a different location or a broader search.');
+                                    window.aiSearchPending = false;
+                                    return;
+                                }
+                                performAIMatch();
+                            })
+                            .catch((err) => {
+                                console.error('Failed to load pets for AI matching:', err);
+                                showToast('Unable to load pets for this location. Please try again.');
+                                window.aiSearchPending = false;
+                            });
                     }
                 },
                 async (err) => {
@@ -4924,7 +4937,20 @@
                     showToast(`Location set to ${result.displayName.split(',')[0]}! Now adjust your filters, then tap Execute Nationwide Search.`);
                 }
                 if (window.aiSearchPending) {
-                    loadPetsByLocation(result.lat, result.lng, 100).then(() => performAIMatch());
+                    loadPetsByLocation(result.lat, result.lng, 100)
+                        .then(() => {
+                            if (allPets.length === 0) {
+                                showToast('No pets found near this location. Try a different location or a broader search.');
+                                window.aiSearchPending = false;
+                                return;
+                            }
+                            performAIMatch();
+                        })
+                        .catch((err) => {
+                            console.error('Failed to load pets for AI matching:', err);
+                            showToast('Unable to load pets for this location. Please try again.');
+                            window.aiSearchPending = false;
+                        });
                 }
             } catch (err) {
                 showToast('Search failed. Please try again.');
@@ -5513,6 +5539,12 @@
                 } else {
                     aiPets = allPets.slice(0, 100);
                 }
+
+                if (aiPets.length === 0) {
+                    throw new Error('No pets are available near this location. Try a different location or a broader search.');
+                }
+                console.log(`AI matching evaluating ${aiPets.length} pets near ${userLocation?.lat},${userLocation?.lng}`);
+
                 const petSummaries = aiPets.map(pet => ({
                     id: pet.id,
                     name: pet.name,
@@ -5642,7 +5674,8 @@
 
             } catch (err) {
                 console.error('AI match error:', err);
-                showToast('Unable to match pets right now. Please try again.');
+                const message = err && err.message ? err.message : 'Unable to match pets right now. Please try again.';
+                showToast(message);
             } finally {
                 window.aiSearchPending = false;
                 btn.disabled = false;
