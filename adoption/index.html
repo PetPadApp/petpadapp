@@ -2353,7 +2353,7 @@
         <div class="ai-search-section" id="aiSearchSection">
             <div class="ai-search-header">
                 <h3><i class="fas fa-wand-magic-sparkles"></i> Find Your Perfect Pet with AI</h3>
-                <p>Describe your lifestyle, home, and other pets — let AI match you with the best adoptable pets.</p>
+                <p>Describe your lifestyle, home, and other pets — AI will evaluate up to 100 nearby pets and rank the best matches for you.</p>
             </div>
             <textarea class="ai-search-textarea" id="aiSearchInput" placeholder="I live in an apartment, work 8-hour shifts, have two cats, and want a calm small dog..."></textarea>
             <div class="ai-loading" id="aiLoading">
@@ -2531,7 +2531,7 @@
             <div class="sidebar" id="sidebar">
                 <div class="ai-match-note" id="aiMatchNote" style="display:none;">
                     <i class="fas fa-wand-magic-sparkles"></i>
-                    AI matching is applied to the 200 pets closest to your search location.
+                    AI matching is applied to the 100 pets closest to your search location.
                 </div>
                 <div class="pet-grid" id="petGrid">
                     <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:45%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
@@ -3226,7 +3226,7 @@
                     <button class="fav-btn ${saved ? 'saved' : ''}" data-action="toggle-fav" title="${saved ? 'Remove from saved' : 'Save pet'}">
                         <i class="${saved ? 'fas' : 'far'} fa-heart"></i>
                     </button>
-                    ${pet.matchScore !== undefined ? `<div class="match-score-badge ${pet.matchScore >= 80 ? 'high' : pet.matchScore >= 50 ? 'medium' : 'low'}" data-action="show-match" tabindex="0" title="AI match score is based on the 200 pets nearest to your search location. Click to see why this pet matches.">${pet.matchScore}%<i class="fas fa-info-circle" style="margin-left:4px;font-size:0.7em;opacity:0.8;"></i></div>` : ''}
+                    ${pet.matchScore !== undefined ? `<div class="match-score-badge ${pet.matchScore >= 80 ? 'high' : pet.matchScore >= 50 ? 'medium' : 'low'}" data-action="show-match" tabindex="0" title="AI match score is based on the 100 pets nearest to your search location. Click to see why this pet matches.">${pet.matchScore}%</div>` : ''}
                     ${imgHtml}
                     <div class="pet-info">
                         <div class="pet-name">${pet.name}</div>
@@ -4647,6 +4647,7 @@
         // Nationwide state: 'inactive' | 'setting' | 'ready' | 'searched'
         window.nationwidePhase = 'inactive';
         window.nationwideLocation = null; // {lat, lng, label}
+        window.aiSearchPending = false; // true when AI match is waiting for location
         window.currentSearchLocationLabel = null; // human-readable location for banner text
 
         // Geolocation troubleshooting helper
@@ -4691,14 +4692,28 @@
         // Nationwide modal helpers
         window.openNationwideModal = function() {
             document.getElementById('nationwideModalOverlay').classList.add('open');
+            const isAI = window.aiSearchPending;
             // If location already set, show confirmation state
             if (window.nationwideLocation) {
                 const locLabel = window.nationwideLocation.label || 'your location';
-                document.getElementById('nwBody').innerHTML = `
+                document.getElementById('nwBody').innerHTML = isAI ? `
+                    <p><i class="fas fa-check-circle" style="color:var(--primary-color);"></i> Location is set to <strong>${locLabel}</strong>.</p>
+                    <p style="font-size:0.85em;">Tap <strong>Run AI Matching</strong> to find the best pets near this location.</p>
+                ` : `
                     <p><i class="fas fa-check-circle" style="color:var(--primary-color);"></i> Location is set to <strong>${locLabel}</strong>.</p>
                     <p style="font-size:0.85em;">Adjust your search filters, then tap <strong>Execute Nationwide Search</strong> to find the 200 closest matching pets.</p>
                 `;
-                document.getElementById('nwActions').innerHTML = `
+                document.getElementById('nwActions').innerHTML = isAI ? `
+                    <button class="nw-btn" onclick="closeNationwideModal(); if (window.aiSearchPending) { window.aiSearchPending = false; performAIMatch(); }">
+                        <i class="fas fa-wand-magic-sparkles"></i> Run AI Matching
+                    </button>
+                    <button class="nw-btn secondary" onclick="nationwideChangeLocation()">
+                        <i class="fas fa-map-marker-alt"></i> Change Location
+                    </button>
+                    <button class="nw-btn cancel" onclick="window.aiSearchPending = false; closeNationwideModal(); document.getElementById('nationwideToggle').classList.remove('active'); window.nationwidePhase='inactive'; window.nationwideLocation=null;">
+                        Cancel
+                    </button>
+                ` : `
                     <button class="nw-btn" onclick="closeNationwideModal()">
                         <i class="fas fa-filter"></i> Got it — I'll set filters
                     </button>
@@ -4712,7 +4727,14 @@
                 return;
             }
             // Default: choose location
-            document.getElementById('nwBody').innerHTML = `
+            document.getElementById('nwBody').innerHTML = isAI ? `
+                <p>AI matching finds the best pets near a location. Set a location so we can match you with pets nearby.</p>
+                <div class="nw-tip">
+                    <i class="fas fa-lightbulb"></i>
+                    <strong>Tip:</strong> The more specific your description (type, breed, size, good with, etc.), the better your AI matches.
+                </div>
+                <p style="font-size:0.85em;margin-bottom:0;">We'll evaluate the <strong>100 pets closest</strong> to this location and rank the best matches.</p>
+            ` : `
                 <p>Nationwide search finds adoptable pets across the entire country that match your filters.</p>
                 <div class="nw-tip">
                     <i class="fas fa-lightbulb"></i>
@@ -4727,7 +4749,7 @@
                 <button class="nw-btn secondary" onclick="nationwideEnterLocation()">
                     <i class="fas fa-city"></i> Enter a City or ZIP
                 </button>
-                <button class="nw-btn cancel" onclick="closeNationwideModal(); document.getElementById('nationwideToggle').classList.remove('active'); window.nationwidePhase='inactive';">
+                <button class="nw-btn cancel" onclick="window.aiSearchPending = false; closeNationwideModal(); document.getElementById('nationwideToggle').classList.remove('active'); window.nationwidePhase='inactive';">
                     Cancel
                 </button>
             `;
@@ -4740,6 +4762,13 @@
             window.nationwideLocation = null;
             openNationwideModal();
         };
+
+        function maybeRunAIAfterLocation() {
+            if (window.aiSearchPending) {
+                window.aiSearchPending = false;
+                performAIMatch();
+            }
+        }
 
         async function executeNationwideSearch() {
             const loc = window.nationwideLocation;
@@ -4815,7 +4844,7 @@
             }
             document.getElementById('nwBody').innerHTML = '<p style="text-align:center;margin-bottom:0;"><i class="fas fa-spinner fa-spin" style="color:var(--primary-color);font-size:1.5em;"></i><br><br>Getting your location...</p>';
             document.getElementById('nwActions').innerHTML = `
-                <button class="nw-btn cancel" onclick="closeNationwideModal(); document.getElementById('nationwideToggle').classList.remove('active'); window.nationwidePhase='inactive';">Cancel</button>
+                <button class="nw-btn cancel" onclick="window.aiSearchPending = false; closeNationwideModal(); document.getElementById('nationwideToggle').classList.remove('active'); window.nationwidePhase='inactive';">Cancel</button>
             `;
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
@@ -4827,6 +4856,7 @@
                     window.nationwidePhase = 'ready';
                     closeNationwideModal();
                     showToast('Location set! Now adjust your filters, then tap Execute Nationwide Search.');
+                    maybeRunAIAfterLocation();
                 },
                 async (err) => {
                     // Detailed troubleshooting based on error code
@@ -4834,15 +4864,18 @@
                     document.getElementById('nwBody').innerHTML = html + `
                         <p style="font-size:0.85em;margin-top:10px;">Alternatively, enter a city or ZIP code below:</p>
                     `;
-                    document.getElementById('nwActions').innerHTML = `
-                        <input type="text" class="nw-input" id="nwLocationInput" placeholder="Enter city or ZIP code" onkeydown="if(event.key==='Enter') nationwideSubmitLocation()">
-                        <button class="nw-btn" onclick="nationwideSubmitLocation()">
-                            <i class="fas fa-search"></i> Set Location
-                        </button>
+                    const skipBtn = window.aiSearchPending ? '' : `
                         <button class="nw-btn secondary" onclick="nationwideSkipLocation()">
                             <i class="fas fa-random"></i> Skip (unsorted)
                         </button>
-                        <button class="nw-btn cancel" onclick="closeNationwideModal(); document.getElementById('nationwideToggle').classList.remove('active'); window.nationwidePhase='inactive';">Cancel</button>
+                    `;
+                    document.getElementById('nwActions').innerHTML = `
+                        <input type="text" class="nw-input" id="nwLocationInput" placeholder="Enter city or ZIP code" onkeydown="if(event.key=='Enter') nationwideSubmitLocation()">
+                        <button class="nw-btn" onclick="nationwideSubmitLocation()">
+                            <i class="fas fa-search"></i> Set Location
+                        </button>
+                        ${skipBtn}
+                        <button class="nw-btn cancel" onclick="window.aiSearchPending = false; closeNationwideModal(); document.getElementById('nationwideToggle').classList.remove('active'); window.nationwidePhase='inactive';">Cancel</button>
                     `;
                     setTimeout(() => document.getElementById('nwLocationInput')?.focus(), 50);
                 },
@@ -4851,18 +4884,22 @@
         };
 
         window.nationwideEnterLocation = function() {
+            const isAI = window.aiSearchPending;
             document.getElementById('nwBody').innerHTML = `
-                <p>Enter a city or ZIP code so we can sort pets by distance from that location.</p>
+                <p>${isAI ? 'Enter a city or ZIP code so AI matching can find the 100 pets closest to that location.' : 'Enter a city or ZIP code so we can sort pets by distance from that location.'}</p>
             `;
-            document.getElementById('nwActions').innerHTML = `
-                <input type="text" class="nw-input" id="nwLocationInput" placeholder="Enter city or ZIP code" onkeydown="if(event.key==='Enter') nationwideSubmitLocation()">
-                <button class="nw-btn" onclick="nationwideSubmitLocation()">
-                    <i class="fas fa-search"></i> Set Location
-                </button>
+            const skipBtn = isAI ? '' : `
                 <button class="nw-btn secondary" onclick="nationwideSkipLocation()">
                     <i class="fas fa-random"></i> Skip (unsorted)
                 </button>
-                <button class="nw-btn cancel" onclick="closeNationwideModal(); document.getElementById('nationwideToggle').classList.remove('active'); window.nationwidePhase='inactive';">Cancel</button>
+            `;
+            document.getElementById('nwActions').innerHTML = `
+                <input type="text" class="nw-input" id="nwLocationInput" placeholder="Enter city or ZIP code" onkeydown="if(event.key=='Enter') nationwideSubmitLocation()">
+                <button class="nw-btn" onclick="nationwideSubmitLocation()">
+                    <i class="fas fa-search"></i> Set Location
+                </button>
+                ${skipBtn}
+                <button class="nw-btn cancel" onclick="window.aiSearchPending = false; closeNationwideModal(); document.getElementById('nationwideToggle').classList.remove('active'); window.nationwidePhase='inactive';">Cancel</button>
             `;
             setTimeout(() => document.getElementById('nwLocationInput')?.focus(), 50);
         };
@@ -4872,7 +4909,7 @@
             if (!query) { showToast('Enter a city or ZIP code'); return; }
             document.getElementById('nwBody').innerHTML = '<p style="text-align:center;margin-bottom:0;"><i class="fas fa-spinner fa-spin" style="color:var(--primary-color);font-size:1.5em;"></i><br><br>Finding location...</p>';
             document.getElementById('nwActions').innerHTML = `
-                <button class="nw-btn cancel" onclick="closeNationwideModal(); document.getElementById('nationwideToggle').classList.remove('active'); window.nationwidePhase='inactive';">Cancel</button>
+                <button class="nw-btn cancel" onclick="window.aiSearchPending = false; closeNationwideModal(); document.getElementById('nationwideToggle').classList.remove('active'); window.nationwidePhase='inactive';">Cancel</button>
             `;
             try {
                 const result = await geocodeAddress(query);
@@ -4887,6 +4924,7 @@
                 window.nationwidePhase = 'ready';
                 closeNationwideModal();
                 showToast(`Location set to ${result.displayName.split(',')[0]}! Now adjust your filters, then tap Execute Nationwide Search.`);
+                maybeRunAIAfterLocation();
             } catch (err) {
                 showToast('Search failed. Please try again.');
                 nationwideEnterLocation();
@@ -4896,6 +4934,7 @@
         window.nationwideSkipLocation = function() {
             window.nationwideLocation = { lat: null, lng: null, label: 'nationwide (unsorted)' };
             window.nationwidePhase = 'ready';
+            window.aiSearchPending = false;
             closeNationwideModal();
             showToast('No location set. Results will be unsorted. Adjust your filters, then tap Execute Nationwide Search.');
         };
@@ -5450,12 +5489,20 @@
                 return;
             }
 
+            // Ensure a location is set so AI matching can sort the 100 nearest pets
+            const hasLocation = userLocation && typeof userLocation.lat === 'number' && typeof userLocation.lng === 'number';
+            if (!hasLocation) {
+                window.aiSearchPending = true;
+                openNationwideModal();
+                return;
+            }
+
             btn.disabled = true;
             loading.classList.add('visible');
 
             try {
-                // The backend caps evaluation at 50 pets and only uses these fields.
-                const aiPets = allPets.slice(0, 50);
+                // The backend caps evaluation at 100 pets and only uses these fields.
+                const aiPets = allPets.slice(0, 100);
                 const petSummaries = aiPets.map(pet => ({
                     id: pet.id,
                     name: pet.name,
@@ -5525,25 +5572,35 @@
                     throw new Error('No loaded pets matched your description. Try broadening your search or loading more pets.');
                 }
 
-                // Map returned pets to the format expected by the frontend
-                const matchedPets = scopedPets.map(pet => {
+                // Map returned AI matches back to the full local pet objects so images and all data are preserved
+                const matchedPets = scopedPets.map(aiPet => {
+                    const fullPet = allPets.find(p => String(p.id) === String(aiPet.id));
+                    if (!fullPet) {
+                        console.warn('AI match returned pet not in loaded set:', aiPet.id);
+                        return null;
+                    }
+                    const merged = {
+                        ...fullPet,
+                        matchScore: aiPet.matchScore,
+                        matchExplanations: aiPet.matchExplanations,
+                    };
                     let lat, lng;
                     let hasRealCoords = false;
-                    if (typeof pet.shelterLat === 'number' && typeof pet.shelterLng === 'number') {
-                        lat = pet.shelterLat;
-                        lng = pet.shelterLng;
+                    if (typeof fullPet.shelterLat === 'number' && typeof fullPet.shelterLng === 'number') {
+                        lat = fullPet.shelterLat;
+                        lng = fullPet.shelterLng;
                         hasRealCoords = true;
                     } else {
-                        const hash = String(pet.id).split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+                        const hash = String(fullPet.id).split('').reduce((a, b) => a + b.charCodeAt(0), 0);
                         lat = 30 + (hash % 1500) / 100;
                         lng = -120 + (hash % 4000) / 100;
                     }
-                    pet._lat = lat;
-                    pet._lng = lng;
-                    pet._hasRealCoords = hasRealCoords;
-                    if (!pet.source) pet.source = 'rescuegroups';
-                    return pet;
-                });
+                    merged._lat = lat;
+                    merged._lng = lng;
+                    merged._hasRealCoords = hasRealCoords;
+                    if (!merged.source) merged.source = 'rescuegroups';
+                    return merged;
+                }).filter(Boolean);
 
                 filteredPets = matchedPets;
 
