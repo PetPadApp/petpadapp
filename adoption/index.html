@@ -2782,7 +2782,7 @@
             return String(id).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
         }
 
-        function showToast(msg) {
+        function showToast(msg, durationMs = 3000) {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
             toast.className = 'toast';
@@ -2792,7 +2792,7 @@
             setTimeout(() => {
                 toast.classList.remove('show');
                 setTimeout(() => toast.remove(), 400);
-            }, 3000);
+            }, durationMs);
         }
 
         function showMatchTooltip(el, explanations) {
@@ -3539,6 +3539,8 @@
         }
 
         function applyFilters() {
+            let distanceRejected = 0;
+            let realCoordRejected = 0;
             const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
             const type = document.getElementById('typeFilter').value;
             const breed = document.getElementById('breedFilter').value.toLowerCase().trim();
@@ -3627,15 +3629,25 @@
                 }
 
                 if (activeRadius) {
-                    if (!pet._hasRealCoords) return false;
+                    if (!pet._hasRealCoords) {
+                        realCoordRejected++;
+                        return false;
+                    }
                     if (userLocation) {
                         const d = haversine(userLocation.lat, userLocation.lng, pet._lat, pet._lng);
-                        if (d > activeRadius) return false;
+                        if (d > activeRadius) {
+                            distanceRejected++;
+                            return false;
+                        }
                     }
                 }
 
                 return true;
             });
+
+            if (activeRadius) {
+                console.log(`[applyFilters] activeRadius=${activeRadius}, userLocation=${JSON.stringify(userLocation)}, kept=${filteredPets.length}, distanceRejected=${distanceRejected}, realCoordRejected=${realCoordRejected}`);
+            }
 
             sortPets();
             currentPage = 1;
@@ -3668,7 +3680,11 @@
                 banner.style.display = 'flex';
                 bannerIcon.className = 'fas fa-map-marker-alt';
                 const locLabel = window.currentSearchLocationLabel;
-                bannerText.textContent = `Showing ${filteredPets.length} pets within ${activeRadius} miles of ${locLabel}`;
+                let bannerMsg = `Showing ${filteredPets.length} pets within ${activeRadius} miles of ${locLabel}`;
+                if (window.expandedRadiusFrom && window.expandedRadiusFrom < activeRadius) {
+                    bannerMsg += ` — no pets found within ${window.expandedRadiusFrom} miles`;
+                }
+                bannerText.textContent = bannerMsg;
                 bannerBtn.style.display = 'none';
             } else {
                 banner.style.display = 'none';
@@ -3715,6 +3731,16 @@
             try {
                 const response = await fetch('https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200');
                 const result = await response.json();
+                console.log('[loadPets] defaultCity:', result.defaultCity, result.defaultCityLat, result.defaultCityLng, 'totalPets:', result?.pets?.length || 0);
+                if (result.pets?.length > 0) {
+                    const sample = result.pets[0];
+                    console.log('[loadPets] sample pet fields:', {
+                        id: sample.id, name: sample.name,
+                        shelterLat: sample.shelterLat, shelterLng: sample.shelterLng,
+                        city: sample.city, state: sample.state, postalcode: sample.postalcode,
+                        location: sample.location, address: sample.address
+                    });
+                }
                 allPets.length = 0;
                 if (result.success && result.pets) {
                     result.pets.forEach(data => {
@@ -3760,6 +3786,7 @@
                         userLocation = { lat: window.currentDefaultCityLat, lng: window.currentDefaultCityLng };
                         lastSearchCenter = { ...userLocation };
                         window.currentSearchLocationLabel = window.currentDefaultCity;
+                        window.expandedRadiusFrom = null;
                         showRadiusChips(false);
                         selectRadiusChip('100');
                         setRadiusCircle(userLocation.lat, userLocation.lng, 100);
@@ -3814,9 +3841,35 @@
                 }
                 geocodeOk = isUS(searchLat, searchLng);
                 if (geocodeOk) { userLocation = { lat: searchLat, lng: searchLng }; lastSearchCenter = { ...userLocation }; } else { userLocation = null; lastSearchCenter = null; }
+                if (!window.currentSearchLocationLabel) {
+                    window.currentSearchLocationLabel = `ZIP code ${postalcode}`;
+                }
+                console.log(`[loadPetsByPostalcode ${postalcode}] frontend geocode: lat=${searchLat}, lng=${searchLng}, geocodeOk=${geocodeOk}`);
 
                 const response = await fetch(`https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&postalcode=${encodeURIComponent(postalcode)}&distance=${radius}`);
-                const result = await response.json();
+                let result = await response.json();
+                console.log(`[loadPetsByPostalcode ${postalcode}] backend returned ${result?.pets?.length || 0} pets, geocodeOk=${geocodeOk}`);
+
+                let expandedRadius = false;
+                window.expandedRadiusFrom = null;
+                if (result.success && result.pets && result.pets.length === 0 && radius < 500) {
+                    // No pets nearby — progressively expand radius in 100-mile steps up to 500 miles
+                    const fallbackRadii = [200, 300, 400, 500].filter(r => r > radius);
+                    for (const tryRadius of fallbackRadii) {
+                        console.log(`[loadPetsByPostalcode ${postalcode}] expanding search to ${tryRadius} miles`);
+                        const expandedResponse = await fetch(`https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&postalcode=${encodeURIComponent(postalcode)}&distance=${tryRadius}`);
+                        const expandedResult = await expandedResponse.json();
+                        console.log(`[loadPetsByPostalcode ${postalcode}] ${tryRadius}-mile search returned ${expandedResult?.pets?.length || 0} pets`);
+                        if (expandedResult.success && expandedResult.pets && expandedResult.pets.length > 0) {
+                            result = expandedResult;
+                            expandedRadius = true;
+                            window.expandedRadiusFrom = radius;
+                            break;
+                        }
+                    }
+                }
+
+                const effectiveRadius = expandedRadius ? result?.searchRadius || 500 : radius;
 
                 if (result.success && result.pets && result.pets.length > 0) {
                     allPets.length = 0;
@@ -3847,7 +3900,8 @@
                         });
                         spreadMiles = haversine(minLat, minLng, maxLat, maxLng);
                     }
-                    if (spreadMiles > radius * 2.5) {
+                    console.log(`[loadPetsByPostalcode ${postalcode}] spread=${spreadMiles.toFixed(1)}mi, threshold=${effectiveRadius * 4}mi`);
+                    if (spreadMiles > effectiveRadius * 4) {
                         // Backend returned scattered pets — likely invalid for this ZIP
                         allPets.length = 0;
                         filteredPets = [];
@@ -3858,19 +3912,20 @@
                         showRadiusChips(false);
                         selectRadiusChip('100');
                         clearRadiusCircle();
-                        showToast(`Could not find pets reliably near ${postalcode}. Our location service may be temporarily unavailable.`);
+                        showToast(`Could not find pets reliably near ${postalcode}. Our location service may be temporarily unavailable.`, 8000);
                         scrollToResults();
                         return;
                     }
 
                     filteredPets = [...allPets];
                     showRadiusChips(false);
-                    selectRadiusChip('100');
+                    selectRadiusChip(String(effectiveRadius));
                     applyFilters();
+                    console.log(`[loadPetsByPostalcode ${postalcode}] after filtering: ${filteredPets.length} pets, realCoords=${allPets.filter(p => p._hasRealCoords).length}`);
                     updateFilterCounts();
 
                     if (geocodeOk) {
-                        setRadiusCircle(userLocation.lat, userLocation.lng, 100);
+                        setRadiusCircle(userLocation.lat, userLocation.lng, effectiveRadius);
                     } else {
                         clearRadiusCircle();
                     }
@@ -3880,9 +3935,13 @@
                     document.getElementById('heroLocationPrompt').style.display = 'flex';
 
                     if (geocodeOk) {
-                        showToast(`Showing pets near ${postalcode}`);
+                        if (expandedRadius) {
+                            showToast(`No pets found within ${radius} miles, so we expanded to ${effectiveRadius} miles.`, 8000);
+                        } else {
+                            showToast(`Showing pets near ${postalcode}`);
+                        }
                     } else {
-                        showToast(`Could not locate ZIP ${postalcode} on the map. Our location service may be temporarily unavailable.`);
+                        showToast(`Could not locate ZIP ${postalcode} on the map. Our location service may be temporarily unavailable.`, 8000);
                     }
 
                     if (markers.length > 0) {
@@ -3905,10 +3964,10 @@
                     selectRadiusChip('100');
                     clearRadiusCircle();
                     if (geocodeOk) {
-                        showToast('No pets found near that ZIP code');
+                        showToast(`No pets found within 500 miles of ${postalcode}`);
                         map.setView([searchLat, searchLng], 11);
                     } else {
-                        showToast(`No pets found near ${postalcode}. We could not locate this ZIP on the map — our location service may be temporarily unavailable.`);
+                        showToast(`No pets found near ${postalcode}. We could not locate this ZIP on the map — our location service may be temporarily unavailable.`, 8000);
                     }
                     scrollToResults();
                 }
@@ -3925,7 +3984,29 @@
                 userLocation = { lat, lng };
                 lastSearchCenter = { lat, lng };
                 const response = await fetch(`https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}&distance=${radius}`);
-                const result = await response.json();
+                let result = await response.json();
+                console.log(`[loadPetsByLocation ${lat},${lng}] backend returned ${result?.pets?.length || 0} pets`);
+
+                let expandedRadius = false;
+                window.expandedRadiusFrom = null;
+                if (result.success && result.pets && result.pets.length === 0 && radius < 500) {
+                    const fallbackRadii = [200, 300, 400, 500].filter(r => r > radius);
+                    for (const tryRadius of fallbackRadii) {
+                        console.log(`[loadPetsByLocation ${lat},${lng}] expanding search to ${tryRadius} miles`);
+                        const expandedResponse = await fetch(`https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}&distance=${tryRadius}`);
+                        const expandedResult = await expandedResponse.json();
+                        console.log(`[loadPetsByLocation ${lat},${lng}] ${tryRadius}-mile search returned ${expandedResult?.pets?.length || 0} pets`);
+                        if (expandedResult.success && expandedResult.pets && expandedResult.pets.length > 0) {
+                            result = expandedResult;
+                            expandedRadius = true;
+                            window.expandedRadiusFrom = radius;
+                            break;
+                        }
+                    }
+                }
+
+                const effectiveRadius = expandedRadius ? result?.searchRadius || 500 : radius;
+
                 if (result.success && result.pets) {
                     allPets.length = 0;
                     result.pets.forEach(data => allPets.push(data));
@@ -3943,21 +4024,33 @@
                     });
                     filteredPets = [...allPets];
                     showRadiusChips(false);
-                    selectRadiusChip('100');
+                    selectRadiusChip(String(effectiveRadius));
                     applyFilters();
+                    console.log(`[loadPetsByLocation ${lat},${lng}] after filtering: ${filteredPets.length} pets, realCoords=${allPets.filter(p => p._hasRealCoords).length}`);
                     updateFilterCounts();
-                    setRadiusCircle(userLocation.lat, userLocation.lng, 100);
+                    setRadiusCircle(userLocation.lat, userLocation.lng, effectiveRadius);
                     document.getElementById('defaultCityName').textContent = `Location search`;
                     document.getElementById('heroDefaultCity').style.display = 'block';
                     document.getElementById('heroLocationPrompt').style.display = 'flex';
-                    showToast(`Showing pets near this location`);
+                    if (expandedRadius) {
+                        showToast(`No pets found within ${radius} miles, so we expanded to ${effectiveRadius} miles.`, 8000);
+                    } else {
+                        showToast(`Showing pets near this location`);
+                    }
                     // Fit map to all markers (same as "Show all pets" button)
                     if (markers.length > 0) {
                         const group = new L.featureGroup(markers);
                         map.fitBounds(group.getBounds().pad(0.15), { animate: true, duration: 1 });
                     }
                 } else {
-                    showToast('No pets found near this location');
+                    // Backend returned no pets — clear everything and show proper state
+                    allPets.length = 0;
+                    filteredPets = [];
+                    renderMarkers();
+                    renderSidebar();
+                    updateFilterCounts();
+                    updateSavedToggleCount();
+                    showToast('No pets found within 500 miles of this location', 8000);
                 }
             } catch (e) {
                 console.error('Error loading pets by location:', e);
@@ -4040,8 +4133,12 @@
                 showRadiusChips(false);
                 selectRadiusChip('100');
                 setRadiusCircle(userLocation.lat, userLocation.lng, 100);
-                if (result.postcode) {
-                    await loadPetsByPostalcode(result.postcode, 100);
+                let searchPostcode = result.postcode;
+                if (!searchPostcode) {
+                    searchPostcode = await reverseGeocodeToZip(result.lat, result.lng);
+                }
+                if (searchPostcode) {
+                    await loadPetsByPostalcode(searchPostcode, 100);
                 } else {
                     await loadPetsByLocation(result.lat, result.lng, 100);
                 }
@@ -4643,6 +4740,7 @@
                 window.nationwideLocation = null;
                 window.userSearchedLocation = false;
                 window.currentSearchLocationLabel = window.currentDefaultCity || null;
+                window.expandedRadiusFrom = null;
                 // Restore radius chips to 100 mi
                 showRadiusChips(false);
                 selectRadiusChip('100');
@@ -4692,6 +4790,7 @@
             document.getElementById('savedToggle').classList.remove('active');
             document.querySelectorAll('.radius-chip').forEach(c => c.classList.remove('active'));
             activeRadius = null;
+            window.expandedRadiusFrom = null;
             clearRadiusCircle();
             if (compareMode) {
                 compareMode = false;
@@ -4703,6 +4802,22 @@
         });
 
         /* Location Search (OpenStreetMap Nominatim + zippopotam.us) */
+        async function reverseGeocodeToZip(lat, lng) {
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&format=json&addressdetails=1`, {
+                    headers: { 'Accept-Language': 'en-US,en' }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    const zip = data?.address?.postcode;
+                    if (zip && /^\d{5}(-\d{4})?$/.test(zip)) {
+                        return zip.split('-')[0];
+                    }
+                }
+            } catch (e) { /* ignore */ }
+            return null;
+        }
+
         async function geocodeAddress(query) {
             const trimmed = query.trim();
             // Use zippopotam.us for 5-digit US ZIP codes (reliable, no ambiguity)
@@ -4964,8 +5079,12 @@
                 showRadiusChips(false);
                 selectRadiusChip('100');
                 setRadiusCircle(userLocation.lat, userLocation.lng, 100);
-                if (result.postcode) {
-                    await loadPetsByPostalcode(result.postcode, activeRadius);
+                let searchPostcode = result.postcode;
+                if (!searchPostcode) {
+                    searchPostcode = await reverseGeocodeToZip(result.lat, result.lng);
+                }
+                if (searchPostcode) {
+                    await loadPetsByPostalcode(searchPostcode, activeRadius);
                 } else {
                     await loadPetsByLocation(result.lat, result.lng, activeRadius);
                 }
