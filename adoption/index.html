@@ -4851,7 +4851,9 @@
                     if (!window.aiSearchPending) {
                         showToast('Location set! Now adjust your filters, then tap Execute Nationwide Search.');
                     }
-                    if (window.aiSearchPending) performAIMatch();
+                    if (window.aiSearchPending) {
+                        loadPetsByLocation(lat, lng, 100).then(() => performAIMatch());
+                    }
                 },
                 async (err) => {
                     // Detailed troubleshooting based on error code
@@ -4921,7 +4923,9 @@
                 if (!window.aiSearchPending) {
                     showToast(`Location set to ${result.displayName.split(',')[0]}! Now adjust your filters, then tap Execute Nationwide Search.`);
                 }
-                if (window.aiSearchPending) performAIMatch();
+                if (window.aiSearchPending) {
+                    loadPetsByLocation(result.lat, result.lng, 100).then(() => performAIMatch());
+                }
             } catch (err) {
                 showToast('Search failed. Please try again.');
                 nationwideEnterLocation();
@@ -5497,8 +5501,18 @@
             loading.classList.add('visible');
 
             try {
-                // The backend caps evaluation at 100 pets and only uses these fields.
-                const aiPets = allPets.slice(0, 100);
+                // The backend caps evaluation at 100 pets. Prefer the 100 closest to the user's location.
+                let aiPets;
+                if (userLocation && allPets.length > 0 && allPets[0]._lat != null) {
+                    const sorted = [...allPets].sort((a, b) => {
+                        const da = haversine(userLocation.lat, userLocation.lng, a._lat || 0, a._lng || 0);
+                        const db = haversine(userLocation.lat, userLocation.lng, b._lat || 0, b._lng || 0);
+                        return da - db;
+                    });
+                    aiPets = sorted.slice(0, 100);
+                } else {
+                    aiPets = allPets.slice(0, 100);
+                }
                 const petSummaries = aiPets.map(pet => ({
                     id: pet.id,
                     name: pet.name,
