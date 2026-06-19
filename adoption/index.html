@@ -4848,7 +4848,9 @@
                     lastSearchCenter = { lat, lng };
                     window.nationwidePhase = 'ready';
                     closeNationwideModal();
-                    showToast('Location set! Now adjust your filters, then tap Execute Nationwide Search.');
+                    if (!window.aiSearchPending) {
+                        showToast('Location set! Now adjust your filters, then tap Execute Nationwide Search.');
+                    }
                     if (window.aiSearchPending) performAIMatch();
                 },
                 async (err) => {
@@ -4916,7 +4918,9 @@
                 lastSearchCenter = { lat: result.lat, lng: result.lng };
                 window.nationwidePhase = 'ready';
                 closeNationwideModal();
-                showToast(`Location set to ${result.displayName.split(',')[0]}! Now adjust your filters, then tap Execute Nationwide Search.`);
+                if (!window.aiSearchPending) {
+                    showToast(`Location set to ${result.displayName.split(',')[0]}! Now adjust your filters, then tap Execute Nationwide Search.`);
+                }
                 if (window.aiSearchPending) performAIMatch();
             } catch (err) {
                 showToast('Search failed. Please try again.');
