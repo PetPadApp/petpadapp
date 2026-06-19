@@ -1996,6 +1996,59 @@
         .pagination-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .pagination-info { color: var(--text-muted); font-size: 0.85em; margin-left: 8px; }
 
+        /* AI match note */
+        .ai-match-note {
+            background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(64,224,208,0.08));
+            border: 1px solid rgba(124,58,237,0.15);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 0.85em;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 2px;
+        }
+        .ai-match-note i { color: var(--purple-color); }
+
+        /* Load more button */
+        .load-more-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 0 24px;
+        }
+        .load-more-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 24px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+        }
+        .load-more-btn:hover {
+            border-color: var(--primary-color);
+            background: var(--primary-light);
+        }
+        .load-more-btn span {
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+        .load-more-btn small {
+            color: var(--text-muted);
+            font-size: 0.75em;
+        }
+        .load-more-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         /* Mobile */
         @media (max-width: 1100px) {
             .pet-grid { grid-template-columns: repeat(3, 1fr); }
@@ -2476,6 +2529,10 @@
                 </div>
             </div>
             <div class="sidebar" id="sidebar">
+                <div class="ai-match-note" id="aiMatchNote" style="display:none;">
+                    <i class="fas fa-wand-magic-sparkles"></i>
+                    AI matching is applied to the 200 pets closest to your search location.
+                </div>
                 <div class="pet-grid" id="petGrid">
                     <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:45%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
                     <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:55%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
@@ -2487,6 +2544,12 @@
                     <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:38%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
                 </div>
                 <div class="pagination" id="pagination"></div>
+                <div class="load-more-wrap" id="loadMoreWrap" style="display:none;">
+                    <button class="load-more-btn" id="loadMoreBtn" onclick="loadMorePets()">
+                        <span><i class="fas fa-plus-circle"></i> Load 200 more pets</span>
+                        <small>Additional pets are shown without AI matching</small>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -2669,6 +2732,12 @@
         let activeRadius = null; // miles
         let keyboardFocusIdx = -1;
         let radiusCircle = null;
+
+        // Pagination state for loading more pets
+        let currentOffset = 0;
+        let hasMorePets = false;
+        let lastSearchParams = null;
+        let isLoadingMore = false;
 
         function showRadiusChips(showAny) {
             const chipsWrap = document.getElementById('radiusChips');
@@ -3058,6 +3127,21 @@
             document.getElementById('petGrid').scrollIntoView({ behavior: 'smooth', block: 'start' });
         };
 
+        function updatePaginationUI() {
+            const aiNote = document.getElementById('aiMatchNote');
+            const loadMoreWrap = document.getElementById('loadMoreWrap');
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            if (aiNote) {
+                aiNote.style.display = (activeRadius !== null && allPets.length > 0) ? '' : 'none';
+            }
+            if (loadMoreWrap) {
+                loadMoreWrap.style.display = (activeRadius !== null && hasMorePets && !isLoadingMore) ? 'flex' : 'none';
+            }
+            if (loadMoreBtn) {
+                loadMoreBtn.disabled = isLoadingMore;
+            }
+        }
+
         function renderSidebar() {
             const grid = document.getElementById('petGrid');
             const sidebar = document.getElementById('sidebar');
@@ -3098,6 +3182,7 @@
                     </div>
                 `;
                 document.getElementById('pagination').innerHTML = '';
+                updatePaginationUI();
                 return;
             }
             const shelterFilterVal = document.getElementById('shelterFilter').value.trim();
@@ -3141,7 +3226,7 @@
                     <button class="fav-btn ${saved ? 'saved' : ''}" data-action="toggle-fav" title="${saved ? 'Remove from saved' : 'Save pet'}">
                         <i class="${saved ? 'fas' : 'far'} fa-heart"></i>
                     </button>
-                    ${pet.matchScore !== undefined ? `<div class="match-score-badge ${pet.matchScore >= 80 ? 'high' : pet.matchScore >= 50 ? 'medium' : 'low'}" data-action="show-match" tabindex="0" title="Click to see why this pet matches">${pet.matchScore}%</div>` : ''}
+                    ${pet.matchScore !== undefined ? `<div class="match-score-badge ${pet.matchScore >= 80 ? 'high' : pet.matchScore >= 50 ? 'medium' : 'low'}" data-action="show-match" tabindex="0" title="AI match score is based on the 200 pets nearest to your search location. Click to see why this pet matches.">${pet.matchScore}%<i class="fas fa-info-circle" style="margin-left:4px;font-size:0.7em;opacity:0.8;"></i></div>` : ''}
                     ${imgHtml}
                     <div class="pet-info">
                         <div class="pet-name">${pet.name}</div>
@@ -3239,6 +3324,7 @@
                     if (photos.length) window.openLightbox(photos, 0);
                 });
             });
+            updatePaginationUI();
         }
 
         window.toggleCardFav = async (id, btn) => {
@@ -3313,7 +3399,7 @@
             sel.innerHTML = '';
             sel.appendChild(first);
             window.petSpeciesData.allSpecies.forEach(t => {
-                const count = allPets.filter(p => p.petType === t).length;
+                const count = allPets.filter(p => petMatchesOtherFilters(p, 'type') && p.petType === t).length;
                 const opt = document.createElement('option');
                 opt.value = t;
                 opt.textContent = count > 0 ? `${t} (${count})` : t;
@@ -3340,7 +3426,7 @@
             const breeds = window.petSpeciesData.breedsBySpecies[species];
             breeds.forEach(b => {
                 if (b === 'Enter Manually') return;
-                const count = allPets.filter(p => p.petType === species && p.breed === b).length;
+                const count = allPets.filter(p => petMatchesOtherFilters(p, 'breed') && p.petType === species && p.breed === b).length;
                 const opt = document.createElement('option');
                 opt.value = b;
                 opt.textContent = count > 0 ? `${b} (${count})` : b;
@@ -3424,6 +3510,13 @@
                 const shelterText = [pet.shelterName, pet.shelterAddress, pet.shelterCity, pet.shelterState, pet.shelterZip, pet.shelterLocation].join(' ').toLowerCase();
                 if (!shelterText.includes(shelter)) return false;
             }
+            if (activeRadius) {
+                if (!pet._hasRealCoords) return false;
+                if (userLocation) {
+                    const d = haversine(userLocation.lat, userLocation.lng, pet._lat, pet._lng);
+                    if (d > activeRadius) return false;
+                }
+            }
             return true;
         }
 
@@ -3432,9 +3525,13 @@
             const updateOpts = (selId, counts) => {
                 const sel = document.getElementById(selId);
                 if (!sel) return;
+                const total = Object.values(counts).reduce((sum, c) => sum + c, 0);
                 Array.from(sel.options).forEach(opt => {
-                    if (!opt.value) return;
                     const label = opt.textContent.replace(/ \(\d+\)$/, '');
+                    if (!opt.value) {
+                        opt.textContent = total > 0 ? `${label} (${total})` : label;
+                        return;
+                    }
                     const count = counts[opt.value] || 0;
                     opt.textContent = count > 0 ? `${label} (${count})` : label;
                 });
@@ -3689,6 +3786,7 @@
             } else {
                 banner.style.display = 'none';
             }
+            updateFilterCounts();
         }
         window.applyFilters = applyFilters; // expose for inline onclick handlers
 
@@ -3777,6 +3875,19 @@
                 window.currentDefaultCity = result.defaultCity || null;
                 window.currentDefaultCityLat = result.defaultCityLat || null;
                 window.currentDefaultCityLng = result.defaultCityLng || null;
+
+                // Reset pagination state for the default city so Load More can paginate.
+                if (result.defaultCityLat != null && result.defaultCityLng != null) {
+                    lastSearchParams = {
+                        baseUrl: `https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&lat=${encodeURIComponent(result.defaultCityLat)}&lng=${encodeURIComponent(result.defaultCityLng)}&distance=100`,
+                    };
+                } else {
+                    lastSearchParams = { baseUrl: 'https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200' };
+                }
+                currentOffset = 0;
+                hasMorePets = result?.hasMore || false;
+                if (aiMode) clearAIMatch();
+
                 if (window.currentDefaultCity && !window.userSearchedLocation) {
                     document.getElementById('defaultCityName').textContent = window.currentDefaultCity;
                     document.getElementById('heroDefaultCity').style.display = 'block';
@@ -3807,6 +3918,7 @@
 
         async function loadPetsByPostalcode(postalcode, radius = 100) {
             try {
+                if (aiMode) clearAIMatch();
                 window.userSearchedLocation = true;
                 window.currentDefaultCity = null;
 
@@ -3846,7 +3958,8 @@
                 }
                 console.log(`[loadPetsByPostalcode ${postalcode}] frontend geocode: lat=${searchLat}, lng=${searchLng}, geocodeOk=${geocodeOk}`);
 
-                const response = await fetch(`https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&postalcode=${encodeURIComponent(postalcode)}&distance=${radius}`);
+                const baseUrl = `https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&postalcode=${encodeURIComponent(postalcode)}&distance=${radius}`;
+                const response = await fetch(baseUrl);
                 let result = await response.json();
                 console.log(`[loadPetsByPostalcode ${postalcode}] backend returned ${result?.pets?.length || 0} pets, geocodeOk=${geocodeOk}`);
 
@@ -3870,6 +3983,11 @@
                 }
 
                 const effectiveRadius = expandedRadius ? result?.searchRadius || 500 : radius;
+                lastSearchParams = {
+                    baseUrl: `https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&postalcode=${encodeURIComponent(postalcode)}&distance=${effectiveRadius}`,
+                };
+                currentOffset = 0;
+                hasMorePets = result?.hasMore || false;
 
                 if (result.success && result.pets && result.pets.length > 0) {
                     allPets.length = 0;
@@ -3905,6 +4023,7 @@
                         // Backend returned scattered pets — likely invalid for this ZIP
                         allPets.length = 0;
                         filteredPets = [];
+                        hasMorePets = false;
                         renderMarkers();
                         renderSidebar();
                         updateFilterCounts();
@@ -3956,6 +4075,7 @@
                     // Backend returned no pets — clear everything and show proper state
                     allPets.length = 0;
                     filteredPets = [];
+                    hasMorePets = false;
                     renderMarkers();
                     renderSidebar();
                     updateFilterCounts();
@@ -3979,11 +4099,13 @@
 
         async function loadPetsByLocation(lat, lng, radius = 100) {
             try {
+                if (aiMode) clearAIMatch();
                 window.userSearchedLocation = true;
                 window.currentDefaultCity = null;
                 userLocation = { lat, lng };
                 lastSearchCenter = { lat, lng };
-                const response = await fetch(`https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}&distance=${radius}`);
+                const baseUrl = `https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}&distance=${radius}`;
+                const response = await fetch(baseUrl);
                 let result = await response.json();
                 console.log(`[loadPetsByLocation ${lat},${lng}] backend returned ${result?.pets?.length || 0} pets`);
 
@@ -4006,8 +4128,13 @@
                 }
 
                 const effectiveRadius = expandedRadius ? result?.searchRadius || 500 : radius;
+                lastSearchParams = {
+                    baseUrl: `https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}&distance=${effectiveRadius}`,
+                };
+                currentOffset = 0;
+                hasMorePets = result?.hasMore || false;
 
-                if (result.success && result.pets) {
+                if (result.success && result.pets && result.pets.length > 0) {
                     allPets.length = 0;
                     result.pets.forEach(data => allPets.push(data));
                     allPets.forEach(pet => {
@@ -4046,6 +4173,7 @@
                     // Backend returned no pets — clear everything and show proper state
                     allPets.length = 0;
                     filteredPets = [];
+                    hasMorePets = false;
                     renderMarkers();
                     renderSidebar();
                     updateFilterCounts();
@@ -4057,6 +4185,63 @@
                 showToast('Unable to load pets right now. Please check your connection and try again.');
             }
         }
+
+        async function loadMorePets() {
+            if (!lastSearchParams || isLoadingMore || !hasMorePets) return;
+            isLoadingMore = true;
+            updatePaginationUI();
+
+            const nextOffset = currentOffset + 200;
+            const url = `${lastSearchParams.baseUrl}&offset=${nextOffset}`;
+            console.log(`[loadMorePets] loading offset=${nextOffset}`);
+
+            try {
+                const response = await fetch(url);
+                const result = await response.json();
+                console.log(`[loadMorePets] loaded ${result?.pets?.length || 0} pets, hasMore=${result?.hasMore}`);
+
+                if (result.success && result.pets && result.pets.length > 0) {
+                    // Append new pets, avoiding duplicates by id
+                    const existingIds = new Set(allPets.map(p => String(p.id)));
+                    const newPets = result.pets.filter(p => !existingIds.has(String(p.id)));
+                    newPets.forEach(pet => {
+                        let latVal, lngVal;
+                        let hasRealCoords = false;
+                        if (typeof pet.shelterLat === 'number' && typeof pet.shelterLng === 'number') {
+                            latVal = pet.shelterLat; lngVal = pet.shelterLng; hasRealCoords = true;
+                        } else {
+                            const hash = String(pet.id).split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+                            latVal = 30 + (hash % 1500) / 100;
+                            lngVal = -120 + (hash % 4000) / 100;
+                        }
+                        pet._lat = latVal; pet._lng = lngVal; pet._hasRealCoords = hasRealCoords;
+                        allPets.push(pet);
+                    });
+
+                    currentOffset = nextOffset;
+                    hasMorePets = result.hasMore || false;
+
+                    // If AI matching is currently active, clear it because the newly loaded
+                    // pets are not AI-matched and we do not want to mix matched/unmatched results.
+                    if (aiMode) {
+                        clearAIMatch();
+                    }
+
+                    applyFilters();
+                    showToast(`Loaded ${newPets.length} more pets`);
+                } else {
+                    hasMorePets = false;
+                    showToast('No more pets found in this area');
+                }
+            } catch (e) {
+                console.error('Error loading more pets:', e);
+                showToast('Unable to load more pets right now. Please try again.');
+            } finally {
+                isLoadingMore = false;
+                updatePaginationUI();
+            }
+        }
+        window.loadMorePets = loadMorePets;
 
         window.promptForLocation = function() {
             if (!navigator.geolocation) {
@@ -4792,6 +4977,10 @@
             activeRadius = null;
             window.expandedRadiusFrom = null;
             clearRadiusCircle();
+            hasMorePets = false;
+            currentOffset = 0;
+            lastSearchParams = null;
+            if (aiMode) clearAIMatch();
             if (compareMode) {
                 compareMode = false;
                 document.getElementById('compareToggle').classList.remove('active');
@@ -5265,18 +5454,19 @@
             loading.classList.add('visible');
 
             try {
-                // Build lightweight pet summaries for AI matching scoped to loaded pets
-                const petSummaries = allPets.map(pet => ({
+                // The backend caps evaluation at 50 pets and only uses these fields.
+                const aiPets = allPets.slice(0, 50);
+                const petSummaries = aiPets.map(pet => ({
                     id: pet.id,
                     name: pet.name,
-                    type: pet.petType || pet.type,
+                    petType: pet.petType || pet.type,
                     breed: pet.breed,
                     sex: pet.sex,
                     sizeGroup: pet.sizeGroup,
                     ageText: pet.ageText,
                     description: pet.adoptionListingInfo || pet.description || '',
                     isSpecialNeeds: pet.isSpecialNeeds,
-                    isSpayedNeutered: pet.isSpayedNeutered || pet.spayedNeuteredStatus,
+                    spayedNeuteredStatus: pet.isSpayedNeutered || pet.spayedNeuteredStatus,
                     goodWithCats: pet.goodWithCats,
                     goodWithDogs: pet.goodWithDogs,
                     goodWithKids: pet.goodWithKids,
@@ -5290,32 +5480,7 @@
                     shelterCity: pet.shelterCity,
                     shelterState: pet.shelterState,
                     shelterLat: pet.shelterLat,
-                    shelterLng: pet.shelterLng,
-                    imageUrl: pet.imageUrl,
-                    adoptionPhotoUrls: pet.adoptionPhotoUrls,
-                    source: pet.source,
-                    shelterName: pet.shelterName,
-                    shelterPhone: pet.shelterPhone,
-                    shelterWebsite: pet.shelterWebsite,
-                    petWebpageUrl: pet.petWebpageUrl,
-                    shelterAddress: pet.shelterAddress,
-                    shelterZip: pet.shelterZip,
-                    orgFacebookUrl: pet.orgFacebookUrl,
-                    orgAdoptionProcess: pet.orgAdoptionProcess,
-                    isAdoptionPending: pet.isAdoptionPending,
-                    isNeedingFoster: pet.isNeedingFoster,
-                    isHousetrained: pet.isHousetrained,
-                    isCurrentVaccinations: pet.isCurrentVaccinations,
-                    isDeclawed: pet.isDeclawed,
-                    specialNeedsDetails: pet.specialNeedsDetails,
-                    color: pet.color,
-                    weight: pet.weight,
-                    adoptionFee: pet.adoptionFee,
-                    qualities: pet.qualities,
-                    dateOfBirth: pet.dateOfBirth,
-                    slug: pet.slug,
-                    rescueGroupsAnimalId: pet.rescueGroupsAnimalId,
-                    rescueGroupsOrgId: pet.rescueGroupsOrgId
+                    shelterLng: pet.shelterLng
                 }));
 
                 const response = await fetch('https://us-central1-mypet-b1143.cloudfunctions.net/matchPetsWithAI', {
@@ -5324,9 +5489,17 @@
                     body: JSON.stringify({ userDescription: description, maxResults: 24, pets: petSummaries })
                 });
 
-                const result = await response.json();
+                const responseText = await response.text();
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (parseErr) {
+                    console.error('AI match non-JSON response:', response.status, responseText);
+                    throw new Error(`Server returned status ${response.status} and non-JSON response.`);
+                }
 
                 if (!result.success) {
+                    console.error('AI match server error:', response.status, result);
                     throw new Error(result.message || 'Matching failed');
                 }
 
