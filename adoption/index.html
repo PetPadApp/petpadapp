@@ -2385,11 +2385,13 @@
             </select>
             <select id="sexFilter">
                 <option value="">All Sexes</option>
+                <option value="__not_specified__">Not specified</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
             </select>
             <select id="sizeFilter">
                 <option value="">All Sizes</option>
+                <option value="__not_specified__">Not specified</option>
                 <option value="Small">Small</option>
                 <option value="Medium">Medium</option>
                 <option value="Large">Large</option>
@@ -2397,6 +2399,7 @@
             </select>
             <select id="goodWithFilter">
                 <option value="">Good With</option>
+                <option value="__not_specified__">Not specified</option>
                 <option value="cats">Cats</option>
                 <option value="dogs">Dogs</option>
                 <option value="kids">Kids</option>
@@ -2440,16 +2443,19 @@
                 </div>
                 <select id="spayedFilter">
                     <option value="">Spayed/Neutered</option>
+                    <option value="__not_specified__">Not specified</option>
                     <option value="Yes">Yes</option>
                     <option value="No">No</option>
                 </select>
                 <select id="specialNeedsFilter">
                     <option value="">Special Needs</option>
+                    <option value="__not_specified__">Not specified</option>
                     <option value="Yes">Yes</option>
                     <option value="No">No</option>
                 </select>
                 <select id="energyLevelFilter">
                     <option value="">Energy Level</option>
+                    <option value="__not_specified__">Not specified</option>
                     <option value="Low">Low</option>
                     <option value="Moderate">Moderate</option>
                     <option value="High">High</option>
@@ -2457,12 +2463,14 @@
                 </select>
                 <select id="exerciseNeedsFilter">
                     <option value="">Exercise Needs</option>
+                    <option value="__not_specified__">Not specified</option>
                     <option value="Low">Low</option>
                     <option value="Moderate">Moderate</option>
                     <option value="High">High</option>
                 </select>
                 <select id="activityLevelFilter">
                     <option value="">Activity Level</option>
+                    <option value="__not_specified__">Not specified</option>
                     <option value="Low">Low</option>
                     <option value="Moderate">Moderate</option>
                     <option value="High">High</option>
@@ -2470,6 +2478,7 @@
                 </select>
                 <select id="coatLengthFilter">
                     <option value="">Coat Length</option>
+                    <option value="__not_specified__">Not specified</option>
                     <option value="Short">Short</option>
                     <option value="Medium">Medium</option>
                     <option value="Long">Long</option>
@@ -2477,12 +2486,14 @@
                 </select>
                 <select id="groomingNeedsFilter">
                     <option value="">Grooming Needs</option>
+                    <option value="__not_specified__">Not specified</option>
                     <option value="Low">Low</option>
                     <option value="Moderate">Moderate</option>
                     <option value="High">High</option>
                 </select>
                 <select id="sheddingLevelFilter">
                     <option value="">Shedding Level</option>
+                    <option value="__not_specified__">Not specified</option>
                     <option value="None">None</option>
                     <option value="Low">Low</option>
                     <option value="Moderate">Moderate</option>
@@ -2490,6 +2501,7 @@
                 </select>
                 <select id="vocalLevelFilter">
                     <option value="">Vocal Level</option>
+                    <option value="__not_specified__">Not specified</option>
                     <option value="Quiet">Quiet</option>
                     <option value="Some">Some</option>
                     <option value="Vocal">Vocal</option>
@@ -2497,6 +2509,7 @@
                 </select>
                 <select id="microchippedFilter">
                     <option value="">Microchipped</option>
+                    <option value="__not_specified__">Not specified</option>
                     <option value="Yes">Yes</option>
                     <option value="No">No</option>
                 </select>
@@ -2723,6 +2736,9 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
+        const NOT_SPECIFIED = '__not_specified__';
+        const SAVED_SEARCH_KEY = 'petpad_adoption_search';
+
         const markers = [];
         let markerClusterGroup = null;
         const allPets = [];
@@ -2775,6 +2791,35 @@
         function clearRadiusCircle() {
             if (radiusCircle) { map.removeLayer(radiusCircle); radiusCircle = null; }
         }
+
+        function saveSearchLocation() {
+            if (!window.userSearchedLocation || !userLocation) return;
+            try {
+                localStorage.setItem(SAVED_SEARCH_KEY, JSON.stringify({
+                    query: document.getElementById('locationInput').value,
+                    lat: userLocation.lat,
+                    lng: userLocation.lng,
+                    label: window.currentSearchLocationLabel,
+                    radius: activeRadius,
+                    timestamp: Date.now()
+                }));
+            } catch (e) {}
+        }
+
+        function clearSavedSearchLocation() {
+            try { localStorage.removeItem(SAVED_SEARCH_KEY); } catch (e) {}
+        }
+
+        function getSavedSearchLocation() {
+            try {
+                const raw = localStorage.getItem(SAVED_SEARCH_KEY);
+                if (!raw) return null;
+                const data = JSON.parse(raw);
+                if (!data || typeof data.lat !== 'number' || typeof data.lng !== 'number') return null;
+                return data;
+            } catch (e) { return null; }
+        }
+
         function fitMapToRadius(lat, lng, miles) {
             if (lat == null || lng == null || !miles) return;
             const latDelta = miles / 69;
@@ -3395,8 +3440,11 @@
         function populateTypeFilter() {
             const sel = document.getElementById('typeFilter');
             const currentVal = sel.value;
-            const first = sel.options[0];
+            const baseCount = allPets.filter(p => petMatchesOtherFilters(p, 'type')).length;
             sel.innerHTML = '';
+            const first = document.createElement('option');
+            first.value = '';
+            first.textContent = baseCount > 0 ? `All Types (${baseCount})` : 'All Types';
             sel.appendChild(first);
             window.petSpeciesData.allSpecies.forEach(t => {
                 const count = allPets.filter(p => petMatchesOtherFilters(p, 'type') && p.petType === t).length;
@@ -3405,20 +3453,36 @@
                 opt.textContent = count > 0 ? `${t} (${count})` : t;
                 sel.appendChild(opt);
             });
-            if (currentVal) sel.value = currentVal;
+            const notSpec = document.createElement('option');
+            notSpec.value = NOT_SPECIFIED;
+            const notSpecCount = allPets.filter(p => petMatchesOtherFilters(p, 'type') && !p.petType).length;
+            notSpec.textContent = notSpecCount > 0 ? `Not specified (${notSpecCount})` : 'Not specified';
+            sel.appendChild(notSpec);
+            if (currentVal && Array.from(sel.options).some(o => o.value === currentVal)) {
+                sel.value = currentVal;
+            }
         }
 
         function populateBreedFilter(species) {
             const sel = document.getElementById('breedFilter');
             const currentVal = sel.value;
+            const baseCount = allPets.filter(p => petMatchesOtherFilters(p, 'breed') && (!species || p.petType === species)).length;
             sel.innerHTML = '';
             const allOpt = document.createElement('option');
             allOpt.value = '';
-            allOpt.textContent = 'All Breeds';
+            allOpt.textContent = baseCount > 0 ? `All Breeds (${baseCount})` : 'All Breeds';
             sel.appendChild(allOpt);
 
-            if (!species || !window.petSpeciesData.breedsBySpecies[species]) {
-                sel.disabled = true;
+            if (!species || species === NOT_SPECIFIED || !window.petSpeciesData.breedsBySpecies[species]) {
+                const notSpec = document.createElement('option');
+                notSpec.value = NOT_SPECIFIED;
+                const notSpecCount = allPets.filter(p => petMatchesOtherFilters(p, 'breed') && !p.breed).length;
+                notSpec.textContent = notSpecCount > 0 ? `Not specified (${notSpecCount})` : 'Not specified';
+                sel.appendChild(notSpec);
+                sel.disabled = false;
+                if (currentVal && Array.from(sel.options).some(o => o.value === currentVal)) {
+                    sel.value = currentVal;
+                }
                 return;
             }
 
@@ -3432,6 +3496,11 @@
                 opt.textContent = count > 0 ? `${b} (${count})` : b;
                 sel.appendChild(opt);
             });
+            const notSpec = document.createElement('option');
+            notSpec.value = NOT_SPECIFIED;
+            const notSpecCount = allPets.filter(p => petMatchesOtherFilters(p, 'breed') && p.petType === species && !p.breed).length;
+            notSpec.textContent = notSpecCount > 0 ? `Not specified (${notSpecCount})` : 'Not specified';
+            sel.appendChild(notSpec);
 
             if (currentVal && Array.from(sel.options).some(o => o.value === currentVal)) {
                 sel.value = currentVal;
@@ -3466,9 +3535,18 @@
                 const text = [pet.name, pet.breed, pet.color, pet.petType, pet.customPetType, pet.additionalNotes, pet.medicalInfo, pet.allergies, pet.medications].join(' ').toLowerCase();
                 if (!text.includes(keyword)) return false;
             }
-            if (excludeFilter !== 'type' && type && pet.petType !== type) return false;
-            if (excludeFilter !== 'breed' && breed && !(pet.breed || '').toLowerCase().includes(breed)) return false;
-            if (excludeFilter !== 'sex' && sex && pet.sex !== sex) return false;
+            if (excludeFilter !== 'type' && type) {
+                if (type === NOT_SPECIFIED) { if (pet.petType) return false; }
+                else if (pet.petType !== type) return false;
+            }
+            if (excludeFilter !== 'breed' && breed) {
+                if (breed === NOT_SPECIFIED) { if (pet.breed) return false; }
+                else if (!(pet.breed || '').toLowerCase().includes(breed)) return false;
+            }
+            if (excludeFilter !== 'sex' && sex) {
+                if (sex === NOT_SPECIFIED) { if (pet.sex) return false; }
+                else if (pet.sex !== sex) return false;
+            }
 
             const ageMonths = getAgeInMonths(pet.dateOfBirth);
             const minAgeMonths = !isNaN(minAge) ? minAge * 12 : null;
@@ -3482,29 +3560,60 @@
 
             if (excludeFilter !== 'spayed' && spayed) {
                 const status = (pet.spayedNeuteredStatus || '').toLowerCase();
-                if (spayed === 'Yes' && !status.includes('yes')) return false;
-                if (spayed === 'No' && !status.includes('no')) return false;
+                if (spayed === NOT_SPECIFIED) { if (pet.spayedNeuteredStatus) return false; }
+                else if (spayed === 'Yes' && !status.includes('yes')) return false;
+                else if (spayed === 'No' && !status.includes('no')) return false;
             }
-            if (excludeFilter !== 'size' && size && pet.sizeGroup !== size) return false;
+            if (excludeFilter !== 'size' && size) {
+                if (size === NOT_SPECIFIED) { if (pet.sizeGroup) return false; }
+                else if (pet.sizeGroup !== size) return false;
+            }
             if (excludeFilter !== 'goodWith' && goodWith) {
-                if (goodWith === 'cats' && pet.goodWithCats !== true) return false;
-                if (goodWith === 'dogs' && pet.goodWithDogs !== true) return false;
-                if (goodWith === 'kids' && pet.goodWithKids !== true) return false;
+                if (goodWith === NOT_SPECIFIED) {
+                    if (pet.goodWithCats || pet.goodWithDogs || pet.goodWithKids) return false;
+                } else {
+                    if (goodWith === 'cats' && pet.goodWithCats !== true) return false;
+                    if (goodWith === 'dogs' && pet.goodWithDogs !== true) return false;
+                    if (goodWith === 'kids' && pet.goodWithKids !== true) return false;
+                }
             }
             if (excludeFilter !== 'specialNeeds' && specialNeeds) {
-                if (specialNeeds === 'Yes' && !pet.isSpecialNeeds) return false;
-                if (specialNeeds === 'No' && pet.isSpecialNeeds) return false;
+                if (specialNeeds === NOT_SPECIFIED) { if (pet.isSpecialNeeds != null) return false; }
+                else if (specialNeeds === 'Yes' && pet.isSpecialNeeds !== true) return false;
+                else if (specialNeeds === 'No' && pet.isSpecialNeeds !== false) return false;
             }
-            if (excludeFilter !== 'energy' && energy && pet.energyLevel !== energy) return false;
-            if (excludeFilter !== 'exercise' && exercise && pet.exerciseNeeds !== exercise) return false;
-            if (excludeFilter !== 'activity' && activity && pet.activityLevel !== activity) return false;
-            if (excludeFilter !== 'coat' && coat && pet.coatLength !== coat) return false;
-            if (excludeFilter !== 'grooming' && grooming && pet.groomingNeeds !== grooming) return false;
-            if (excludeFilter !== 'shedding' && shedding && pet.sheddingLevel !== shedding) return false;
-            if (excludeFilter !== 'vocal' && vocal && pet.vocalLevel !== vocal) return false;
+            if (excludeFilter !== 'energy' && energy) {
+                if (energy === NOT_SPECIFIED) { if (pet.energyLevel) return false; }
+                else if (pet.energyLevel !== energy) return false;
+            }
+            if (excludeFilter !== 'exercise' && exercise) {
+                if (exercise === NOT_SPECIFIED) { if (pet.exerciseNeeds) return false; }
+                else if (pet.exerciseNeeds !== exercise) return false;
+            }
+            if (excludeFilter !== 'activity' && activity) {
+                if (activity === NOT_SPECIFIED) { if (pet.activityLevel) return false; }
+                else if (pet.activityLevel !== activity) return false;
+            }
+            if (excludeFilter !== 'coat' && coat) {
+                if (coat === NOT_SPECIFIED) { if (pet.coatLength) return false; }
+                else if (pet.coatLength !== coat) return false;
+            }
+            if (excludeFilter !== 'grooming' && grooming) {
+                if (grooming === NOT_SPECIFIED) { if (pet.groomingNeeds) return false; }
+                else if (pet.groomingNeeds !== grooming) return false;
+            }
+            if (excludeFilter !== 'shedding' && shedding) {
+                if (shedding === NOT_SPECIFIED) { if (pet.sheddingLevel) return false; }
+                else if (pet.sheddingLevel !== shedding) return false;
+            }
+            if (excludeFilter !== 'vocal' && vocal) {
+                if (vocal === NOT_SPECIFIED) { if (pet.vocalLevel) return false; }
+                else if (pet.vocalLevel !== vocal) return false;
+            }
             if (excludeFilter !== 'microchip' && microchip) {
-                if (microchip === 'Yes' && !pet.hasMicrochip) return false;
-                if (microchip === 'No' && pet.hasMicrochip) return false;
+                if (microchip === NOT_SPECIFIED) { if (pet.hasMicrochip != null) return false; }
+                else if (microchip === 'Yes' && pet.hasMicrochip !== true) return false;
+                else if (microchip === 'No' && pet.hasMicrochip !== false) return false;
             }
             if (excludeFilter !== 'shelter' && shelter) {
                 const shelterText = [pet.shelterName, pet.shelterAddress, pet.shelterCity, pet.shelterState, pet.shelterZip, pet.shelterLocation].join(' ').toLowerCase();
@@ -3526,10 +3635,11 @@
                 const sel = document.getElementById(selId);
                 if (!sel) return;
                 const total = Object.values(counts).reduce((sum, c) => sum + c, 0);
+                const skipTotal = selId === 'goodWithFilter';
                 Array.from(sel.options).forEach(opt => {
                     const label = opt.textContent.replace(/ \(\d+\)$/, '');
                     if (!opt.value) {
-                        opt.textContent = total > 0 ? `${label} (${total})` : label;
+                        opt.textContent = (!skipTotal && total > 0) ? `${label} (${total})` : label;
                         return;
                     }
                     const count = counts[opt.value] || 0;
@@ -3542,6 +3652,7 @@
                 if (!petMatchesOtherFilters(p, 'sex')) return;
                 if (p.sex) sexCounts[p.sex] = (sexCounts[p.sex] || 0) + 1;
             });
+            sexCounts[NOT_SPECIFIED] = allPets.filter(p => petMatchesOtherFilters(p, 'sex') && !p.sex).length;
             updateOpts('sexFilter', sexCounts);
             // Size counts
             const sizeCounts = {};
@@ -3549,6 +3660,7 @@
                 if (!petMatchesOtherFilters(p, 'size')) return;
                 if (p.sizeGroup) sizeCounts[p.sizeGroup] = (sizeCounts[p.sizeGroup] || 0) + 1;
             });
+            sizeCounts[NOT_SPECIFIED] = allPets.filter(p => petMatchesOtherFilters(p, 'size') && !p.sizeGroup).length;
             updateOpts('sizeFilter', sizeCounts);
             // Good With counts
             const goodWithCounts = {};
@@ -3558,6 +3670,7 @@
                 if (p.goodWithDogs === true) goodWithCounts['dogs'] = (goodWithCounts['dogs'] || 0) + 1;
                 if (p.goodWithKids === true) goodWithCounts['kids'] = (goodWithCounts['kids'] || 0) + 1;
             });
+            goodWithCounts[NOT_SPECIFIED] = allPets.filter(p => petMatchesOtherFilters(p, 'goodWith') && !p.goodWithCats && !p.goodWithDogs && !p.goodWithKids).length;
             updateOpts('goodWithFilter', goodWithCounts);
             // Spayed/Neutered counts
             const spayedCounts = {};
@@ -3567,14 +3680,16 @@
                 if (status.includes('yes')) spayedCounts['Yes'] = (spayedCounts['Yes'] || 0) + 1;
                 if (status.includes('no')) spayedCounts['No'] = (spayedCounts['No'] || 0) + 1;
             });
+            spayedCounts[NOT_SPECIFIED] = allPets.filter(p => petMatchesOtherFilters(p, 'spayed') && !p.spayedNeuteredStatus).length;
             updateOpts('spayedFilter', spayedCounts);
             // Special Needs counts
             const specialCounts = {};
             allPets.forEach(p => {
                 if (!petMatchesOtherFilters(p, 'specialNeeds')) return;
                 if (p.isSpecialNeeds === true) specialCounts['Yes'] = (specialCounts['Yes'] || 0) + 1;
-                if (p.isSpecialNeeds !== true) specialCounts['No'] = (specialCounts['No'] || 0) + 1;
+                if (p.isSpecialNeeds === false) specialCounts['No'] = (specialCounts['No'] || 0) + 1;
             });
+            specialCounts[NOT_SPECIFIED] = allPets.filter(p => petMatchesOtherFilters(p, 'specialNeeds') && p.isSpecialNeeds == null).length;
             updateOpts('specialNeedsFilter', specialCounts);
             // Energy Level counts
             const energyCounts = {};
@@ -3582,6 +3697,7 @@
                 if (!petMatchesOtherFilters(p, 'energy')) return;
                 if (p.energyLevel) energyCounts[p.energyLevel] = (energyCounts[p.energyLevel] || 0) + 1;
             });
+            energyCounts[NOT_SPECIFIED] = allPets.filter(p => petMatchesOtherFilters(p, 'energy') && !p.energyLevel).length;
             updateOpts('energyLevelFilter', energyCounts);
             // Exercise Needs counts
             const exerciseCounts = {};
@@ -3589,6 +3705,7 @@
                 if (!petMatchesOtherFilters(p, 'exercise')) return;
                 if (p.exerciseNeeds) exerciseCounts[p.exerciseNeeds] = (exerciseCounts[p.exerciseNeeds] || 0) + 1;
             });
+            exerciseCounts[NOT_SPECIFIED] = allPets.filter(p => petMatchesOtherFilters(p, 'exercise') && !p.exerciseNeeds).length;
             updateOpts('exerciseNeedsFilter', exerciseCounts);
             // Activity Level counts
             const activityCounts = {};
@@ -3596,6 +3713,7 @@
                 if (!petMatchesOtherFilters(p, 'activity')) return;
                 if (p.activityLevel) activityCounts[p.activityLevel] = (activityCounts[p.activityLevel] || 0) + 1;
             });
+            activityCounts[NOT_SPECIFIED] = allPets.filter(p => petMatchesOtherFilters(p, 'activity') && !p.activityLevel).length;
             updateOpts('activityLevelFilter', activityCounts);
             // Coat Length counts
             const coatCounts = {};
@@ -3603,6 +3721,7 @@
                 if (!petMatchesOtherFilters(p, 'coat')) return;
                 if (p.coatLength) coatCounts[p.coatLength] = (coatCounts[p.coatLength] || 0) + 1;
             });
+            coatCounts[NOT_SPECIFIED] = allPets.filter(p => petMatchesOtherFilters(p, 'coat') && !p.coatLength).length;
             updateOpts('coatLengthFilter', coatCounts);
             // Grooming Needs counts
             const groomingCounts = {};
@@ -3610,6 +3729,7 @@
                 if (!petMatchesOtherFilters(p, 'grooming')) return;
                 if (p.groomingNeeds) groomingCounts[p.groomingNeeds] = (groomingCounts[p.groomingNeeds] || 0) + 1;
             });
+            groomingCounts[NOT_SPECIFIED] = allPets.filter(p => petMatchesOtherFilters(p, 'grooming') && !p.groomingNeeds).length;
             updateOpts('groomingNeedsFilter', groomingCounts);
             // Shedding Level counts
             const sheddingCounts = {};
@@ -3617,6 +3737,7 @@
                 if (!petMatchesOtherFilters(p, 'shedding')) return;
                 if (p.sheddingLevel) sheddingCounts[p.sheddingLevel] = (sheddingCounts[p.sheddingLevel] || 0) + 1;
             });
+            sheddingCounts[NOT_SPECIFIED] = allPets.filter(p => petMatchesOtherFilters(p, 'shedding') && !p.sheddingLevel).length;
             updateOpts('sheddingLevelFilter', sheddingCounts);
             // Vocal Level counts
             const vocalCounts = {};
@@ -3624,14 +3745,16 @@
                 if (!petMatchesOtherFilters(p, 'vocal')) return;
                 if (p.vocalLevel) vocalCounts[p.vocalLevel] = (vocalCounts[p.vocalLevel] || 0) + 1;
             });
+            vocalCounts[NOT_SPECIFIED] = allPets.filter(p => petMatchesOtherFilters(p, 'vocal') && !p.vocalLevel).length;
             updateOpts('vocalLevelFilter', vocalCounts);
             // Microchipped counts
             const microCounts = {};
             allPets.forEach(p => {
                 if (!petMatchesOtherFilters(p, 'microchip')) return;
                 if (p.hasMicrochip === true) microCounts['Yes'] = (microCounts['Yes'] || 0) + 1;
-                if (p.hasMicrochip !== true) microCounts['No'] = (microCounts['No'] || 0) + 1;
+                if (p.hasMicrochip === false) microCounts['No'] = (microCounts['No'] || 0) + 1;
             });
+            microCounts[NOT_SPECIFIED] = allPets.filter(p => petMatchesOtherFilters(p, 'microchip') && p.hasMicrochip == null).length;
             updateOpts('microchippedFilter', microCounts);
         }
 
@@ -3660,9 +3783,18 @@
                     const text = [pet.name, pet.breed, pet.color, pet.petType, pet.customPetType, pet.additionalNotes, pet.medicalInfo, pet.allergies, pet.medications].join(' ').toLowerCase();
                     if (!text.includes(keyword)) return false;
                 }
-                if (type && pet.petType !== type) return false;
-                if (breed && !(pet.breed || '').toLowerCase().includes(breed)) return false;
-                if (sex && pet.sex !== sex) return false;
+                if (type) {
+                    if (type === NOT_SPECIFIED) { if (pet.petType) return false; }
+                    else if (pet.petType !== type) return false;
+                }
+                if (breed) {
+                    if (breed === NOT_SPECIFIED) { if (pet.breed) return false; }
+                    else if (!(pet.breed || '').toLowerCase().includes(breed)) return false;
+                }
+                if (sex) {
+                    if (sex === NOT_SPECIFIED) { if (pet.sex) return false; }
+                    else if (pet.sex !== sex) return false;
+                }
 
                 const ageMonths = getAgeInMonths(pet.dateOfBirth);
                 const minAgeMonths = !isNaN(minAge) ? minAge * 12 : null;
@@ -3676,48 +3808,79 @@
 
                 if (spayed) {
                     const status = (pet.spayedNeuteredStatus || '').toLowerCase();
-                    if (spayed === 'Yes' && !status.includes('yes')) return false;
-                    if (spayed === 'No' && !status.includes('no')) return false;
+                    if (spayed === NOT_SPECIFIED) { if (pet.spayedNeuteredStatus) return false; }
+                    else if (spayed === 'Yes' && !status.includes('yes')) return false;
+                    else if (spayed === 'No' && !status.includes('no')) return false;
                 }
 
-                if (size && pet.sizeGroup !== size) return false;
+                if (size) {
+                    if (size === NOT_SPECIFIED) { if (pet.sizeGroup) return false; }
+                    else if (pet.sizeGroup !== size) return false;
+                }
 
                 if (goodWith) {
-                    if (goodWith === 'cats' && pet.goodWithCats !== true) return false;
-                    if (goodWith === 'dogs' && pet.goodWithDogs !== true) return false;
-                    if (goodWith === 'kids' && pet.goodWithKids !== true) return false;
+                    if (goodWith === NOT_SPECIFIED) {
+                        if (pet.goodWithCats || pet.goodWithDogs || pet.goodWithKids) return false;
+                    } else {
+                        if (goodWith === 'cats' && pet.goodWithCats !== true) return false;
+                        if (goodWith === 'dogs' && pet.goodWithDogs !== true) return false;
+                        if (goodWith === 'kids' && pet.goodWithKids !== true) return false;
+                    }
                 }
 
                 if (specialNeeds) {
-                    if (specialNeeds === 'Yes' && !pet.isSpecialNeeds) return false;
-                    if (specialNeeds === 'No' && pet.isSpecialNeeds) return false;
+                    if (specialNeeds === NOT_SPECIFIED) { if (pet.isSpecialNeeds != null) return false; }
+                    else if (specialNeeds === 'Yes' && pet.isSpecialNeeds !== true) return false;
+                    else if (specialNeeds === 'No' && pet.isSpecialNeeds !== false) return false;
                 }
 
                 const energy = document.getElementById('energyLevelFilter').value;
-                if (energy && pet.energyLevel !== energy) return false;
+                if (energy) {
+                    if (energy === NOT_SPECIFIED) { if (pet.energyLevel) return false; }
+                    else if (pet.energyLevel !== energy) return false;
+                }
 
                 const exercise = document.getElementById('exerciseNeedsFilter').value;
-                if (exercise && pet.exerciseNeeds !== exercise) return false;
+                if (exercise) {
+                    if (exercise === NOT_SPECIFIED) { if (pet.exerciseNeeds) return false; }
+                    else if (pet.exerciseNeeds !== exercise) return false;
+                }
 
                 const activity = document.getElementById('activityLevelFilter').value;
-                if (activity && pet.activityLevel !== activity) return false;
+                if (activity) {
+                    if (activity === NOT_SPECIFIED) { if (pet.activityLevel) return false; }
+                    else if (pet.activityLevel !== activity) return false;
+                }
 
                 const coat = document.getElementById('coatLengthFilter').value;
-                if (coat && pet.coatLength !== coat) return false;
+                if (coat) {
+                    if (coat === NOT_SPECIFIED) { if (pet.coatLength) return false; }
+                    else if (pet.coatLength !== coat) return false;
+                }
 
                 const grooming = document.getElementById('groomingNeedsFilter').value;
-                if (grooming && pet.groomingNeeds !== grooming) return false;
+                if (grooming) {
+                    if (grooming === NOT_SPECIFIED) { if (pet.groomingNeeds) return false; }
+                    else if (pet.groomingNeeds !== grooming) return false;
+                }
 
                 const shedding = document.getElementById('sheddingLevelFilter').value;
-                if (shedding && pet.sheddingLevel !== shedding) return false;
+                if (shedding) {
+                    if (shedding === NOT_SPECIFIED) { if (pet.sheddingLevel) return false; }
+                    else if (pet.sheddingLevel !== shedding) return false;
+                }
 
                 const vocal = document.getElementById('vocalLevelFilter').value;
-                if (vocal && pet.vocalLevel !== vocal) return false;
+                if (vocal) {
+                    if (vocal === NOT_SPECIFIED) { if (pet.vocalLevel) return false; }
+                    else if (pet.vocalLevel !== vocal) return false;
+                }
 
                 const microchip = document.getElementById('microchippedFilter').value;
                 if (microchip) {
-                    if (microchip === 'Yes' && !pet.hasMicrochip) return false;
-                    if (microchip === 'No' && pet.hasMicrochip) return false;
+                    if (microchip === NOT_SPECIFIED) { if (pet.hasMicrochip != null) return false; }
+                    else if (microchip === 'Yes' && pet.hasMicrochip !== true) return false;
+                    else if (microchip === 'No' && pet.hasMicrochip !== false) return false;
                 }
 
                 if (shelter) {
@@ -3787,6 +3950,8 @@
                 banner.style.display = 'none';
             }
             updateFilterCounts();
+            populateTypeFilter();
+            populateBreedFilter(document.getElementById('typeFilter').value);
         }
         window.applyFilters = applyFilters; // expose for inline onclick handlers
 
@@ -5043,6 +5208,7 @@
             activeRadius = null;
             window.expandedRadiusFrom = null;
             clearRadiusCircle();
+            clearSavedSearchLocation();
             hasMorePets = false;
             currentOffset = 0;
             lastSearchParams = null;
@@ -5258,6 +5424,7 @@
                         setRadiusCircle(userLocation.lat, userLocation.lng, activeRadius);
                     }
                 }
+                if (window.userSearchedLocation) saveSearchLocation();
                 applyFilters();
             });
         });
@@ -5316,6 +5483,7 @@
                     showRadiusChips(false);
                     selectRadiusChip('100');
                     await loadPetsByPostalcode(query, 100);
+                    saveSearchLocation();
                     scrollToResults();
                     btn.innerHTML = originalHtml;
                     return;
@@ -5343,6 +5511,7 @@
                 } else {
                     await loadPetsByLocation(result.lat, result.lng, activeRadius);
                 }
+                saveSearchLocation();
                 scrollToResults();
                 showToast(`Found: ${result.displayName.split(',')[0]}`);
             } catch (err) {
@@ -5743,6 +5912,27 @@
                 userLocation = { lat, lng };
                 renderSidebar(); // refresh distance tags
             }
+
+            // Restore a previously saved custom search location, if any
+            const saved = getSavedSearchLocation();
+            if (saved && saved.lat != null && saved.lng != null) {
+                window.userSearchedLocation = true;
+                document.getElementById('locationInput').value = saved.query || '';
+                userLocation = { lat: saved.lat, lng: saved.lng };
+                lastSearchCenter = { ...userLocation };
+                window.currentSearchLocationLabel = saved.label || saved.query || 'saved location';
+                const radius = typeof saved.radius === 'number' && saved.radius > 0 ? saved.radius : 100;
+                activeRadius = radius;
+                showRadiusChips(false);
+                selectRadiusChip(String(radius));
+                setRadiusCircle(userLocation.lat, userLocation.lng, radius);
+                map.flyTo([userLocation.lat, userLocation.lng], 11, { duration: 1.5 });
+                await loadPetsByLocation(userLocation.lat, userLocation.lng, radius);
+                renderSidebar();
+                document.getElementById('heroDefaultCity').style.display = 'none';
+                document.getElementById('heroLocationPrompt').style.display = 'none';
+            }
+
             if (window.location.hash.startsWith('#pet=')) {
                 const id = decodeURIComponent(window.location.hash.slice(5));
                 let pet = allPets.find(p => p.id == id);
