@@ -40,6 +40,15 @@
                 return null;
             }
         };
+
+        window.fetchWithAppCheck = async (url, options = {}) => {
+            const token = (typeof window.getAppCheckToken === 'function') ? await window.getAppCheckToken() : null;
+            if (token) {
+                options.headers = options.headers || {};
+                options.headers['X-Firebase-AppCheck'] = token;
+            }
+            return fetch(url, options);
+        };
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -4030,7 +4039,7 @@
 
         async function loadPets() {
             try {
-                const response = await fetch('https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200');
+                const response = await window.fetchWithAppCheck('https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200');
                 const result = await response.json();
                 console.log('[loadPets] defaultCity:', result.defaultCity, result.defaultCityLat, result.defaultCityLng, 'totalPets:', result?.pets?.length || 0);
                 if (result.pets?.length > 0) {
@@ -4162,7 +4171,7 @@
                 console.log(`[loadPetsByPostalcode ${postalcode}] frontend geocode: lat=${searchLat}, lng=${searchLng}, geocodeOk=${geocodeOk}`);
 
                 const baseUrl = `https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&postalcode=${encodeURIComponent(postalcode)}&distance=${radius}`;
-                const response = await fetch(baseUrl);
+                const response = await window.fetchWithAppCheck(baseUrl);
                 let result = await response.json();
                 console.log(`[loadPetsByPostalcode ${postalcode}] backend returned ${result?.pets?.length || 0} pets, geocodeOk=${geocodeOk}`);
 
@@ -4173,7 +4182,7 @@
                     const fallbackRadii = [200, 300, 400, 500].filter(r => r > radius);
                     for (const tryRadius of fallbackRadii) {
                         console.log(`[loadPetsByPostalcode ${postalcode}] expanding search to ${tryRadius} miles`);
-                        const expandedResponse = await fetch(`https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&postalcode=${encodeURIComponent(postalcode)}&distance=${tryRadius}`);
+                        const expandedResponse = await window.fetchWithAppCheck(`https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&postalcode=${encodeURIComponent(postalcode)}&distance=${tryRadius}`);
                         const expandedResult = await expandedResponse.json();
                         console.log(`[loadPetsByPostalcode ${postalcode}] ${tryRadius}-mile search returned ${expandedResult?.pets?.length || 0} pets`);
                         if (expandedResult.success && expandedResult.pets && expandedResult.pets.length > 0) {
@@ -4308,7 +4317,7 @@
                 userLocation = { lat, lng };
                 lastSearchCenter = { lat, lng };
                 const baseUrl = `https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}&distance=${radius}`;
-                const response = await fetch(baseUrl);
+                const response = await window.fetchWithAppCheck(baseUrl);
                 let result = await response.json();
                 console.log(`[loadPetsByLocation ${lat},${lng}] backend returned ${result?.pets?.length || 0} pets`);
 
@@ -4318,7 +4327,7 @@
                     const fallbackRadii = [200, 300, 400, 500].filter(r => r > radius);
                     for (const tryRadius of fallbackRadii) {
                         console.log(`[loadPetsByLocation ${lat},${lng}] expanding search to ${tryRadius} miles`);
-                        const expandedResponse = await fetch(`https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}&distance=${tryRadius}`);
+                        const expandedResponse = await window.fetchWithAppCheck(`https://us-central1-mypet-b1143.cloudfunctions.net/getAdoptablePets?limit=200&lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}&distance=${tryRadius}`);
                         const expandedResult = await expandedResponse.json();
                         console.log(`[loadPetsByLocation ${lat},${lng}] ${tryRadius}-mile search returned ${expandedResult?.pets?.length || 0} pets`);
                         if (expandedResult.success && expandedResult.pets && expandedResult.pets.length > 0) {
@@ -4399,7 +4408,7 @@
             console.log(`[loadMorePets] loading offset=${nextOffset}`);
 
             try {
-                const response = await fetch(url);
+                const response = await window.fetchWithAppCheck(url);
                 const result = await response.json();
                 console.log(`[loadMorePets] loaded ${result?.pets?.length || 0} pets, hasMore=${result?.hasMore}`);
 
@@ -4989,7 +4998,7 @@
                     url += `&userLat=${encodeURIComponent(loc.lat)}&userLng=${encodeURIComponent(loc.lng)}`;
                 }
 
-                const response = await fetch(url);
+                const response = await window.fetchWithAppCheck(url);
                 const result = await response.json();
                 if (result.success && result.pets) {
                     allPets.length = 0;
