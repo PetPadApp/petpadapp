@@ -5788,7 +5788,7 @@
                     shelterLng: pet.shelterLng
                 }));
 
-                const response = await fetch('https://us-central1-mypet-b1143.cloudfunctions.net/matchPetsWithAI', {
+                const response = await window.fetchWithAppCheck('https://us-central1-mypet-b1143.cloudfunctions.net/matchPetsWithAI', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userDescription: description, maxResults: 24, pets: petSummaries })
