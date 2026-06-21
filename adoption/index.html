@@ -8,6 +8,39 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" crossorigin="" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" crossorigin="" />
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { initializeAppCheck, ReCaptchaV3Provider, getToken } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app-check.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAIUlJCdgy4AtZLIGBihdlnZP4NnqxNghQ",
+            authDomain: "mypet-b1143.firebaseapp.com",
+            projectId: "mypet-b1143",
+            storageBucket: "mypet-b1143.firebasestorage.app",
+            messagingSenderId: "554504547921",
+            appId: "1:554504547921:web:2214121c31a7d03f785270",
+            measurementId: "G-XCX18BKCD7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        try { getAnalytics(app); } catch (e) { /* ignore analytics init errors */ }
+
+        const appCheck = initializeAppCheck(app, {
+            provider: new ReCaptchaV3Provider('6LfBeCstAAAAAKuUsiGZ8y9suhxb8_2t5m3m0Hs4'),
+            isTokenAutoRefreshEnabled: true
+        });
+
+        window.getAppCheckToken = async () => {
+            try {
+                const result = await getToken(appCheck, false);
+                return result.token;
+            } catch (e) {
+                console.warn('App Check token failed:', e);
+                return null;
+            }
+        };
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -2997,9 +3030,14 @@
                 const pet = allPets.find(p => p.id === id);
                 if (pet && pet.source === 'rescuegroups') {
                     try {
+                        const headers = {'Content-Type': 'application/json'};
+                        const appCheckToken = (typeof window.getAppCheckToken === 'function') ? await window.getAppCheckToken() : null;
+                        if (appCheckToken) {
+                            headers['X-Firebase-AppCheck'] = appCheckToken;
+                        }
                         await fetch('https://us-central1-mypet-b1143.cloudfunctions.net/pinRescueGroupsPet', {
                             method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
+                            headers: headers,
                             body: JSON.stringify({petId: id, petData: pet})
                         });
                     } catch (e) {
@@ -5939,7 +5977,12 @@
                 if (!pet) {
                     // Try fetching from pinnedPets as fallback
                     try {
-                        const res = await fetch(`https://us-central1-mypet-b1143.cloudfunctions.net/getPinnedPet?id=${encodeURIComponent(id)}`);
+                        const headers = {};
+                        const appCheckToken = (typeof window.getAppCheckToken === 'function') ? await window.getAppCheckToken() : null;
+                        if (appCheckToken) {
+                            headers['X-Firebase-AppCheck'] = appCheckToken;
+                        }
+                        const res = await fetch(`https://us-central1-mypet-b1143.cloudfunctions.net/getPinnedPet?id=${encodeURIComponent(id)}`, {headers: headers});
                         const data = await res.json();
                         if (data.success && data.pet) {
                             pet = data.pet;
