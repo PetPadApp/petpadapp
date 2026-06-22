@@ -3510,10 +3510,19 @@
             }
         }
 
+        function petBreedMatches(petBreed, breedOption) {
+            if (!petBreed || !breedOption) return false;
+            return petBreed.toLowerCase().includes(breedOption.toLowerCase());
+        }
+
         function populateBreedFilter(species) {
             const sel = document.getElementById('breedFilter');
             const currentVal = sel.value;
-            const baseCount = allPets.filter(p => petMatchesOtherFilters(p, 'breed') && (!species || p.petType === species)).length;
+            const baseCount = allPets.filter(p => {
+                if (!petMatchesOtherFilters(p, 'breed')) return false;
+                if (species === NOT_SPECIFIED) return !p.petType;
+                return !species || p.petType === species;
+            }).length;
             sel.innerHTML = '';
             const allOpt = document.createElement('option');
             allOpt.value = '';
@@ -3523,7 +3532,11 @@
             if (!species || species === NOT_SPECIFIED || !window.petSpeciesData.breedsBySpecies[species]) {
                 const notSpec = document.createElement('option');
                 notSpec.value = NOT_SPECIFIED;
-                const notSpecCount = allPets.filter(p => petMatchesOtherFilters(p, 'breed') && !p.breed).length;
+                const notSpecCount = allPets.filter(p => {
+                    if (!petMatchesOtherFilters(p, 'breed')) return false;
+                    if (species === NOT_SPECIFIED) return !p.petType && !p.breed;
+                    return !p.breed;
+                }).length;
                 notSpec.textContent = notSpecCount > 0 ? `Not specified (${notSpecCount})` : 'Not specified';
                 sel.appendChild(notSpec);
                 sel.disabled = false;
@@ -3537,7 +3550,7 @@
             const breeds = window.petSpeciesData.breedsBySpecies[species];
             breeds.forEach(b => {
                 if (b === 'Enter Manually') return;
-                const count = allPets.filter(p => petMatchesOtherFilters(p, 'breed') && p.petType === species && p.breed === b).length;
+                const count = allPets.filter(p => petMatchesOtherFilters(p, 'breed') && p.petType === species && petBreedMatches(p.breed, b)).length;
                 const opt = document.createElement('option');
                 opt.value = b;
                 opt.textContent = count > 0 ? `${b} (${count})` : b;
@@ -3803,6 +3816,51 @@
             });
             microCounts[NOT_SPECIFIED] = allPets.filter(p => petMatchesOtherFilters(p, 'microchip') && p.hasMicrochip == null).length;
             updateOpts('microchippedFilter', microCounts);
+            // Breed counts
+            const breedSel = document.getElementById('breedFilter');
+            const typeVal = document.getElementById('typeFilter').value;
+            if (breedSel) {
+                const breedCounts = {};
+                let baseCount = 0;
+                if (typeVal && typeVal !== NOT_SPECIFIED && window.petSpeciesData.breedsBySpecies[typeVal]) {
+                    baseCount = allPets.filter(p => petMatchesOtherFilters(p, 'breed') && p.petType === typeVal).length;
+                    allPets.forEach(p => {
+                        if (!petMatchesOtherFilters(p, 'breed')) return;
+                        if (p.petType !== typeVal) return;
+                        if (!p.breed) return;
+                        window.petSpeciesData.breedsBySpecies[typeVal].forEach(b => {
+                            if (b === 'Enter Manually') return;
+                            if (petBreedMatches(p.breed, b)) {
+                                breedCounts[b] = (breedCounts[b] || 0) + 1;
+                            }
+                        });
+                    });
+                    breedCounts[NOT_SPECIFIED] = allPets.filter(p => petMatchesOtherFilters(p, 'breed') && p.petType === typeVal && !p.breed).length;
+                } else {
+                    baseCount = allPets.filter(p => {
+                        if (!petMatchesOtherFilters(p, 'breed')) return false;
+                        if (typeVal === NOT_SPECIFIED) return !p.petType;
+                        return true;
+                    }).length;
+                    breedCounts[NOT_SPECIFIED] = allPets.filter(p => {
+                        if (!petMatchesOtherFilters(p, 'breed')) return false;
+                        if (typeVal === NOT_SPECIFIED) return !p.petType && !p.breed;
+                        return !p.breed;
+                    }).length;
+                }
+                Array.from(breedSel.options).forEach(opt => {
+                    const label = opt.textContent.replace(/ \(\d+\)$/, '');
+                    if (!opt.value) {
+                        opt.textContent = baseCount > 0 ? `All Breeds (${baseCount})` : label;
+                    } else if (opt.value === NOT_SPECIFIED) {
+                        const count = breedCounts[NOT_SPECIFIED] || 0;
+                        opt.textContent = count > 0 ? `${label} (${count})` : label;
+                    } else {
+                        const count = breedCounts[opt.value] || 0;
+                        opt.textContent = count > 0 ? `${label} (${count})` : label;
+                    }
+                });
+            }
         }
 
         function applyFilters() {
@@ -3996,9 +4054,9 @@
             } else {
                 banner.style.display = 'none';
             }
+            populateBreedFilter(document.getElementById('typeFilter').value);
             updateFilterCounts();
             populateTypeFilter();
-            populateBreedFilter(document.getElementById('typeFilter').value);
         }
         window.applyFilters = applyFilters; // expose for inline onclick handlers
 
@@ -4843,9 +4901,15 @@
             }
         });
 
-        ['searchInput','breedFilter','sexFilter','minAge','maxAge','minWeight','maxWeight','spayedFilter','sizeFilter','goodWithFilter','specialNeedsFilter','shelterFilter','energyLevelFilter','exerciseNeedsFilter','activityLevelFilter','coatLengthFilter','groomingNeedsFilter','sheddingLevelFilter','vocalLevelFilter','microchippedFilter'].forEach(id => {
+        const textInputs = ['searchInput','minAge','maxAge','minWeight','maxWeight','shelterFilter'];
+        const selectInputs = ['breedFilter','sexFilter','spayedFilter','sizeFilter','goodWithFilter','specialNeedsFilter','energyLevelFilter','exerciseNeedsFilter','activityLevelFilter','coatLengthFilter','groomingNeedsFilter','sheddingLevelFilter','vocalLevelFilter','microchippedFilter'];
+        textInputs.forEach(id => {
             const el = document.getElementById(id);
             if (el) el.addEventListener('input', applyFilters);
+        });
+        selectInputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('change', applyFilters);
         });
         document.getElementById('typeFilter').addEventListener('change', () => {
             populateBreedFilter(document.getElementById('typeFilter').value);
