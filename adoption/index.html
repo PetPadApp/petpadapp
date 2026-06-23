@@ -2798,6 +2798,39 @@
         let lastSearchParams = null;
         let isLoadingMore = false;
 
+        // Rate limiting and caching for map/geocoding requests
+        const searchThrottle = {
+            lastGeocode: 0,
+            lastSearch: 0,
+            lastAreaSearch: 0,
+            lastLocate: 0,
+            minGeocodeMs: 1500,
+            minSearchMs: 1500,
+            minAreaSearchMs: 2000,
+            minLocateMs: 3000,
+            geocodeCache: new Map(),
+            cacheMaxAgeMs: 5 * 60 * 1000,
+            canExecute(key, minMs) {
+                const now = Date.now();
+                const last = this[key] || 0;
+                if (now - last < minMs) return false;
+                this[key] = now;
+                return true;
+            },
+            getCachedGeocode(query) {
+                const entry = this.geocodeCache.get(query);
+                if (!entry) return null;
+                if (Date.now() - entry.time > this.cacheMaxAgeMs) {
+                    this.geocodeCache.delete(query);
+                    return null;
+                }
+                return entry.result;
+            },
+            setCachedGeocode(query, result) {
+                this.geocodeCache.set(query, { result, time: Date.now() });
+            }
+        };
+
         function showRadiusChips(showAny) {
             const chipsWrap = document.getElementById('radiusChips');
             const anyChip = document.querySelector('.radius-chip[data-miles=""]');
@@ -4197,30 +4230,10 @@
                 let searchLat = null, searchLng = null;
                 let geocodeOk = false;
                 const isUS = (lat, lng) => lat >= 18 && lat <= 72 && lng >= -180 && lng <= -65;
-                try {
-                    const zipRes = await fetch(`https://api.zippopotam.us/us/${postalcode}`);
-                    if (zipRes.ok) { const zipData = await zipRes.json(); if (zipData.places && zipData.places[0]) { searchLat = parseFloat(zipData.places[0].latitude); searchLng = parseFloat(zipData.places[0].longitude); } }
-                } catch (e) { /* ignore */ }
-                if (!isUS(searchLat, searchLng)) {
-                    try {
-                        const nomRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&countrycodes=us&postalcode=${encodeURIComponent(postalcode)}&limit=1`);
-                        if (nomRes.ok) { const nomData = await nomRes.json(); if (nomData && nomData[0]) { const nLat = parseFloat(nomData[0].lat); const nLng = parseFloat(nomData[0].lon); if (isUS(nLat, nLng)) { searchLat = nLat; searchLng = nLng; } } }
-                    } catch (e) { /* ignore */ }
-                }
-                // Fallback to US Census Geocoding API (free, no key, US only)
-                if (!isUS(searchLat, searchLng)) {
-                    try {
-                        const censusRes = await fetch(`https://geocoding.geo.census.gov/geocoder/locations/address?street=&city=&state=&zip=${encodeURIComponent(postalcode)}&benchmark=Public_AR_Current&format=json`);
-                        if (censusRes.ok) {
-                            const censusData = await censusRes.json();
-                            if (censusData?.result?.addressMatches?.length > 0) {
-                                const match = censusData.result.addressMatches[0];
-                                const cLat = parseFloat(match.coordinates.y);
-                                const cLng = parseFloat(match.coordinates.x);
-                                if (isUS(cLat, cLng)) { searchLat = cLat; searchLng = cLng; }
-                            }
-                        }
-                    } catch (e) { /* ignore */ }
+                const geo = await geocodeAddress(postalcode);
+                if (geo && isUS(geo.lat, geo.lng)) {
+                    searchLat = geo.lat;
+                    searchLng = geo.lng;
                 }
                 geocodeOk = isUS(searchLat, searchLng);
                 if (geocodeOk) { userLocation = { lat: searchLat, lng: searchLng }; lastSearchCenter = { ...userLocation }; } else { userLocation = null; lastSearchCenter = null; }
@@ -4519,6 +4532,10 @@
                 showToast('Geolocation is not supported in your browser');
                 return;
             }
+            if (!searchThrottle.canExecute('lastLocate', searchThrottle.minLocateMs)) {
+                showToast('Please wait a moment before using location again.', 2500);
+                return;
+            }
             navigator.geolocation.getCurrentPosition(
                 async (pos) => {
                     userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
@@ -4527,11 +4544,7 @@
                     showToast('Finding your ZIP code...');
                     // Reverse geocode lat/lng to postalcode via Nominatim (OpenStreetMap)
                     try {
-                        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json&addressdetails=1`, {
-                            headers: { 'Accept-Language': 'en-US,en' }
-                        });
-                        const data = await res.json();
-                        const zip = data?.address?.postcode;
+                        const zip = await reverseGeocodeToZip(pos.coords.latitude, pos.coords.longitude);
                         if (zip && /^\d{5}(-\d{4})?$/.test(zip)) {
                             const cleanZip = zip.split('-')[0];
                             window.currentSearchLocationLabel = 'you';
@@ -5353,6 +5366,38 @@
 
         async function geocodeAddress(query) {
             const trimmed = query.trim();
+            if (!trimmed) return null;
+
+            const cached = searchThrottle.getCachedGeocode(trimmed);
+            if (cached) return cached;
+            if (!searchThrottle.canExecute('lastGeocode', searchThrottle.minGeocodeMs)) {
+                showToast('Please wait a moment before searching again.', 2500);
+                return null;
+            }
+
+            const isUS = (lat, lng) =>
+                typeof lat === 'number' && typeof lng === 'number' &&
+                lat >= 18 && lat <= 72 && lng >= -180 && lng <= -65;
+            let result = null;
+
+            // Try the App-Check-protected server proxy first to hide upstream APIs
+            // and centralize throttling/caching.
+            try {
+                const proxyUrl = `https://us-central1-mypet-b1143.cloudfunctions.net/geocodeAddress?query=${encodeURIComponent(trimmed)}`;
+                const proxyRes = await window.fetchWithAppCheck(proxyUrl);
+                if (proxyRes.ok) {
+                    const proxyData = await proxyRes.json();
+                    if (proxyData.success) {
+                        result = proxyData;
+                    }
+                }
+            } catch (e) { /* fall through to direct APIs */ }
+
+            if (result) {
+                searchThrottle.setCachedGeocode(trimmed, result);
+                return result;
+            }
+
             // Use zippopotam.us for 5-digit US ZIP codes (reliable, no ambiguity)
             if (/^\d{5}$/.test(trimmed)) {
                 try {
@@ -5361,7 +5406,7 @@
                         const zipData = await zipRes.json();
                         if (zipData.places && zipData.places[0]) {
                             const place = zipData.places[0];
-                            return {
+                            result = {
                                 lat: parseFloat(place.latitude),
                                 lng: parseFloat(place.longitude),
                                 displayName: `${place['place name']}, ${place['state abbreviation']} ${trimmed}`,
@@ -5370,37 +5415,41 @@
                         }
                     }
                 } catch (e) { /* ignore, fallback below */ }
-                // Fallback to Nominatim for ZIP (restricted to US + validated)
-                try {
-                    const nomRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&countrycodes=us&postalcode=${encodeURIComponent(trimmed)}&limit=1`);
-                    if (nomRes.ok) {
-                        const nomData = await nomRes.json();
-                        if (nomData && nomData[0]) {
-                            const nLat = parseFloat(nomData[0].lat);
-                            const nLng = parseFloat(nomData[0].lon);
-                            if (nLat >= 18 && nLat <= 72 && nLng >= -180 && nLng <= -65) {
-                                return { lat: nLat, lng: nLng, displayName: nomData[0].display_name, postcode: trimmed };
+                if (!result || !isUS(result.lat, result.lng)) {
+                    try {
+                        const nomRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&countrycodes=us&postalcode=${encodeURIComponent(trimmed)}&limit=1`);
+                        if (nomRes.ok) {
+                            const nomData = await nomRes.json();
+                            if (nomData && nomData[0]) {
+                                const nLat = parseFloat(nomData[0].lat);
+                                const nLng = parseFloat(nomData[0].lon);
+                                if (isUS(nLat, nLng)) {
+                                    result = { lat: nLat, lng: nLng, displayName: nomData[0].display_name, postcode: trimmed };
+                                }
                             }
                         }
-                    }
-                } catch (e) { /* ignore */ }
-                // Fallback to US Census Geocoding API (free, no key, US only)
-                try {
-                    const censusRes = await fetch(`https://geocoding.geo.census.gov/geocoder/locations/address?street=&city=&state=&zip=${encodeURIComponent(trimmed)}&benchmark=Public_AR_Current&format=json`);
-                    if (censusRes.ok) {
-                        const censusData = await censusRes.json();
-                        if (censusData?.result?.addressMatches?.length > 0) {
-                            const match = censusData.result.addressMatches[0];
-                            const cLat = parseFloat(match.coordinates.y);
-                            const cLng = parseFloat(match.coordinates.x);
-                            if (cLat >= 18 && cLat <= 72 && cLng >= -180 && cLng <= -65) {
-                                return { lat: cLat, lng: cLng, displayName: match.matchedAddress || `ZIP code ${trimmed}`, postcode: trimmed };
+                    } catch (e) { /* ignore */ }
+                }
+                if (!result || !isUS(result.lat, result.lng)) {
+                    try {
+                        const censusRes = await fetch(`https://geocoding.geo.census.gov/geocoder/locations/address?street=&city=&state=&zip=${encodeURIComponent(trimmed)}&benchmark=Public_AR_Current&format=json`);
+                        if (censusRes.ok) {
+                            const censusData = await censusRes.json();
+                            if (censusData?.result?.addressMatches?.length > 0) {
+                                const match = censusData.result.addressMatches[0];
+                                const cLat = parseFloat(match.coordinates.y);
+                                const cLng = parseFloat(match.coordinates.x);
+                                if (isUS(cLat, cLng)) {
+                                    result = { lat: cLat, lng: cLng, displayName: match.matchedAddress || `ZIP code ${trimmed}`, postcode: trimmed };
+                                }
                             }
                         }
-                    }
-                } catch (e) { /* ignore */ }
-                return null;
+                    } catch (e) { /* ignore */ }
+                }
+                if (result) searchThrottle.setCachedGeocode(trimmed, result);
+                return result;
             }
+
             // For city/address queries, use Nominatim with US bias and address details
             const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(trimmed)}&limit=1&countrycodes=us&addressdetails=1`;
             const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
@@ -5408,13 +5457,14 @@
             if (data && data.length > 0) {
                 const lat = parseFloat(data[0].lat);
                 const lng = parseFloat(data[0].lon);
-                if (lat >= 18 && lat <= 72 && lng >= -180 && lng <= -65) {
+                if (isUS(lat, lng)) {
                     const addr = data[0].address || {};
                     const postcode = addr.postcode || null;
-                    return { lat, lng, displayName: data[0].display_name, postcode };
+                    result = { lat, lng, displayName: data[0].display_name, postcode };
                 }
             }
-            return null;
+            if (result) searchThrottle.setCachedGeocode(trimmed, result);
+            return result;
         }
 
         document.getElementById('locationInput').addEventListener('keydown', (e) => {
@@ -5467,6 +5517,10 @@
             if (!isCollapsed) setTimeout(() => map.invalidateSize(), 360);
         });
         document.getElementById('searchAreaBtn').addEventListener('click', () => {
+            if (!searchThrottle.canExecute('lastAreaSearch', searchThrottle.minAreaSearchMs)) {
+                showToast('Please wait a moment before searching again.', 2500);
+                return;
+            }
             const center = map.getCenter();
             const btn = document.getElementById('searchAreaBtn');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
@@ -5480,6 +5534,10 @@
             });
         });
         document.getElementById('locateBtn').addEventListener('click', () => {
+            if (!searchThrottle.canExecute('lastLocate', searchThrottle.minLocateMs)) {
+                showToast('Please wait a moment before using location again.', 2500);
+                return;
+            }
             if (userLocation) {
                 map.flyTo([userLocation.lat, userLocation.lng], 12, { duration: 1 });
             } else if (navigator.geolocation) {
@@ -5543,6 +5601,10 @@
 
         /* Unified Search button: location search in normal mode, execute nationwide when active */
         document.getElementById('searchActionBtn').addEventListener('click', async () => {
+            if (!searchThrottle.canExecute('lastSearch', searchThrottle.minSearchMs)) {
+                showToast('Please wait a moment before searching again.', 2500);
+                return;
+            }
             const btn = document.getElementById('searchActionBtn');
             const originalHtml = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
