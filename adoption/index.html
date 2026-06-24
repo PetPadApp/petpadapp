@@ -1876,7 +1876,7 @@
         /* Print Styles */
         @media print {
             /* Hide all non-essential UI */
-            .site-header, .hero, .filter-bar, #map, .sidebar, .ai-search-section, .lightbox, .lightbox-nav, .lightbox-dots, .lightbox-counter, .modal-close, .fav-btn-modal, .share-btn, .qr-btn, .print-btn, .modal .cta, .footer, .compare-bar, .modal-gallery, .gallery-nav, .card-carousel-dots, .card-carousel-count { display: none !important; }
+            .site-header, .hero, .filter-bar, #map, .sidebar, .ai-search-section, #aiLoading, .lightbox, .lightbox-nav, .lightbox-dots, .lightbox-counter, .modal-close, .fav-btn-modal, .share-btn, .qr-btn, .print-btn, .modal .cta, .footer, .compare-bar, .modal-gallery, .gallery-nav, .card-carousel-dots, .card-carousel-count { display: none !important; }
 
             /* Overlay: strip fixed positioning, place at top-left with no padding */
             .modal-overlay, .modal-overlay.open {
@@ -2306,14 +2306,94 @@
         .match-explanations li { margin-bottom: 3px; }
         .ai-loading {
             display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
             align-items: center;
-            gap: 10px;
-            padding: 12px 0;
-            color: var(--text-muted);
-            font-size: 0.9em;
+            justify-content: center;
         }
         .ai-loading.visible { display: flex; }
-        .ai-loading i { animation: spin 1s linear infinite; color: var(--primary-color); }
+        .ai-loading-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+        }
+        body[data-theme="dark"] .ai-loading-backdrop {
+            background: rgba(15,15,23,0.78);
+        }
+        .ai-loading-box {
+            position: relative;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 32px 36px;
+            max-width: 420px;
+            width: calc(100% - 40px);
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+            animation: aiBoxEnter 0.3s ease-out;
+        }
+        @keyframes aiBoxEnter {
+            from { opacity: 0; transform: translateY(12px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .ai-loading-icon {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 14px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(64,224,208,0.18), rgba(124,58,237,0.12));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6em;
+            color: var(--primary-color);
+            animation: aiPulse 1.8s ease-in-out infinite;
+        }
+        @keyframes aiPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(64,224,208,0.25); }
+            50% { transform: scale(1.08); box-shadow: 0 0 0 12px rgba(64,224,208,0); }
+        }
+        .ai-loading-status {
+            color: var(--text-color);
+            font-size: 1.05em;
+            font-weight: 600;
+            margin-bottom: 18px;
+            min-height: 1.4em;
+        }
+        .ai-progress-track {
+            width: 100%;
+            height: 10px;
+            background: var(--input-bg);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 14px;
+        }
+        .ai-progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--purple-color));
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+        .ai-progress-bar.animating {
+            animation: aiProgressFill 30s ease-in-out forwards;
+        }
+        @keyframes aiProgressFill {
+            0% { width: 0%; }
+            100% { width: 95%; }
+        }
+        .ai-loading-subtext {
+            color: var(--text-muted);
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+        .ai-loading-subtext i {
+            color: var(--primary-color);
+            margin-right: 4px;
+        }
         body[data-theme="dark"] .ai-search-textarea { background: #1E1E2D; border-color: #333340; }
         body[data-theme="dark"] .ai-example-chip { background: rgba(124,58,237,0.1); }
 
@@ -2399,9 +2479,6 @@
                 <p>Describe your lifestyle, home, and other pets — AI will evaluate up to 100 nearby pets and rank the best matches for you.</p>
             </div>
             <textarea class="ai-search-textarea" id="aiSearchInput" placeholder="I live in an apartment, work 8-hour shifts, have two cats, and want a calm small dog..."></textarea>
-            <div class="ai-loading" id="aiLoading">
-                <i class="fas fa-spinner"></i> Matching you with the best pets...
-            </div>
             <div class="ai-search-actions">
                 <button class="btn" id="aiSearchBtn"><i class="fas fa-wand-magic-sparkles"></i> Find My Match</button>
                 <button class="btn secondary" id="aiClearBtn" style="display:none;"><i class="fas fa-times"></i> Back to All Pets</button>
@@ -5847,6 +5924,7 @@
         /* AI Pet Matching */
         let aiMode = false;
         let originalFilteredPets = null;
+        let aiMatchingInProgress = false;
 
         async function performAIMatch() {
             const input = document.getElementById('aiSearchInput');
@@ -5859,6 +5937,12 @@
                 return;
             }
 
+            // Prevent re-clicks or other button presses while matching is running
+            if (aiMatchingInProgress) {
+                showToast('AI matching is already in progress. Please wait a moment...');
+                return;
+            }
+
             // Always confirm/set a location before running AI matching (like nationwide search)
             if (!window.aiSearchPending) {
                 window.aiSearchPending = true;
@@ -5866,8 +5950,29 @@
                 return;
             }
 
+            const progressBar = document.getElementById('aiProgressBar');
+            const progressStatus = document.getElementById('aiLoadingStatus');
+            aiMatchingInProgress = true;
             btn.disabled = true;
             loading.classList.add('visible');
+            if (progressBar) {
+                progressBar.classList.add('animating');
+                progressBar.style.width = '';
+            }
+            if (progressStatus) progressStatus.textContent = 'Finding pets near you...';
+
+            let progressMessageIdx = 0;
+            const progressMessages = [
+                'Finding pets near you...',
+                'Analyzing your preferences...',
+                'Comparing personalities...',
+                'Ranking the best matches...',
+                'Finalizing results...'
+            ];
+            const progressInterval = setInterval(() => {
+                progressMessageIdx = (progressMessageIdx + 1) % progressMessages.length;
+                if (progressStatus) progressStatus.textContent = progressMessages[progressMessageIdx];
+            }, 6000);
 
             try {
                 if (!userLocation) {
@@ -5978,6 +6083,15 @@
                     showToast('No pets matched your description. Try a broader search.');
                 } else {
                     showToast(`Found ${matchedPets.length} pets that match your preferences!`);
+                    // Scroll down to the first pet in the results list
+                    requestAnimationFrame(() => {
+                        const firstCard = document.querySelector('.pet-card');
+                        if (firstCard) {
+                            const headerOffset = 80;
+                            const top = firstCard.getBoundingClientRect().top + window.scrollY - headerOffset;
+                            window.scrollTo({ top, behavior: 'smooth' });
+                        }
+                    });
                 }
 
             } catch (err) {
@@ -5985,9 +6099,19 @@
                 const message = err && err.message ? err.message : 'Unable to match pets right now. Please try again.';
                 showToast(message);
             } finally {
+                clearInterval(progressInterval);
+                aiMatchingInProgress = false;
                 window.aiSearchPending = false;
-                btn.disabled = false;
-                loading.classList.remove('visible');
+                if (progressBar) {
+                    progressBar.classList.remove('animating');
+                    progressBar.style.width = '100%';
+                }
+                if (progressStatus) progressStatus.textContent = 'Almost there...';
+                setTimeout(() => {
+                    btn.disabled = false;
+                    loading.classList.remove('visible');
+                    if (progressBar) progressBar.style.width = '0%';
+                }, 400);
             }
         }
 
@@ -6100,5 +6224,17 @@
             }
         });
     </script>
+
+    <div class="ai-loading" id="aiLoading" aria-busy="true" aria-live="polite">
+        <div class="ai-loading-backdrop"></div>
+        <div class="ai-loading-box">
+            <div class="ai-loading-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+            <div class="ai-loading-status" id="aiLoadingStatus">Finding pets near you...</div>
+            <div class="ai-progress-track">
+                <div class="ai-progress-bar" id="aiProgressBar"></div>
+            </div>
+            <div class="ai-loading-subtext">This usually takes about 30 seconds — please don't close this page</div>
+        </div>
+    </div>
 </body>
 </html>
