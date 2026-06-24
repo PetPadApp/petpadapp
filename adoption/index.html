@@ -5912,50 +5912,43 @@
 
                 aiMode = true;
 
-                // Build a lookup of currently loaded pet IDs
-                const loadedIds = new Set(allPets.map(p => String(p.id)));
-
-                // Filter AI results to only pets currently loaded on the page
-                const scopedPets = (result.pets || []).filter(pet => loadedIds.has(String(pet.id)));
-
-                if (scopedPets.length < (result.pets || []).length) {
-                    const diff = (result.pets || []).length - scopedPets.length;
-                    console.log(`AI matching: filtered out ${diff} pets not in current loaded set.`);
-                }
-
-                if (scopedPets.length === 0) {
-                    throw new Error('No loaded pets matched your description. Try broadening your search or loading more pets.');
-                }
-
-                // Map returned AI matches back to the full local pet objects so images and all data are preserved
-                const matchedPets = scopedPets.map(aiPet => {
+                // Map returned AI matches back to full pet objects. Prefer loaded pets
+                // so images and local data are preserved, but fall back to the server payload
+                // when a match isn't currently loaded (e.g. nationwide AI results).
+                const matchedPets = (result.pets || []).map(aiPet => {
                     const fullPet = allPets.find(p => String(p.id) === String(aiPet.id));
-                    if (!fullPet) {
-                        console.warn('AI match returned pet not in loaded set:', aiPet.id);
-                        return null;
-                    }
+                    const basePet = fullPet || aiPet;
+                    if (!basePet) return null;
                     const merged = {
-                        ...fullPet,
+                        ...basePet,
+                        id: basePet.id || aiPet.id,
+                        petId: basePet.id || aiPet.id,
                         matchScore: aiPet.matchScore,
                         matchExplanations: aiPet.matchExplanations,
+                        distanceMiles: aiPet.distanceMiles,
+                        isWithinRequestedRadius: aiPet.isWithinRequestedRadius,
                     };
+                    if (!merged.source) merged.source = aiPet.source || 'rescuegroups';
                     let lat, lng;
                     let hasRealCoords = false;
-                    if (typeof fullPet.shelterLat === 'number' && typeof fullPet.shelterLng === 'number') {
-                        lat = fullPet.shelterLat;
-                        lng = fullPet.shelterLng;
+                    if (typeof merged.shelterLat === 'number' && typeof merged.shelterLng === 'number') {
+                        lat = merged.shelterLat;
+                        lng = merged.shelterLng;
                         hasRealCoords = true;
                     } else {
-                        const hash = String(fullPet.id).split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+                        const hash = String(merged.id).split('').reduce((a, b) => a + b.charCodeAt(0), 0);
                         lat = 30 + (hash % 1500) / 100;
                         lng = -120 + (hash % 4000) / 100;
                     }
                     merged._lat = lat;
                     merged._lng = lng;
                     merged._hasRealCoords = hasRealCoords;
-                    if (!merged.source) merged.source = 'rescuegroups';
                     return merged;
                 }).filter(Boolean);
+
+                if (matchedPets.length === 0) {
+                    throw new Error('No pets matched your description. Try broadening your search.');
+                }
 
                 filteredPets = matchedPets;
 
@@ -5966,6 +5959,8 @@
                     if (existing) {
                         existing.matchScore = mPet.matchScore;
                         existing.matchExplanations = mPet.matchExplanations;
+                    } else {
+                        allPets.push(mPet);
                     }
                 });
 
