@@ -2875,6 +2875,11 @@
         function getPetPhotoArray(pet) {
             const photos = [];
             if (pet.imageUrl) photos.push(pet.imageUrl);
+            if (Array.isArray(pet.lostPhotoUrls)) {
+                pet.lostPhotoUrls.forEach(url => {
+                    if (url && !photos.includes(url)) photos.push(url);
+                });
+            }
             if (Array.isArray(pet.adoptionPhotoUrls)) {
                 pet.adoptionPhotoUrls.forEach(url => {
                     if (url && !photos.includes(url)) photos.push(url);
@@ -3238,8 +3243,8 @@
                         <!-- Row 1: Type + Last Seen Location -->
                         <div class="badge-row">
                             ${pet.petType ? `<span class="tag">${pet.petType}</span>` : ''}
-                            ${(pet.lastSeenLocation || pet.shelterCity) ? `<span class="tag secondary"><i class="fas fa-map-marker-alt" style="font-size:0.75em;"></i> ${pet.lastSeenLocation ? pet.lastSeenLocation.split(',')[0] : pet.shelterCity}</span>` : ''}
-                            ${!pet.petType && !(pet.lastSeenLocation || pet.shelterCity) ? '<span style="visibility:hidden;">&nbsp;</span>' : ''}
+                            ${(pet.lastSeenCity || pet.lastSeenLocation || pet.shelterCity) ? `<span class="tag secondary"><i class="fas fa-map-marker-alt" style="font-size:0.75em;"></i> ${pet.lastSeenCity || (pet.lastSeenLocation ? pet.lastSeenLocation.split(',')[0] : pet.shelterCity)}</span>` : ''}
+                            ${!pet.petType && !(pet.lastSeenCity || pet.lastSeenLocation || pet.shelterCity) ? '<span style="visibility:hidden;">&nbsp;</span>' : ''}
                         </div>
                         <!-- Row 2: Size + Lost Date -->
                         <div class="badge-row">
@@ -4395,9 +4400,11 @@
             }
 
             const lastSeenDate = pet.lastSeenDate ? new Date(pet.lastSeenDate).toLocaleDateString() : null;
-            const lastSeenLocation = pet.lastSeenLocation || [pet.shelterAddress, pet.shelterCity, pet.shelterState, pet.shelterZip].filter(Boolean).join(', ') || 'Location not provided';
+            const lastSeenLocation = [pet.lastSeenAddress, pet.lastSeenCity, pet.lastSeenState, pet.lastSeenZip].filter(Boolean).join(', ') || pet.lastSeenLocation || [pet.shelterAddress, pet.shelterCity, pet.shelterState, pet.shelterZip].filter(Boolean).join(', ') || 'Location not provided';
             const coordsWarning = !pet._hasRealCoords ? `<span style="color:#C98C1A;font-size:0.8em;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>Location approximate</span><br>` : '';
-            const contactHtml = pet.ownerContact ? `<a href="tel:${pet.ownerContact}" style="color:var(--urgency-color);text-decoration:none;font-weight:500;"><i class="fas fa-phone" style="font-size:0.85em;margin-right:4px;"></i>${pet.ownerContact}</a><br>` : (pet.contactEmail ? `<a href="mailto:${pet.contactEmail}" style="color:var(--urgency-color);text-decoration:none;font-weight:500;"><i class="fas fa-envelope" style="font-size:0.85em;margin-right:4px;"></i>${pet.contactEmail}</a><br>` : '');
+            const phoneHtml = pet.ownerContactPhone ? `<a href="tel:${pet.ownerContactPhone}" style="color:var(--urgency-color);text-decoration:none;font-weight:500;"><i class="fas fa-phone" style="font-size:0.85em;margin-right:4px;"></i>${pet.ownerContactPhone}</a><br>` : (pet.ownerContact ? `<a href="tel:${pet.ownerContact}" style="color:var(--urgency-color);text-decoration:none;font-weight:500;"><i class="fas fa-phone" style="font-size:0.85em;margin-right:4px;"></i>${pet.ownerContact}</a><br>` : '');
+            const emailHtml = pet.ownerContactEmail ? `<a href="mailto:${pet.ownerContactEmail}" style="color:var(--urgency-color);text-decoration:none;font-weight:500;"><i class="fas fa-envelope" style="font-size:0.85em;margin-right:4px;"></i>${pet.ownerContactEmail}</a><br>` : (pet.contactEmail ? `<a href="mailto:${pet.contactEmail}" style="color:var(--urgency-color);text-decoration:none;font-weight:500;"><i class="fas fa-envelope" style="font-size:0.85em;margin-right:4px;"></i>${pet.contactEmail}</a><br>` : '');
+            const contactHtml = phoneHtml + emailHtml;
             document.getElementById('modalShelter').innerHTML = `
                 ${lastSeenDate ? `<span style="color:var(--urgency-color);font-weight:600;"><i class="fas fa-clock" style="margin-right:4px;"></i>${lastSeenDate}</span><br>` : ''}
                 ${lastSeenLocation}<br>
