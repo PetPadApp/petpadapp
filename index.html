@@ -417,9 +417,7 @@
                 <a href="/lost/">Lost Pets</a>
                 <a href="/rescue">Rescue</a>
             </nav>
-            <button id="themeToggle" class="theme-toggle" title="Toggle dark mode">
-                <i class="fas fa-moon"></i>
-            </button>
+            <button id="themeToggle" class="theme-toggle" title="Toggle dark mode">🌙</button>
         </div>
     </header>
 
@@ -540,7 +538,7 @@
         function setThemeIcon(isDark) {
             const btn = document.getElementById('themeToggle');
             if (!btn) return;
-            btn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            btn.textContent = isDark ? '☀️' : '🌙';
             btn.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
         }
         function toggleTheme() {

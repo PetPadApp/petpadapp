@@ -2439,17 +2439,16 @@
 <body>
     <header class="site-header">
         <a href="/" class="logo">
-            <img src="/PetPadLogoTextGreen.png" alt="Pet Pad">
+            <img src="/petPadNotebookDarkGreyTan.png" alt="Pet Pad" class="logo-notebook" style="height: 48px; border-radius: 8px;">
         </a>
         <div class="header-right">
             <nav>
                 <a href="/">Home</a>
                 <a href="/adoption/">Adopt</a>
+                <a href="/lost/">Lost Pets</a>
                 <a href="/rescue">Rescue</a>
             </nav>
-            <button id="themeToggle" class="theme-toggle" title="Toggle dark mode">
-                <i class="fas fa-moon"></i>
-            </button>
+            <button id="themeToggle" class="theme-toggle" title="Toggle dark mode">🌙</button>
         </div>
     </header>
 
@@ -2819,6 +2818,7 @@
                 <h4>Adopt</h4>
                 <ul>
                     <li><a href="/adoption/">Find a Pet</a></li>
+                    <li><a href="/lost/">Lost Pets</a></li>
                     <li><a href="/rescue">For Rescues</a></li>
                     <li><a href="#">Shelters</a></li>
                     <li><a href="#">Fosters</a></li>
@@ -5552,7 +5552,7 @@
         function setThemeIcon(isDark) {
             const btn = document.getElementById('themeToggle');
             if (!btn) return;
-            btn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            btn.textContent = isDark ? '☀️' : '🌙';
             btn.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
         }
         function toggleTheme() {
