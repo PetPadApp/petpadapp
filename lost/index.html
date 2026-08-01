@@ -4401,16 +4401,28 @@
 
             const lastSeenDate = pet.lastSeenDate ? new Date(pet.lastSeenDate).toLocaleDateString() : null;
             const lastSeenLocation = [pet.lastSeenAddress, pet.lastSeenCity, pet.lastSeenState, pet.lastSeenZip].filter(Boolean).join(', ') || pet.lastSeenLocation || [pet.shelterAddress, pet.shelterCity, pet.shelterState, pet.shelterZip].filter(Boolean).join(', ') || 'Location not provided';
-            const coordsWarning = !pet._hasRealCoords ? `<span style="color:#C98C1A;font-size:0.8em;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>Location approximate</span><br>` : '';
-            const phoneHtml = pet.ownerContactPhone ? `<a href="tel:${pet.ownerContactPhone}" style="color:var(--urgency-color);text-decoration:none;font-weight:500;"><i class="fas fa-phone" style="font-size:0.85em;margin-right:4px;"></i>${pet.ownerContactPhone}</a><br>` : (pet.ownerContact ? `<a href="tel:${pet.ownerContact}" style="color:var(--urgency-color);text-decoration:none;font-weight:500;"><i class="fas fa-phone" style="font-size:0.85em;margin-right:4px;"></i>${pet.ownerContact}</a><br>` : '');
-            const emailHtml = pet.ownerContactEmail ? `<a href="mailto:${pet.ownerContactEmail}" style="color:var(--urgency-color);text-decoration:none;font-weight:500;"><i class="fas fa-envelope" style="font-size:0.85em;margin-right:4px;"></i>${pet.ownerContactEmail}</a><br>` : (pet.contactEmail ? `<a href="mailto:${pet.contactEmail}" style="color:var(--urgency-color);text-decoration:none;font-weight:500;"><i class="fas fa-envelope" style="font-size:0.85em;margin-right:4px;"></i>${pet.contactEmail}</a><br>` : '');
-            const contactHtml = phoneHtml + emailHtml;
+            const coordsWarning = !pet._hasRealCoords ? `<span style="color:#C98C1A;font-size:0.8em;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>Location approximate</span>` : '';
+            const phoneDisplay = pet.ownerContactPhone || pet.ownerContact || null;
+            const emailDisplay = pet.ownerContactEmail || pet.contactEmail || null;
             document.getElementById('modalShelter').innerHTML = `
-                ${lastSeenDate ? `<span style="color:var(--urgency-color);font-weight:600;"><i class="fas fa-clock" style="margin-right:4px;"></i>${lastSeenDate}</span><br>` : ''}
-                ${lastSeenLocation}<br>
-                ${coordsWarning}
-                ${contactHtml}
-                <span style="color:#9E9A94;">Reported ${pet.adoptableSince ? new Date(pet.adoptableSince).toLocaleDateString() : 'recently'}</span>
+                <div style="background:#F5F2EC;border-radius:10px;padding:14px 16px;margin-bottom:10px;">
+                    <div style="font-weight:700;color:var(--urgency-color);font-size:0.95em;margin-bottom:8px;"><i class="fas fa-map-marker-alt" style="margin-right:6px;"></i>Last Seen</div>
+                    <div style="display:flex;flex-direction:column;gap:4px;">
+                        ${lastSeenDate ? `<div><span style="color:#9E9A94;font-size:0.85em;">Date:</span> <span style="font-weight:600;color:var(--urgency-color);"><i class="fas fa-clock" style="font-size:0.8em;margin-right:4px;"></i>${lastSeenDate}</span></div>` : ''}
+                        <div><span style="color:#9E9A94;font-size:0.85em;">Location:</span> <span style="font-weight:500;">${lastSeenLocation}</span></div>
+                        ${coordsWarning ? `<div>${coordsWarning}</div>` : ''}
+                    </div>
+                </div>
+                ${(phoneDisplay || emailDisplay) ? `
+                <div style="background:#F5F2EC;border-radius:10px;padding:14px 16px;margin-bottom:10px;">
+                    <div style="font-weight:700;color:var(--urgency-color);font-size:0.95em;margin-bottom:8px;"><i class="fas fa-phone-alt" style="margin-right:6px;"></i>If seen, please contact:</div>
+                    <div style="display:flex;flex-direction:column;gap:4px;">
+                        ${phoneDisplay ? `<div><span style="color:#9E9A94;font-size:0.85em;">Phone:</span> <a href="tel:${phoneDisplay}" style="color:var(--urgency-color);text-decoration:none;font-weight:500;">${phoneDisplay}</a></div>` : ''}
+                        ${emailDisplay ? `<div><span style="color:#9E9A94;font-size:0.85em;">Email:</span> <a href="mailto:${emailDisplay}" style="color:var(--urgency-color);text-decoration:none;font-weight:500;">${emailDisplay}</a></div>` : ''}
+                    </div>
+                </div>
+                ` : ''}
+                <span style="color:#9E9A94;font-size:0.8em;">Reported ${pet.adoptableSince ? new Date(pet.adoptableSince).toLocaleDateString() : 'recently'}</span>
             `;
 
             document.getElementById('modalOverlay').classList.add('open');
