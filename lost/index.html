@@ -3781,7 +3781,10 @@
             try {
                 const response = await window.fetchWithAppCheck('https://us-central1-mypet-b1143.cloudfunctions.net/getLostPets?limit=200');
                 const result = await response.json();
-                console.log('[loadPets] defaultCity:', result.defaultCity, result.defaultCityLat, result.defaultCityLng, 'totalPets:', result?.pets?.length || 0);
+                console.log('[loadPets] HTTP status:', response.status, 'success:', result.success, 'defaultCity:', result.defaultCity, 'totalPets:', result?.pets?.length || 0, 'error:', result.error || result.message || 'none');
+                if (!response.ok || !result.success) {
+                    console.error('[loadPets] API error:', response.status, result.error || result.message || 'Unknown error');
+                }
                 if (result.pets?.length > 0) {
                     const sample = result.pets[0];
                     console.log('[loadPets] sample pet fields:', {
