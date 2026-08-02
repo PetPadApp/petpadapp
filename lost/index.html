@@ -2610,7 +2610,6 @@
                 <div class="modal-meta" id="modalMeta"></div>
                 <div id="modalDetails"></div>
                 <div class="lost-info-box">
-                    <h4><i class="fas fa-map-marker-alt" style="color:var(--urgency-color);"></i> Last Seen</h4>
                     <p id="modalShelter"></p>
                 </div>
                 <div class="pet-info-box">
@@ -4406,7 +4405,7 @@
             const emailDisplay = pet.ownerContactEmail || pet.contactEmail || null;
             document.getElementById('modalShelter').innerHTML = `
                 <div style="background:#F5F2EC;border-radius:10px;padding:14px 16px;margin-bottom:10px;">
-                    <div style="font-weight:700;color:var(--urgency-color);font-size:0.95em;margin-bottom:8px;"><i class="fas fa-map-marker-alt" style="margin-right:6px;"></i>Last Seen</div>
+                    <div style="font-weight:700;color:#000;font-size:0.95em;margin-bottom:8px;"><i class="fas fa-map-marker-alt" style="margin-right:6px;color:var(--urgency-color);"></i>Last Seen</div>
                     <div style="display:flex;flex-direction:column;gap:4px;">
                         ${lastSeenDate ? `<div><span style="color:#9E9A94;font-size:0.85em;">Date:</span> <span style="font-weight:600;color:var(--urgency-color);"><i class="fas fa-clock" style="font-size:0.8em;margin-right:4px;"></i>${lastSeenDate}</span></div>` : ''}
                         <div><span style="color:#9E9A94;font-size:0.85em;">Location:</span> <span style="font-weight:500;">${lastSeenLocation}</span></div>
@@ -4415,10 +4414,10 @@
                 </div>
                 ${(phoneDisplay || emailDisplay) ? `
                 <div style="background:#F5F2EC;border-radius:10px;padding:14px 16px;margin-bottom:10px;">
-                    <div style="font-weight:700;color:var(--urgency-color);font-size:0.95em;margin-bottom:8px;"><i class="fas fa-phone-alt" style="margin-right:6px;"></i>If seen, please contact:</div>
+                    <div style="font-weight:700;color:#000;font-size:0.95em;margin-bottom:8px;"><i class="fas fa-phone-alt" style="margin-right:6px;color:var(--urgency-color);"></i>If seen, please contact:</div>
                     <div style="display:flex;flex-direction:column;gap:4px;">
-                        ${phoneDisplay ? `<div><span style="color:#9E9A94;font-size:0.85em;">Phone:</span> <a href="tel:${phoneDisplay}" style="color:var(--urgency-color);text-decoration:none;font-weight:500;">${phoneDisplay}</a></div>` : ''}
-                        ${emailDisplay ? `<div><span style="color:#9E9A94;font-size:0.85em;">Email:</span> <a href="mailto:${emailDisplay}" style="color:var(--urgency-color);text-decoration:none;font-weight:500;">${emailDisplay}</a></div>` : ''}
+                        ${phoneDisplay ? `<div><span style="color:#9E9A94;font-size:0.85em;">Phone:</span> <a href="tel:${phoneDisplay}" style="color:#000;text-decoration:none;font-weight:500;">${phoneDisplay}</a></div>` : ''}
+                        ${emailDisplay ? `<div><span style="color:#9E9A94;font-size:0.85em;">Email:</span> <a href="mailto:${emailDisplay}" style="color:#000;text-decoration:none;font-weight:500;">${emailDisplay}</a></div>` : ''}
                     </div>
                 </div>
                 ` : ''}
