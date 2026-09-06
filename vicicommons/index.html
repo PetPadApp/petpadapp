@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vici Commons, LLC</title>
+  <meta name="description" content="Vici Commons, LLC — Las Cruces, New Mexico. Contact: ViciCommons@gmail.com">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --accent: #38bdf8;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 50% -10%, #1e293b 0%, var(--bg) 60%);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      line-height: 1.6;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid #1f2937;
+      border-radius: 16px;
+      padding: 48px 40px;
+      max-width: 560px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+    }
+    .logo {
+      width: 72px; height: 72px; margin: 0 auto 24px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--accent), #6366f1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px; font-weight: 700; color: #0b1220; letter-spacing: -1px;
+    }
+    h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+    .tagline { color: var(--muted); font-size: 16px; margin-bottom: 32px; }
+    .info { display: grid; gap: 16px; text-align: left; margin-bottom: 32px; }
+    .info-row {
+      display: flex; gap: 14px; align-items: flex-start;
+      padding: 14px 16px; background: #0b1220;
+      border: 1px solid #1f2937; border-radius: 10px;
+    }
+    .info-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 2px; }
+    .info-value { font-size: 15px; color: var(--text); word-break: break-word; }
+    .info-value a { color: var(--accent); text-decoration: none; }
+    .info-value a:hover { text-decoration: underline; }
+    .icon { font-size: 18px; line-height: 1.4; }
+    footer { font-size: 13px; color: var(--muted); border-top: 1px solid #1f2937; padding-top: 20px; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="logo" aria-hidden="true">VC</div>
+    <h1>Vici Commons, LLC</h1>
+    <p class="tagline">Las Cruces, New Mexico</p>
+
+    <div class="info">
+      <div class="info-row">
+        <span class="icon" aria-hidden="true">✉️</span>
+        <div>
+          <div class="info-label">Email</div>
+          <div class="info-value"><a href="mailto:ViciCommons@gmail.com">ViciCommons@gmail.com</a></div>
+        </div>
+      </div>
+      <div class="info-row">
+        <span class="icon" aria-hidden="true">📍</span>
+        <div>
+          <div class="info-label">Location</div>
+          <div class="info-value">Las Cruces, NM, United States</div>
+        </div>
+      </div>
+      <div class="info-row">
+        <span class="icon" aria-hidden="true">🏢</span>
+        <div>
+          <div class="info-label">Entity Type</div>
+          <div class="info-value">Limited Liability Company (LLC)</div>
+        </div>
+      </div>
+    </div>
+
+    <footer>© <span id="year"></span> Vici Commons, LLC. All rights reserved.</footer>
+  </main>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
