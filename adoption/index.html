@@ -2254,6 +2254,121 @@
         }
         .ai-mode-indicator.visible { display: flex; }
         .ai-mode-indicator i { color: var(--purple-color); }
+
+        /* AI Feature Promo Banner (replaces web AI search box; feature is app-only) */
+        .ai-promo-banner {
+            background: linear-gradient(135deg, var(--purple-color), var(--primary-color));
+            border-radius: 16px;
+            padding: 28px 24px;
+            margin-top: -22px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            position: relative;
+            z-index: 10;
+            color: #fff;
+            overflow: hidden;
+        }
+        .ai-promo-banner::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 85% 15%, rgba(255,255,255,0.18), transparent 55%);
+            pointer-events: none;
+        }
+        .ai-promo-inner {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+        .ai-promo-content { flex: 1 1 320px; min-width: 260px; }
+        .ai-promo-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            margin-bottom: 14px;
+            backdrop-filter: blur(4px);
+        }
+        .ai-promo-banner h3 {
+            margin: 0 0 8px;
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .ai-promo-banner p {
+            margin: 0 0 18px;
+            font-size: 0.95em;
+            line-height: 1.5;
+            color: rgba(255,255,255,0.92);
+            max-width: 560px;
+        }
+        .ai-promo-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .ai-promo-actions .ai-promo-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95em;
+            text-decoration: none;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .ai-promo-actions .ai-promo-btn:hover { transform: translateY(-2px); }
+        .ai-promo-btn-appstore {
+            background: #fff;
+            color: var(--purple-color);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+        }
+        .ai-promo-btn-googleplay {
+            background: rgba(255,255,255,0.14);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.45);
+            cursor: not-allowed;
+            opacity: 0.85;
+        }
+        .ai-promo-qr {
+            flex: 0 0 auto;
+            text-align: center;
+        }
+        .ai-promo-qr img {
+            width: 96px;
+            height: 96px;
+            border-radius: 10px;
+            background: #fff;
+            padding: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+            display: block;
+        }
+        .ai-promo-qr span {
+            display: block;
+            margin-top: 6px;
+            font-size: 0.72em;
+            color: rgba(255,255,255,0.85);
+        }
+        body[data-theme="dark"] .ai-promo-banner { box-shadow: 0 8px 28px rgba(0,0,0,0.4); }
+        @media (max-width: 600px) {
+            .ai-promo-banner { padding: 22px 18px; }
+            .ai-promo-banner h3 { font-size: 1.1em; }
+            .ai-promo-actions { flex-direction: column; align-items: stretch; }
+            .ai-promo-actions .ai-promo-btn { width: 100%; justify-content: center; }
+            .ai-promo-qr { display: none; }
+        }
         .match-score-badge {
             position: absolute;
             top: 12px;
@@ -2473,6 +2588,42 @@
     </div>
 
     <div class="container">
+        <!--
+        ============================================================================
+        AI PET MATCHING (WEB) — DISABLED
+        The web AI search box is commented out below. The AI-assisted pet
+        matching feature is available exclusively in the Pet Pad app, where it
+        is gated, rate-limited, and tied to subscriptions/payments.
+
+        TO RE-ENABLE ON THE WEB (all three steps required):
+        1. Uncomment this HTML block (the .ai-search-section + .ai-mode-indicator).
+        2. Uncomment the #aiLoading overlay near the bottom of the page (before </body>).
+        3. Uncomment the performAIMatch/clearAIMatch JS block + event listeners
+           further down in the <script type="module"> (search for "AI matching
+           disabled on web").
+
+        IMPORTANT — AUTH REQUIRED: The matchPetsWithAI Cloud Function now
+        REQUIRES a Firebase Auth ID token (anonymous/web access was removed).
+        Before re-enabling web AI search, you MUST add Firebase Auth to the
+        website so the web client can send an authenticated user's ID token in
+        the Authorization: Bearer header. Steps:
+          a. Add Firebase Auth (signInAnonymously or email/password) to the
+             website using the Firebase Web SDK, OR reuse the existing auth.js
+             if it already provides a signed-in user.
+          b. In performAIMatch(), attach the ID token to the fetch:
+               const idToken = await firebase.auth().currentUser.getIdToken();
+               headers: {
+                 'Content-Type': 'application/json',
+                 'Authorization': `Bearer ${idToken}`,
+               }
+          c. Re-add an anonymous/daily-cap path in the Cloud Function if you
+             want unauthenticated web access again (NOT recommended — keep it
+             auth-gated and tie it to a web subscription if possible).
+        Without the auth token, the Cloud Function returns 401 and the web AI
+        search will fail.
+        ============================================================================
+        -->
+        <!--
         <div class="ai-search-section" id="aiSearchSection">
             <div class="ai-search-header">
                 <h3><i class="fas fa-wand-magic-sparkles"></i> Find Your Perfect Pet with AI</h3>
@@ -2494,6 +2645,22 @@
             <i class="fas fa-wand-magic-sparkles"></i>
             <span>Showing AI-matched pets</span>
             <button class="btn-sm secondary" id="aiModeClearBtn" style="padding:6px 12px;font-size:0.8em;">Clear</button>
+        </div>
+        -->
+        <!-- AI Feature Promo Banner: directs visitors to download the app for AI-assisted pet matching -->
+        <div class="ai-promo-banner">
+            <div class="ai-promo-inner">
+                <div class="ai-promo-content">
+                    <div class="ai-promo-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+                    <h3>Find Your Perfect Pet with AI</h3>
+                    <p>Describe your lifestyle, home, and other pets — our AI evaluates nearby pets and ranks the best matches for you. This feature is available in the Pet Pad app. Try your first AI search free.</p>
+                    <div class="ai-promo-actions">
+                        <a href="/home/" class="ai-promo-btn ai-promo-btn-appstore">
+                            <i class="fas fa-mobile-screen"></i> Download the App
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="filter-bar" id="filterBar">
             <input type="text" class="search-input" id="searchInput" placeholder="Search by name, breed, keyword...">
@@ -5923,7 +6090,16 @@
             else backToTop.classList.remove('visible');
         });
 
-        /* AI Pet Matching */
+        // AI Pet Matching (DISABLED on web — feature is app-only; see promo banner above)
+        /* AI matching disabled on web — feature is app-only. To re-enable:
+           1. Uncomment this block, the #aiLoading overlay near </body>, and the
+              AI search box HTML above.
+           2. AUTH REQUIRED: matchPetsWithAI now requires a Firebase Auth ID
+              token (anonymous/web access was removed). Add Firebase Auth to
+              the website and attach 'Authorization: Bearer <idToken>' to the
+              fetch in performAIMatch(). See the comment above the disabled
+              HTML block for full re-enable instructions. Without the auth
+              token the Cloud Function returns 401.
         let aiMode = false;
         let originalFilteredPets = null;
         let aiMatchingInProgress = false;
@@ -6157,6 +6333,7 @@
                 performAIMatch();
             });
         });
+        */
 
         loadPets().then(async () => {
             populateTypeFilter();
@@ -6227,6 +6404,7 @@
         });
     </script>
 
+    <!-- AI loading overlay (DISABLED — feature is app-only). Uncomment with the AI search box + JS to re-enable. NOTE: matchPetsWithAI now requires a Firebase Auth ID token — see the re-enable instructions above the disabled AI search box HTML.
     <div class="ai-loading" id="aiLoading" aria-busy="true" aria-live="polite">
         <div class="ai-loading-backdrop"></div>
         <div class="ai-loading-box">
@@ -6238,5 +6416,6 @@
             <div class="ai-loading-subtext">This usually takes about 30 seconds — please don't close this page</div>
         </div>
     </div>
+    -->
 </body>
 </html>
