@@ -363,72 +363,95 @@
     <div class="content">
         <section>
             <h2>Introduction</h2>
-            <p>Welcome to Pet Pad. We are committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our application. By using the app, you agree to the collection and use of information in accordance with this policy.</p>
+            <p>Pet Pad ("we", "us", or "our") operates the Pet Pad mobile application (the "App"). This Privacy Policy explains what information we collect, how we use it, and the choices you have. By creating an account or using the App, you agree to the collection and use of your information as described in this policy.</p>
+            <p>This Privacy Policy applies only to the Pet Pad App and does not cover any third-party services you may access through the App, which are governed by their own privacy policies.</p>
         </section>
 
         <section>
             <h2>Information We Collect</h2>
-            <p>We collect information that you provide directly to us when you create an account and use the service, such as:</p>
+            <p>We collect the following categories of information:</p>
             <ul>
-                <li><strong>Account Information:</strong> Your email address and password for authentication.</li>
-                <li><strong>User Content:</strong> Information and photos you upload about your pets.</li>
+                <li><strong>Account Information:</strong> Your email address and an authentication credential (password hash or a third-party sign-in token) used to verify your identity when you sign in.</li>
+                <li><strong>Google Sign-In Information:</strong> If you choose to sign in with Google, we request access to your Google account's basic profile information. The specific Google scopes we request are <code>openid</code>, <code>https://www.googleapis.com/auth/userinfo.email</code>, and <code>https://www.googleapis.com/auth/userinfo.profile</code>. Through these scopes we receive your Google email address, name, and profile photo. We use this information solely to create and authenticate your Pet Pad account. We do not request access to any other Google data (such as your contacts, calendars, Drive files, or Gmail messages), and we never post anything to your Google account.</li>
+                <li><strong>User Content:</strong> Information and photos you upload about your pets, including pet names, breed, medical records, and any notes you choose to add.</li>
+                <li><strong>Usage and Device Information:</strong> Limited, non-identifying technical information such as App version, device type, and operating system version, used to provide the service and diagnose problems.</li>
             </ul>
         </section>
 
         <section>
             <h2>How We Use Your Information</h2>
-            <p>We use the information we collect solely to:</p>
+            <p>We use the information we collect to:</p>
             <ul>
-                <li>Provide, operate, and maintain the Pet Pad app.</li>
-                <li>Manage your account and provide you with customer support.</li>
-                <li>Enable you to store your pet's information.</li>
-                <li>Allow you to share your pet's profile with other users of your choosing, at your explicit direction.</li>
+                <li>Create and authenticate your account, including signing you in with Google when you choose that option.</li>
+                <li>Provide, operate, and maintain the Pet Pad App.</li>
+                <li>Store, display, and back up your pet's information so you can access it across your devices.</li>
+                <li>Allow you to share your pet's profile with other Pet Pad users of your choosing, only at your explicit direction.</li>
+                <li>Provide you with customer support and respond to your inquiries.</li>
+                <li>Detect, prevent, and address technical issues, fraud, and other misuse of the App.</li>
             </ul>
+            <p>We do <strong>not</strong> use your personal information to build advertising profiles, sell to data brokers, or share your information for cross-context behavioral advertising.</p>
         </section>
 
         <section>
             <h2>Information Sharing and Disclosure</h2>
-            <p>Your privacy is paramount. We do not sell, trade, or rent your personal information to third parties.</p>
-            <p>Your data is shared only in the following circumstances:</p>
+            <p>We do not sell, rent, or trade your personal information to third parties. Your data is shared only in the following circumstances:</p>
             <ul>
-                <li><strong>With Other Users:</strong> When you voluntarily choose to share a pet profile with another Pet Pad user.</li>
-                <li><strong>Service Providers:</strong> We use Firebase, a Google service, for data storage, authentication, and backend infrastructure. Firebase's use of information is governed by their own privacy policy.</li>
+                <li><strong>With Other Users:</strong> When you voluntarily choose to share a pet profile with another Pet Pad user. Only the pet information you choose to share is visible to them; your account email is not shared with other users through this feature.</li>
+                <li><strong>Service Providers:</strong> We use Firebase (operated by Google LLC) for authentication, data storage, backend compute, and app integrity verification. Firebase processes your information on our behalf to operate the App. Firebase's use of data is governed by the <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase Privacy Information</a> and Google's <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a>.</li>
+                <li><strong>Legal Requirements:</strong> If required to do so by law, or in response to valid requests by public authorities, we may disclose information to comply with our legal obligations.</li>
             </ul>
+        </section>
+
+        <section>
+            <h2>Data Retention</h2>
+            <p>We retain your account information and User Content for as long as your account is active. When you delete your account (see "Your Data Rights and Choices" below), we permanently remove your account and all associated pet data from our production systems. Limited, non-identifying log data may be retained for a short period for security and debugging purposes.</p>
         </section>
 
         <section>
             <h2>Data Storage and Security</h2>
-            <p>Your data is stored securely on Firebase's servers. We rely on the security measures provided by Firebase to protect your data from unauthorized access, use, or disclosure. While we strive to use commercially acceptable means to protect your personal information, we cannot guarantee its absolute security.</p>
+            <p>Your data is stored securely on Firebase's infrastructure, which is operated by Google and protected by industry-standard security measures including encryption in transit and at rest. Access to your data is restricted to the App's backend services and is enforced by Firebase Security Rules and App Check. We do not store your password in plain text; authentication credentials are managed by Firebase Authentication.</p>
+            <p>While we and Firebase strive to protect your personal information, no method of transmission over the Internet or electronic storage is 100% secure, and we cannot guarantee absolute security.</p>
         </section>
 
         <section>
             <h2>Your Data Rights and Choices</h2>
-            <p>You have control over your personal information:</p>
+            <p>You have control over your personal information. Depending on where you live, you may have the following rights:</p>
             <ul>
-                <li><strong>Access and Update:</strong> You can review and update your account information through the app's settings.</li>
-                <li><strong>Account Deletion:</strong> You can delete your account at any time from the settings screen. This will permanently remove your account and all associated data from our systems.</li>
+                <li><strong>Access and Update:</strong> You can review and update your account information and your pet's information through the App at any time.</li>
+                <li><strong>Account Deletion:</strong> You can delete your account at any time from the App's settings screen. This will permanently remove your account and all associated pet data from our systems.</li>
+                <li><strong>Revoke Google Access:</strong> If you signed in with Google, you can revoke Pet Pad's access to your Google account at any time by visiting your Google Account's <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">Third-party apps & services</a> page and removing Pet Pad. You can also delete your Pet Pad account from within the App.</li>
+                <li><strong>Request Your Data:</strong> You may request a copy of the personal data we hold about you by contacting us at the email below.</li>
+                <li><strong>Opt Out:</strong> You can stop using the App and delete your account at any time.</li>
             </ul>
         </section>
 
         <section>
+            <h2>Children's Privacy</h2>
+            <p>The Pet Pad App is not directed to children under the age of 13 (or the equivalent minimum age in the relevant jurisdiction), and we do not knowingly collect personal information from children. If you believe a child has provided us with personal information, please contact us and we will take steps to delete that information.</p>
+        </section>
+
+        <section>
+            <h2>International Users</h2>
+            <p>Pet Pad is available to users worldwide. If you are located in the European Economic Area, the United Kingdom, or California, you have additional rights under the GDPR and CCPA respectively, including the right to access, correct, delete, or restrict the processing of your personal data, and the right to lodge a complaint with your local data protection authority. We process your personal information on the legal bases of contract (to provide the App to you) and legitimate interests (to operate and secure the App).</p>
+        </section>
+
+        <section>
+            <h2>Third-Party Links and Services</h2>
+            <p>The App may contain links to third-party websites or services (for example, links to adoption listings or external resources). We are not responsible for the privacy practices of these third parties, and this Privacy Policy does not apply to them. We encourage you to review the privacy policies of any third-party services you interact with.</p>
+        </section>
+
+        <section>
             <h2>Changes to This Privacy Policy</h2>
-            <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page. You are advised to review this Privacy Policy periodically for any changes.</p>
+            <p>We may update this Privacy Policy from time to time. When we do, we will revise the "Last Updated" date at the bottom of this page. We will notify you of any material changes by posting the updated policy on this page and, where appropriate, through the App. You are advised to review this Privacy Policy periodically for any changes.</p>
         </section>
 
         <section>
             <h2>Contact Us</h2>
-            <p>If you have any questions about this Privacy Policy, please contact us at: <a href="mailto:getpetpadapp@gmail.com">getpetpadapp@gmail.com</a></p>
+            <p>If you have any questions about this Privacy Policy or your personal information, please contact us at: <a href="mailto:getpetpadapp@gmail.com">getpetpadapp@gmail.com</a></p>
         </section>
         <br>
-        <p class="last-updated">Last Updated: <span id="currentDate"></span></p>
+        <p class="last-updated">Last Updated: September 13, 2026</p>
     </div>
-
-    <!-- Set current date -->
-    <script>
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        const today = new Date();
-        document.getElementById('currentDate').textContent = today.toLocaleDateString('en-US', options);
-    </script>
     </div>
 
     <footer class="footer">
