@@ -2284,18 +2284,6 @@
             z-index: 1;
         }
         .ai-promo-content { flex: 1 1 320px; min-width: 260px; }
-        .ai-promo-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 14px;
-            background: rgba(255,255,255,0.18);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5em;
-            margin-bottom: 14px;
-            backdrop-filter: blur(4px);
-        }
         .ai-promo-banner h3 {
             margin: 0 0 8px;
             font-size: 1.3em;
@@ -2305,18 +2293,22 @@
             align-items: center;
             gap: 10px;
         }
+        .ai-promo-banner h3 i {
+            color: #fff;
+            font-size: 1.1em;
+        }
         .ai-promo-banner p {
-            margin: 0 0 18px;
+            margin: 0;
             font-size: 0.95em;
             line-height: 1.5;
             color: rgba(255,255,255,0.92);
             max-width: 560px;
         }
         .ai-promo-actions {
+            flex: 0 0 auto;
             display: flex;
             align-items: center;
             gap: 14px;
-            flex-wrap: wrap;
         }
         .ai-promo-actions .ai-promo-btn {
             display: inline-flex;
@@ -2365,9 +2357,9 @@
         @media (max-width: 600px) {
             .ai-promo-banner { padding: 22px 18px; }
             .ai-promo-banner h3 { font-size: 1.1em; }
-            .ai-promo-actions { flex-direction: column; align-items: stretch; }
+            .ai-promo-content { margin-bottom: 16px; }
+            .ai-promo-actions { flex-direction: column; align-items: stretch; width: 100%; }
             .ai-promo-actions .ai-promo-btn { width: 100%; justify-content: center; }
-            .ai-promo-qr { display: none; }
         }
         .match-score-badge {
             position: absolute;
@@ -2651,14 +2643,13 @@
         <div class="ai-promo-banner">
             <div class="ai-promo-inner">
                 <div class="ai-promo-content">
-                    <div class="ai-promo-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
-                    <h3>Find Your Perfect Pet with AI</h3>
+                    <h3><i class="fas fa-wand-magic-sparkles"></i> Find Your Perfect Pet with AI</h3>
                     <p>Describe your lifestyle, home, and other pets — our AI evaluates nearby pets and ranks the best matches for you. This feature is available in the Pet Pad app. Try your first AI search free.</p>
-                    <div class="ai-promo-actions">
-                        <a href="/home/" class="ai-promo-btn ai-promo-btn-appstore">
-                            <i class="fas fa-mobile-screen"></i> Download the App
-                        </a>
-                    </div>
+                </div>
+                <div class="ai-promo-actions">
+                    <a href="/home/" class="ai-promo-btn ai-promo-btn-appstore">
+                        <i class="fas fa-mobile-screen"></i> Download the App
+                    </a>
                 </div>
             </div>
         </div>
