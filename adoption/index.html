@@ -2822,10 +2822,16 @@
                 </div>
             </div>
             <div class="sidebar" id="sidebar">
+                <!-- AI match note (DISABLED — AI search is app-only). The JS
+                     updatePaginationUI() still references #aiMatchNote but
+                     guards with if (aiNote), so this is safe to leave hidden.
+                     Uncomment to re-enable if web AI search returns. -->
+                <!--
                 <div class="ai-match-note" id="aiMatchNote" style="display:none;">
                     <i class="fas fa-wand-magic-sparkles"></i>
                     AI matching searches Pet Pad + RescueGroups pets across the country and ranks the best matches near your location.
                 </div>
+                -->
                 <div class="pet-grid" id="petGrid">
                     <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:45%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
                     <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-lines"><div class="skeleton-line" style="width:55%"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div></div>
