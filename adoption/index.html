@@ -6084,6 +6084,12 @@
         });
 
         // AI Pet Matching (DISABLED on web — feature is app-only; see promo banner above)
+        // Stubs so references in loadPets()/search/nationwide-modal functions
+        // don't throw ReferenceError while the real implementations are
+        // commented out below.
+        let aiMode = false;
+        function clearAIMatch() { aiMode = false; }
+        function performAIMatch() { showToast('AI search is available in the Pet Pad app.'); }
         /* AI matching disabled on web — feature is app-only. To re-enable:
            1. Uncomment this block, the #aiLoading overlay near </body>, and the
               AI search box HTML above.
