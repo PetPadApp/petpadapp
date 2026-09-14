@@ -6376,8 +6376,11 @@
                 map.flyTo([userLocation.lat, userLocation.lng], 11, { duration: 1.5 });
                 await loadPetsByLocation(userLocation.lat, userLocation.lng, radius);
                 renderSidebar();
-                document.getElementById('heroDefaultCity').style.display = 'none';
-                document.getElementById('heroLocationPrompt').style.display = 'none';
+                // Show the saved location name in the hero (instead of the
+                // default city) and keep the hero buttons visible so the
+                // user can always change their location.
+                document.getElementById('defaultCityName').textContent = window.currentSearchLocationLabel || saved.query || 'your location';
+                document.getElementById('heroDefaultCity').style.display = 'block';
             }
 
             if (window.location.hash.startsWith('#pet=')) {
