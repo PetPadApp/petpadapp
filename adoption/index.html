@@ -2257,7 +2257,7 @@
 
         /* AI Feature Promo Banner (replaces web AI search box; feature is app-only) */
         .ai-promo-banner {
-            background: linear-gradient(135deg, var(--purple-color), var(--primary-color));
+            background: #3E2D8F;
             border-radius: 16px;
             padding: 28px 24px;
             margin-top: -22px;
@@ -2309,6 +2309,8 @@
             display: flex;
             align-items: center;
             gap: 14px;
+            margin-left: auto;
+            padding-right: 88px;
         }
         .ai-promo-actions .ai-promo-btn {
             display: inline-flex;
@@ -2324,7 +2326,7 @@
         .ai-promo-actions .ai-promo-btn:hover { transform: translateY(-2px); }
         .ai-promo-btn-appstore {
             background: #fff;
-            color: var(--purple-color);
+            color: var(--primary-dark);
             box-shadow: 0 4px 14px rgba(0,0,0,0.15);
         }
         .ai-promo-btn-googleplay {
@@ -2353,12 +2355,12 @@
             font-size: 0.72em;
             color: rgba(255,255,255,0.85);
         }
-        body[data-theme="dark"] .ai-promo-banner { box-shadow: 0 8px 28px rgba(0,0,0,0.4); }
+        body[data-theme="dark"] .ai-promo-banner { background: #1F1C4B; box-shadow: 0 8px 28px rgba(0,0,0,0.4); }
         @media (max-width: 600px) {
             .ai-promo-banner { padding: 22px 18px; }
             .ai-promo-banner h3 { font-size: 1.1em; }
             .ai-promo-content { margin-bottom: 16px; }
-            .ai-promo-actions { flex-direction: column; align-items: stretch; width: 100%; }
+            .ai-promo-actions { flex-direction: column; align-items: stretch; width: 100%; margin-left: 0; padding-right: 0; }
             .ai-promo-actions .ai-promo-btn { width: 100%; justify-content: center; }
         }
         .match-score-badge {
