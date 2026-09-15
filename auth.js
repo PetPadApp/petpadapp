@@ -2,7 +2,12 @@
     'use strict';
 
     const AUTH_KEY = 'petpad_auth';
-    const CORRECT_PASSWORD = 'JukeLuke2026';
+    // NOTE: The gate is currently disabled (see bottom of file). When the gate
+    // is re-enabled, do NOT hardcode the password here — it is client-side and
+    // visible to anyone who views source. Wire the gate up to Firebase Auth
+    // instead (see the notes in the project rules / Firebase Auth migration
+    // plan). This placeholder is kept only so the disabled code still parses.
+    const CORRECT_PASSWORD = '';
 
     function isAuthenticated() {
         try {
@@ -148,7 +153,14 @@
         }
     }
 
-    if (!isAuthenticated()) {
-        createOverlay();
-    }
+    // ---------------------------------------------------------------------------
+    // TEMPORARY LOGIN GATE — DISABLED
+    // The "Coming Soon" password overlay below was used to gate the website while
+    // AI search costs were a concern. It is now commented out so the site is
+    // publicly accessible. To re-enable the gate in the future, uncomment the
+    // `if (!isAuthenticated()) { createOverlay(); }` block below.
+    // ---------------------------------------------------------------------------
+    // if (!isAuthenticated()) {
+    //     createOverlay();
+    // }
 })();
