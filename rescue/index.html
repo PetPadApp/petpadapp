@@ -256,17 +256,38 @@
         }
         .pricing-card ul li {
             margin-bottom: 10px;
-            padding-left: 22px;
             position: relative;
             font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        .pricing-card ul li::before {
-            content: '\2713';
-            color: var(--primary-color);
-            position: absolute;
-            left: 0;
-            font-weight: 700;
+        .pricing-card ul li i {
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0;
         }
+        .pricing-card ul li.tier-divider {
+            margin: 16px 0 12px;
+            color: var(--text-muted);
+            font-size: 0.78em;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+        }
+        .pricing-card ul li.tier-divider::before,
+        .pricing-card ul li.tier-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+        .icon-blue { color: #007AFF; }
+        .icon-green { color: #34C759; }
+        .icon-lightblue { color: #66B3FF; }
+        .icon-red { color: #FF3B30; }
+        .icon-purple { color: #AF52DE; }
+        .icon-pink { color: #FF2D55; }
+        .icon-orange { color: #FF9500; }
         .pricing-card .badge {
             display: inline-block;
             background: var(--accent-color);
@@ -556,19 +577,19 @@
             </ul>
 
             <h2 style="text-align: center; border-left: none; margin-top: 40px;">Pricing</h2>
-            <p style="text-align: center; color: var(--text-muted); max-width: 520px; margin: -10px auto 20px;">The Rescue tier is designed specifically for fosters, shelters, and rescue organizations.</p>
+            <p style="text-align: center; color: var(--text-muted); max-width: 520px; margin: -10px auto 20px;">The Rescue tier is designed specifically for fosters, shelters, and rescue organizations. Each plan includes a lifetime total of created pets — one archived pet is free and does not count toward your limit.</p>
 
             <div class="pricing-cards">
                 <div class="pricing-card">
                     <div class="tier-name">Free</div>
                     <div class="tier-price">$0.00</div>
-                    <div class="tier-period">per month</div>
                     <ul>
-                        <li>1 pet total lifetime</li>
-                        <li>2 food photos per pet</li>
-                        <li>5 documents per pet</li>
-                        <li>5 vaccinations per pet</li>
-                        <li>1 Photo Memoir chapter</li>
+                        <li><i class="fas fa-paw icon-blue"></i> 1 pet total lifetime</li>
+                        <li><i class="fas fa-camera icon-green"></i> 1 food photo per pet</li>
+                        <li><i class="fas fa-file-alt icon-lightblue"></i> 5 documents per pet</li>
+                        <li><i class="fas fa-syringe icon-red"></i> 5 vaccinations per pet</li>
+                        <li><i class="fas fa-book icon-purple"></i> 1 Photo Memoir chapter</li>
+                        <li><i class="fas fa-magic icon-pink"></i> 1 lifetime AI pet search</li>
                     </ul>
                 </div>
 
@@ -577,11 +598,16 @@
                     <div class="tier-price">$5.99</div>
                     <div class="tier-period">per year</div>
                     <ul>
-                        <li>3 pets total lifetime</li>
-                        <li>2 food photos per pet</li>
-                        <li>10 documents per pet</li>
-                        <li>10 vaccinations per pet</li>
-                        <li>6 Photo Memoir chapters</li>
+                        <li><i class="fas fa-paw icon-blue"></i> 3 pets total lifetime</li>
+                        <li><i class="fas fa-camera icon-green"></i> 2 food photos per pet</li>
+                        <li><i class="fas fa-file-alt icon-lightblue"></i> 20 documents per pet</li>
+                        <li><i class="fas fa-syringe icon-red"></i> 20 vaccinations per pet</li>
+                        <li><i class="fas fa-book icon-purple"></i> 6 Photo Memoir chapters</li>
+                        <li><i class="fas fa-magic icon-pink"></i> 10 AI pet searches per year</li>
+                        <li class="tier-divider">Lost Pet Tools</li>
+                        <li><i class="fas fa-paw icon-red"></i> Mark pets as lost &amp; post to lost pet website</li>
+                        <li><i class="fas fa-images icon-orange"></i> 1 lost pet photo (avatar) per pet</li>
+                        <li><i class="fas fa-paw icon-red"></i> Up to 3 pets marked as lost at a time</li>
                     </ul>
                 </div>
 
@@ -590,11 +616,17 @@
                     <div class="tier-price">$9.99</div>
                     <div class="tier-period">per year</div>
                     <ul>
-                        <li>7 pets total lifetime</li>
-                        <li>2 food photos per pet</li>
-                        <li>20 documents per pet</li>
-                        <li>50 vaccinations per pet</li>
-                        <li>24 Photo Memoir chapters</li>
+                        <li><i class="fas fa-paw icon-blue"></i> 7 pets total lifetime</li>
+                        <li><i class="fas fa-camera icon-green"></i> 3 food photos per pet</li>
+                        <li><i class="fas fa-file-alt icon-lightblue"></i> 50 documents per pet</li>
+                        <li><i class="fas fa-syringe icon-red"></i> 50 vaccinations per pet</li>
+                        <li><i class="fas fa-book icon-purple"></i> 12 Photo Memoir chapters</li>
+                        <li><i class="fas fa-magic icon-pink"></i> 100 AI pet searches per year</li>
+                        <li class="tier-divider">Lost Pet Tools</li>
+                        <li><i class="fas fa-paw icon-red"></i> Mark pets as lost &amp; post to lost pet website</li>
+                        <li><i class="fas fa-images icon-orange"></i> Up to 3 lost pet photos per pet</li>
+                        <li><i class="fas fa-paw icon-red"></i> Up to 3 pets marked as lost at a time</li>
+                        <li><i class="fas fa-magic icon-pink"></i> AI Extra Pack available</li>
                     </ul>
                 </div>
 
@@ -604,14 +636,22 @@
                     <div class="tier-price">$29.99</div>
                     <div class="tier-period">per year</div>
                     <ul>
-                        <li>10 pets total lifetime</li>
-                        <li>2 food photos per pet</li>
-                        <li>20 documents per pet</li>
-                        <li>50 vaccinations per pet</li>
-                        <li>Post pets to adoption website</li>
-                        <li>Up to 5 adoption photos per pet</li>
-                        <li>Full profile transfer to new owners</li>
-                        <li>Add 10 more pets for $9.99 (unlimited)</li>
+                        <li><i class="fas fa-paw icon-blue"></i> 10 pets total lifetime</li>
+                        <li><i class="fas fa-camera icon-green"></i> 3 food photos per pet</li>
+                        <li><i class="fas fa-file-alt icon-lightblue"></i> 50 documents per pet</li>
+                        <li><i class="fas fa-syringe icon-red"></i> 50 vaccinations per pet</li>
+                        <li><i class="fas fa-book icon-purple"></i> 12 Photo Memoir chapters</li>
+                        <li><i class="fas fa-magic icon-pink"></i> 300 AI pet searches per year</li>
+                        <li class="tier-divider">Lost Pet Tools</li>
+                        <li><i class="fas fa-paw icon-red"></i> Mark pets as lost &amp; post to lost pet website</li>
+                        <li><i class="fas fa-images icon-orange"></i> Up to 3 lost pet photos per pet</li>
+                        <li><i class="fas fa-paw icon-red"></i> Up to 10 pets marked as lost at a time</li>
+                        <li><i class="fas fa-magic icon-pink"></i> AI Extra Pack available</li>
+                        <li class="tier-divider">Adoption Tools</li>
+                        <li><i class="fas fa-globe icon-orange"></i> Post pets to Pet Pad Adoption website</li>
+                        <li><i class="fas fa-images icon-pink"></i> Up to 5 adoption website photos per pet</li>
+                        <li><i class="fas fa-home icon-green"></i> Transfer full pet profile to new owner</li>
+                        <li><i class="fas fa-shopping-cart icon-red"></i> Add 10 more pets for $9.99 (unlimited purchases)</li>
                     </ul>
                 </div>
             </div>
