@@ -1,98 +1,563 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vici Commons, LLC</title>
-  <meta name="description" content="Vici Commons, LLC — Las Cruces, New Mexico. Contact: ViciCommons@gmail.com">
-  <style>
-    :root {
-      --bg: #0f172a;
-      --card: #111827;
-      --accent: #38bdf8;
-      --text: #e5e7eb;
-      --muted: #94a3b8;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: radial-gradient(1200px 600px at 50% -10%, #1e293b 0%, var(--bg) 60%);
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      line-height: 1.6;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid #1f2937;
-      border-radius: 16px;
-      padding: 48px 40px;
-      max-width: 560px;
-      width: 100%;
-      text-align: center;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
-    }
-    .logo {
-      width: 72px; height: 72px; margin: 0 auto 24px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, var(--accent), #6366f1);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 30px; font-weight: 700; color: #0b1220; letter-spacing: -1px;
-    }
-    h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
-    .tagline { color: var(--muted); font-size: 16px; margin-bottom: 32px; }
-    .info { display: grid; gap: 16px; text-align: left; margin-bottom: 32px; }
-    .info-row {
-      display: flex; gap: 14px; align-items: flex-start;
-      padding: 14px 16px; background: #0b1220;
-      border: 1px solid #1f2937; border-radius: 10px;
-    }
-    .info-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 2px; }
-    .info-value { font-size: 15px; color: var(--text); word-break: break-word; }
-    .info-value a { color: var(--accent); text-decoration: none; }
-    .info-value a:hover { text-decoration: underline; }
-    .icon { font-size: 18px; line-height: 1.4; }
-    footer { font-size: 13px; color: var(--muted); border-top: 1px solid #1f2937; padding-top: 20px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vici Commons, LLC — About Us | Pet Pad</title>
+    <meta name="description" content="Vici Commons, LLC is the company behind Pet Pad — a Las Cruces, New Mexico software company building tools that help communities care for their loved ones.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --primary-color: #40E0D0;
+            --primary-dark: #2A9D8F;
+            --secondary-color: #D4A76A;
+            --accent-color: #FF69B4;
+            --text-color: #2D3748;
+            --text-muted: #718096;
+            --light-bg: #F7FAFC;
+            --card-bg: #FFFFFF;
+            --border-color: #E2E8F0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 32px rgba(0,0,0,0.12);
+            --shadow-colored: 0 4px 20px rgba(64,224,208,0.15);
+            --purple-color: #7C3AED;
+        }
+
+        body[data-theme="dark"] {
+            --text-color: #E2E8F0;
+            --text-muted: #A0AEC0;
+            --light-bg: #12121A;
+            --card-bg: #1E1E2D;
+            --border-color: #2D3748;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.25);
+            --shadow-lg: 0 12px 32px rgba(0,0,0,0.3);
+            --shadow-colored: 0 4px 20px rgba(64,224,208,0.12);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.7;
+            color: var(--text-color);
+            margin: 0;
+            padding: 28px 0 0;
+            background-color: var(--light-bg);
+            position: relative;
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body[data-theme="dark"] {
+            background-color: #12121A;
+        }
+
+        .page-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 28px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #312E81 0%, #5B21B6 25%, #7C3AED 50%, #EC4899 75%, #F472B6 100%);
+            padding: 45px 20px 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: -30px;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -20%;
+            width: 140%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
+            animation: float 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-20px, 20px) rotate(240deg); }
+        }
+
+        .hero h2 {
+            color: #fff;
+            margin: 0 0 8px;
+            font-weight: 800;
+            font-size: 2.8em;
+            letter-spacing: -0.03em;
+            position: relative;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.15);
+            z-index: 2;
+        }
+        .hero p {
+            color: rgba(255,255,255,0.85);
+            margin: 0 auto;
+            font-size: 1.15em;
+            max-width: 620px;
+            position: relative;
+            font-weight: 400;
+            letter-spacing: 0.01em;
+            text-align: center;
+            z-index: 2;
+        }
+
+        h2 {
+            color: var(--text-color);
+            margin: 30px 0 20px;
+            font-weight: 600;
+        }
+
+        .content {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            margin: 20px 0;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .vc-badge {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 16px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--primary-color), var(--purple-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -1px;
+        }
+
+        .company-heading {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .company-heading h3 {
+            color: var(--text-color);
+            margin: 0 0 4px;
+            font-size: 1.4em;
+            font-weight: 700;
+        }
+        .company-heading p {
+            color: var(--text-muted);
+            margin: 0;
+            font-size: 1em;
+        }
+
+        .info-grid {
+            display: grid;
+            gap: 14px;
+            max-width: 560px;
+            margin: 0 auto;
+        }
+        .info-row {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            padding: 14px 16px;
+            background: var(--light-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+        }
+        .info-icon {
+            font-size: 18px;
+            line-height: 1.4;
+            color: var(--purple-color);
+        }
+        .info-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+        .info-value {
+            font-size: 15px;
+            color: var(--text-color);
+            word-break: break-word;
+        }
+        .info-value a {
+            color: var(--purple-color);
+            text-decoration: none;
+        }
+        .info-value a:hover { text-decoration: underline; }
+
+        .about-section {
+            background-color: var(--light-bg);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 30px 0;
+            border-left: 4px solid var(--purple-color);
+        }
+        body[data-theme="dark"] .about-section { background-color: #181822; }
+        .about-section h3 {
+            color: var(--primary-dark);
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        .about-section h3 i {
+            margin-right: 12px;
+            color: var(--purple-color);
+        }
+        .about-section p { color: var(--text-color); }
+
+        .petpad-section {
+            background-color: var(--light-bg);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 30px 0;
+            border-left: 4px solid var(--accent-color);
+        }
+        body[data-theme="dark"] .petpad-section { background-color: #181822; }
+        .petpad-section h3 {
+            color: var(--primary-dark);
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        .petpad-section h3 i {
+            margin-right: 12px;
+            color: var(--accent-color);
+        }
+        .petpad-section p { color: var(--text-color); }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: #111;
+            padding: 12px 25px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 15px 5px 5px;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #20B2AA;
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(64, 224, 208, 0.4);
+        }
+        .btn i { margin-right: 8px; }
+
+        /* Header */
+        .site-header {
+            position: relative;
+            padding: 0 28px 65px;
+            z-index: 100;
+        }
+        .brand-lockup {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            text-decoration: none;
+            position: absolute;
+            top: 0;
+            left: 28px;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+        }
+        .brand-lockup .logo-notebook {
+            height: 130px;
+            width: auto;
+            border-radius: 16px;
+        }
+        .brand-lockup .logo-text {
+            height: 28px;
+            width: auto;
+            margin-top: 28px;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: absolute;
+            bottom: 8px;
+            right: 28px;
+        }
+        .site-header nav a {
+            color: var(--text-color);
+            text-decoration: none;
+            margin-left: 24px;
+            font-size: 0.95em;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .site-header nav a:hover { color: var(--primary-color); }
+        .theme-toggle {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1em;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .theme-toggle:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: scale(1.05);
+        }
+        body[data-theme="dark"] .theme-toggle { border-color: #444; color: #ccc; }
+        body[data-theme="dark"] .theme-toggle:hover { border-color: var(--primary-color); color: var(--primary-color); }
+
+        .footer {
+            background: linear-gradient(135deg, #FAFAFF 0%, #FFF5FB 50%, #F0FDFB 100%);
+            border-top: 1px solid var(--border-color);
+            padding: 0;
+            font-size: 0.9em;
+            color: var(--text-muted);
+            margin-top: 50px;
+        }
+        .footer-accent {
+            height: 4px;
+            background: linear-gradient(90deg, #7C3AED 0%, #EC4899 50%, #40E0D0 100%);
+        }
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 24px 28px;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1fr;
+            gap: 32px;
+            text-align: left;
+        }
+        .footer-brand img {
+            height: 28px;
+            opacity: 0.8;
+        }
+        .footer-brand p {
+            margin: 10px 0 0;
+            line-height: 1.6;
+            max-width: 260px;
+        }
+        .footer-col h4 {
+            font-size: 0.85em;
+            font-weight: 700;
+            color: var(--text-color);
+            margin: 0 0 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .footer-col ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .footer-col li { margin-bottom: 8px; }
+        .footer-col a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .footer-col a:hover { color: var(--purple-color); }
+        .footer-bottom {
+            text-align: center;
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.85em;
+            color: #A0A0B0;
+        }
+        body[data-theme="dark"] .footer { background: #18181F; }
+        body[data-theme="dark"] .footer-col a:hover { color: var(--primary-color); }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 0;
+            }
+            .page-wrap {
+                padding: 10px;
+            }
+            .content {
+                padding: 20px 15px;
+            }
+            .site-header { padding: 0 20px 45px; }
+            .brand-lockup { top: 0; left: 20px; }
+            .brand-lockup .logo-notebook { height: 90px; border-radius: 12px; }
+            .brand-lockup .logo-text { display: none; }
+            .header-right { bottom: 6px; right: 20px; gap: 10px; }
+            .site-header nav a { margin-left: 14px; font-size: 0.85em; }
+            .theme-toggle { width: 32px; height: 32px; font-size: 0.9em; }
+            .hero { padding: 60px 16px 45px; }
+            .hero h2 { font-size: 2em; }
+            .hero p { font-size: 0.95em; }
+            .footer-inner {
+                grid-template-columns: 1fr;
+                gap: 24px;
+                padding: 32px 20px 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <main class="card">
-    <div class="logo" aria-hidden="true">VC</div>
-    <h1>Vici Commons, LLC</h1>
-    <p class="tagline">Las Cruces, New Mexico</p>
+    <header class="site-header">
+        <a href="/home" class="brand-lockup">
+            <img src="/petPadNotebookDarkGreyTan.png" alt="Pet Pad" class="logo-notebook">
+            <img src="/PetPadLogoTextGreen.png" alt="Pet Pad" class="logo-text">
+        </a>
+        <div class="header-right">
+            <nav>
+                <a href="/home">Home</a>
+                <a href="/adoption">Adopt</a>
+                <a href="/lost/">Lost Pets</a>
+                <a href="/rescue">Rescue</a>
+            </nav>
+            <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">🌙</button>
+        </div>
+    </header>
 
-    <div class="info">
-      <div class="info-row">
-        <span class="icon" aria-hidden="true">✉️</span>
-        <div>
-          <div class="info-label">Email</div>
-          <div class="info-value"><a href="mailto:ViciCommons@gmail.com">ViciCommons@gmail.com</a></div>
-        </div>
-      </div>
-      <div class="info-row">
-        <span class="icon" aria-hidden="true">📍</span>
-        <div>
-          <div class="info-label">Location</div>
-          <div class="info-value">Las Cruces, NM, United States</div>
-        </div>
-      </div>
-      <div class="info-row">
-        <span class="icon" aria-hidden="true">🏢</span>
-        <div>
-          <div class="info-label">Entity Type</div>
-          <div class="info-value">Limited Liability Company (LLC)</div>
-        </div>
-      </div>
+    <div class="hero">
+        <h2>Vici Commons, LLC</h2>
+        <p>It takes a village.</p>
     </div>
 
-    <footer>© <span id="year"></span> Vici Commons, LLC. All rights reserved.</footer>
-  </main>
+    <div class="page-wrap">
+        <div class="content">
+            <div class="vc-badge" aria-hidden="true">VC</div>
+            <div class="company-heading">
+                <h3>Vici Commons, LLC</h3>
+                <p>Las Cruces, New Mexico</p>
+            </div>
 
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
+            <div class="info-grid">
+                <div class="info-row">
+                    <span class="info-icon" aria-hidden="true"><i class="fas fa-envelope"></i></span>
+                    <div>
+                        <div class="info-label">Email</div>
+                        <div class="info-value"><a href="mailto:ViciCommons@gmail.com">ViciCommons@gmail.com</a></div>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <span class="info-icon" aria-hidden="true"><i class="fas fa-location-dot"></i></span>
+                    <div>
+                        <div class="info-label">Location</div>
+                        <div class="info-value">Las Cruces, NM, United States</div>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <span class="info-icon" aria-hidden="true"><i class="fas fa-building"></i></span>
+                    <div>
+                        <div class="info-label">Entity Type</div>
+                        <div class="info-value">Limited Liability Company (LLC)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="about-section">
+                <h3><i class="fas fa-users"></i> Who We Are</h3>
+                <p>
+                    Vici Commons, LLC is a software company based in Las Cruces, New Mexico, dedicated to
+                    bringing people together through thoughtful digital tools. Our goal is simple: to help
+                    communities share the important details about the loved ones in their care — so that
+                    everyone involved can provide the best possible support.
+                </p>
+                <p>
+                    Our name is inspired by the village commons — the shared gathering place at the heart of
+                    every community — and by the well-known adage that <em>it takes a village</em>. We believe
+                    caring for a loved one is never a solo effort. When the people around them have accurate,
+                    up-to-date information at their fingertips, they can step in with confidence and provide
+                    the highest level of care, tailored to each individual.
+                </p>
+            </div>
+
+            <div class="petpad-section">
+                <h3><i class="fas fa-paw"></i> Our First Product: Pet Pad</h3>
+                <p>
+                    Pets are family. And just like any loved one, they rely on a village — pet sitters,
+                    friends, family members, vets, and rescues — to keep them happy, healthy, and safe.
+                    When someone else steps in to care for your pet, they deserve to know the details that
+                    matter: feeding routines, medications, quirks, comforts, and the little things that help
+                    your pet feel secure.
+                </p>
+                <p>
+                    That's why we built <strong>Pet Pad</strong>: a secure, all-in-one companion for organizing
+                    your pet's complete profile and sharing exactly what caregivers need. With PIN-protected
+                    share links, your pet's village always has the right information at the right time — so you
+                    can relax knowing they're in good hands.
+                </p>
+                <div style="text-align: center;">
+                    <a href="/home" class="btn"><i class="fas fa-paw"></i> Explore Pet Pad</a>
+                    <a href="https://apps.apple.com/app/id6749177166" class="btn"><i class="fab fa-apple"></i> Download the App</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-accent"></div>
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <img src="/PetPadLogoTextGreen.png" alt="Pet Pad">
+                <p>Your all-in-one pet care companion. Manage your pet's health, find adoptable pets, and share profiles with ease.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Product</h4>
+                <ul>
+                    <li><a href="/home">Home</a></li>
+                    <li><a href="/adoption/">Adopt a Pet</a></li>
+                    <li><a href="/lost/">Lost Pets</a></li>
+                    <li><a href="/rescue">For Rescues</a></li>
+                    <li><a href="https://apps.apple.com/app/id6749177166">Download App</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="https://petpadapp.link/vicicommons">About Us</a></li>
+                    <li><a href="https://petpadapp.link/privacy">Privacy Policy</a></li>
+                    <li><a href="https://petpadapp.link/support">Support</a></li>
+                    <li><a href="mailto:getpetpadapp@gmail.com">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; <span id="currentYear"></span> Vici Commons, LLC. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            const themeToggle = document.getElementById('themeToggle');
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.body.setAttribute('data-theme', 'dark');
+                themeToggle.textContent = '☀️';
+            } else {
+                document.body.removeAttribute('data-theme');
+                themeToggle.textContent = '🌙';
+            }
+            themeToggle.addEventListener('click', () => {
+                if (document.body.getAttribute('data-theme') === 'dark') {
+                    document.body.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'light');
+                    themeToggle.textContent = '🌙';
+                } else {
+                    document.body.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                    themeToggle.textContent = '☀️';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
