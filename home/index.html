@@ -183,8 +183,20 @@
             justify-content: center;
             flex-wrap: wrap;
         }
+        .rescue-cta .btn,
         .rescue-cta .btn-outline {
-            display: inline-block;
+            margin: 0;
+            min-width: 190px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            font-weight: 600;
+        }
+        .rescue-cta .btn {
+            border: 2px solid var(--primary-color);
+        }
+        .rescue-cta .btn-outline {
             background: transparent;
             color: var(--primary-dark);
             padding: 12px 25px;
