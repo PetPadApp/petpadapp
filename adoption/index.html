@@ -1000,6 +1000,7 @@
             background-size: 12px 12px;
             padding-right: 28px;
         }
+        .filter-bar select:disabled { opacity: 0.5; cursor: not-allowed; }
         .filter-bar select:focus, .filter-bar input[type="number"]:focus { outline: none; border-color: var(--primary-color); background: #fff; box-shadow: 0 0 0 4px rgba(64,224,208,0.12); }
         .filter-bar .filter-group { display: flex; align-items: center; gap: 6px; font-size: 0.85em; color: var(--text-muted); }
         .filter-bar .filter-label { white-space: nowrap; }
@@ -2660,8 +2661,8 @@
             <select id="typeFilter">
                 <option value="">All Types</option>
             </select>
-            <select id="breedFilter" style="flex:1 1 120px;min-width:100px;">
-                <option value="">All Breeds</option>
+            <select id="breedFilter" style="flex:1 1 120px;min-width:100px;" disabled>
+                <option value="">Select a type first</option>
             </select>
             <select id="sexFilter">
                 <option value="">All Sexes</option>
@@ -3803,12 +3804,25 @@
                 return !species || p.petType === species;
             }).length;
             sel.innerHTML = '';
+            sel.disabled = false;
+            sel.title = '';
+
+            if (!species) {
+                const hint = document.createElement('option');
+                hint.value = '';
+                hint.textContent = 'Select a type first';
+                sel.appendChild(hint);
+                sel.disabled = true;
+                sel.title = 'Select a pet type first to filter by breed';
+                return;
+            }
+
             const allOpt = document.createElement('option');
             allOpt.value = '';
             allOpt.textContent = baseCount > 0 ? `All Breeds (${baseCount})` : 'All Breeds';
             sel.appendChild(allOpt);
 
-            if (!species || species === NOT_SPECIFIED || !window.petSpeciesData.breedsBySpecies[species]) {
+            if (species === NOT_SPECIFIED || !window.petSpeciesData.breedsBySpecies[species]) {
                 const notSpec = document.createElement('option');
                 notSpec.value = NOT_SPECIFIED;
                 const notSpecCount = allPets.filter(p => {
@@ -4098,7 +4112,7 @@
             // Breed counts
             const breedSel = document.getElementById('breedFilter');
             const typeVal = document.getElementById('typeFilter').value;
-            if (breedSel) {
+            if (breedSel && !breedSel.disabled) {
                 const breedCounts = {};
                 let baseCount = 0;
                 if (typeVal && typeVal !== NOT_SPECIFIED && window.petSpeciesData.breedsBySpecies[typeVal]) {
