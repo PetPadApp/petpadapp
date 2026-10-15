@@ -8,6 +8,48 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script src="/auth.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { initializeAppCheck, ReCaptchaV3Provider, getToken } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app-check.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAIUlJCdgy4AtZLIGBihdlnZP4NnqxNghQ",
+            authDomain: "mypet-b1143.firebaseapp.com",
+            projectId: "mypet-b1143",
+            storageBucket: "mypet-b1143.firebasestorage.app",
+            messagingSenderId: "554504547921",
+            appId: "1:554504547921:web:2214121c31a7d03f785270",
+            measurementId: "G-XCX18BKCD7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        try { getAnalytics(app); } catch (e) { /* ignore analytics init errors */ }
+
+        const appCheck = initializeAppCheck(app, {
+            provider: new ReCaptchaV3Provider('6LfBeCstAAAAAKuUsiGZ8y9suhxb8_2t5m3m0Hs4'),
+            isTokenAutoRefreshEnabled: true
+        });
+
+        window.getAppCheckToken = async () => {
+            try {
+                const result = await getToken(appCheck, false);
+                return result.token;
+            } catch (e) {
+                console.warn('App Check token failed:', e);
+                return null;
+            }
+        };
+
+        window.fetchWithAppCheck = async (url, options = {}) => {
+            const token = (typeof window.getAppCheckToken === 'function') ? await window.getAppCheckToken() : null;
+            if (token) {
+                options.headers = options.headers || {};
+                options.headers['X-Firebase-AppCheck'] = token;
+            }
+            return fetch(url, options);
+        };
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
@@ -252,6 +294,82 @@
             border-left: 4px solid var(--accent-color);
         }
 
+        /* Waitlist form */
+        .waitlist-section {
+            margin: 40px 0 10px;
+            padding: 30px 20px;
+            border-radius: 12px;
+            background-color: var(--light-bg);
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .waitlist-section h3 {
+            color: var(--text-color);
+            margin: 0 0 8px;
+            font-size: 1.3em;
+            font-weight: 700;
+        }
+        .waitlist-section > p {
+            color: var(--text-muted);
+            margin: 0 0 20px;
+        }
+        .waitlist-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            max-width: 340px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .waitlist-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+            background: var(--card-bg);
+            color: var(--text-color);
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .waitlist-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        .waitlist-hp {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            height: 1px;
+            width: 1px;
+            opacity: 0;
+        }
+        .waitlist-btn {
+            width: 100%;
+            margin: 4px 0 0;
+        }
+        .waitlist-btn:disabled {
+            opacity: 0.6;
+            cursor: default;
+            transform: none;
+            box-shadow: none;
+        }
+        .waitlist-status {
+            min-height: 1.4em;
+            margin: 12px 0 0;
+            font-weight: 500;
+        }
+        .waitlist-status.success { color: #16A34A; }
+        .waitlist-status.error { color: #DC2626; }
+        .waitlist-privacy {
+            font-size: 0.8em;
+            color: var(--text-muted);
+            margin: 10px 0 0;
+        }
+        .waitlist-privacy a { color: var(--primary-dark); }
+
         /* Header */
         .site-header {
             position: relative;
@@ -461,7 +579,7 @@
                     margin: 15px auto;
                     margin-top: 30px;
                 " disabled>Coming Soon!</button>
-                <p style="margin-top: 34px;">Check back later for updates.</p>
+                <p style="margin-top: 34px;">Join the waitlist below and we'll email you at launch!</p>
             </div>
             
             <div class="device ios">
@@ -476,21 +594,20 @@
             </div>
         </div>
         
-        <!--   
-        HIDE THIS FOR NOW, AND ADD BACK LATER WHEN ANDROID IS CLOSER TO LAUNCH!
-
-        <div style="margin: 40px 0;">
+        <div class="waitlist-section" id="waitlist">
             <h3>Want to be notified when Pet Pad launches on Android?</h3>
             <p>Leave your email and we'll let you know as soon as it's available!</p>
-            <form id="notifyForm" style="max-width: 400px; margin: 0 auto;">
-                <input type="email" placeholder="Enter your email" required 
-                       style="padding: 12px; width: 100%; max-width: 300px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px;">
-                <button type="submit" class="btn" style="width: 100%; max-width: 300px;">
+            <form id="waitlistForm" class="waitlist-form">
+                <input type="text" name="name" class="waitlist-input" placeholder="Your name (optional)" autocomplete="name" maxlength="80">
+                <input type="email" name="email" class="waitlist-input" placeholder="Enter your email" autocomplete="email" maxlength="254" required>
+                <input type="text" name="website" class="waitlist-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+                <button type="submit" class="btn waitlist-btn" id="waitlistBtn">
                     <i class="fas fa-bell"></i> Notify Me
                 </button>
             </form>
+            <p id="waitlistStatus" class="waitlist-status" role="status"></p>
+            <p class="waitlist-privacy">We'll only email you about the Android launch — no spam. See our <a href="/privacy">Privacy Policy</a>.</p>
         </div>
-        -->
 
     </div>
     </div>
@@ -552,6 +669,45 @@
                     themeToggle.textContent = '☀️';
                 }
             });
+
+            const waitlistForm = document.getElementById('waitlistForm');
+            if (waitlistForm) {
+                waitlistForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const statusEl = document.getElementById('waitlistStatus');
+                    const btn = document.getElementById('waitlistBtn');
+                    statusEl.className = 'waitlist-status';
+                    statusEl.textContent = '';
+                    btn.disabled = true;
+                    try {
+                        const doFetch = window.fetchWithAppCheck || fetch;
+                        const response = await doFetch(
+                            'https://us-central1-mypet-b1143.cloudfunctions.net/joinAndroidWaitlist', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                name: waitlistForm.elements.name.value,
+                                email: waitlistForm.elements.email.value,
+                                website: waitlistForm.elements.website.value,
+                            }),
+                        });
+                        const data = await response.json().catch(() => ({}));
+                        if (response.ok && data.success) {
+                            statusEl.classList.add('success');
+                            statusEl.textContent = "You're on the list! We'll email you when Pet Pad launches on Android.";
+                            waitlistForm.reset();
+                        } else {
+                            statusEl.classList.add('error');
+                            statusEl.textContent = data.message || 'Something went wrong. Please try again.';
+                        }
+                    } catch (err) {
+                        statusEl.classList.add('error');
+                        statusEl.textContent = 'Network error — please check your connection and try again.';
+                    } finally {
+                        btn.disabled = false;
+                    }
+                });
+            }
         });
     </script>
     
