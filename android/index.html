@@ -602,7 +602,7 @@
             <form id="waitlistForm" class="waitlist-form">
                 <input type="text" name="name" class="waitlist-input" placeholder="Your name (optional)" autocomplete="name" maxlength="80">
                 <input type="email" name="email" class="waitlist-input" placeholder="Enter your email" autocomplete="email" maxlength="254" required>
-                <input type="text" name="website" class="waitlist-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+                <input type="text" name="pp_hp" class="waitlist-hp" tabindex="-1" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore aria-hidden="true">
                 <button type="submit" class="btn waitlist-btn" id="waitlistBtn">
                     <i class="fas fa-bell"></i> Notify Me
                 </button>
@@ -690,7 +690,7 @@
                             body: JSON.stringify({
                                 name: waitlistForm.elements.name.value,
                                 email: waitlistForm.elements.email.value,
-                                website: waitlistForm.elements.website.value,
+                                pp_hp: waitlistForm.elements.pp_hp.value,
                             }),
                         });
                         const data = await response.json().catch(() => ({}));
